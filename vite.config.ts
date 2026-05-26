@@ -20,7 +20,7 @@ export default defineConfig({
             manifest: {
                 name: 'InfinityCN',
                 short_name: 'InfinityCN',
-                description: 'Offline-first AI-enhanced novel reader',
+                description: 'Offline-first cinematographic novel reader',
                 theme_color: '#e53935',
                 background_color: '#0a0a0f',
                 display: 'standalone',
@@ -74,15 +74,6 @@ export default defineConfig({
         sourcemap: 'hidden',
         chunkSizeWarningLimit: 800,
         rollupOptions: {
-            onLog(level, log, defaultHandler) {
-                // Suppress known eval warning from onnxruntime-web (transitive dep
-                // of @xenova/transformers). The eval is internal to their WASM loader
-                // and cannot be removed without forking the package.
-                if (log.code === 'EVAL' && log.message?.includes('onnxruntime-web')) {
-                    return;
-                }
-                defaultHandler(level, log);
-            },
             output: {
                 manualChunks: id => {
                     // PDF processing — only load when user drops a file
@@ -91,11 +82,6 @@ export default defineConfig({
                     if (id.includes('fflate')) return 'fflate';
                     // OCR — lazy loaded only for scanned PDFs
                     if (id.includes('tesseract.js')) return 'tesseract';
-                    // ML runtime (shared by tesseract + @xenova/transformers) — lazy loaded
-                    if (id.includes('onnxruntime-web') || id.includes('onnxruntime-common'))
-                        return 'onnx';
-                    // Embeddings model — lazy loaded during cinematification
-                    if (id.includes('@xenova/transformers')) return 'transformers';
                     // Animation library — lazy chunk
                     if (id.includes('framer-motion')) return 'motion';
                     // Icons — tree-shaken but grouped

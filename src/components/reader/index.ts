@@ -4,10 +4,10 @@
  * Re-exports all extracted reader sub-components for clean imports.
  */
 
+export { ReaderPage } from './ReaderPage';
 export { CinematicBlockView } from './CinematicBlockView';
 export { OriginalTextView } from './OriginalTextView';
 export { EmotionHeatmap } from './EmotionHeatmap';
-export { default as ChapterNav } from './ChapterNav';
 export { ReaderChapterSidebar } from './ReaderChapterSidebar';
 export { ReaderCharactersPanel } from './ReaderCharactersPanel';
 export { ReaderHeader } from './ReaderHeader';

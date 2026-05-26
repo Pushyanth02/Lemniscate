@@ -109,40 +109,49 @@ The app integrates the following free APIs and algorithms that require **no API 
 
 Primary implementation anchors:
 
-- `/home/runner/work/InfinityCN/InfinityCN/src/lib/processing/pdfWorker.ts`
-- `/home/runner/work/InfinityCN/InfinityCN/src/lib/engine/cinematifier/chapterEngine.ts`
-- `/home/runner/work/InfinityCN/InfinityCN/src/lib/engine/cinematifier/fullSystemPipeline.ts`
-- `/home/runner/work/InfinityCN/InfinityCN/src/lib/runtime/renderer.ts`
-- `/home/runner/work/InfinityCN/InfinityCN/src/components/reader/CinematicRenderer.tsx`
+- [pdfWorker.ts](file:///c:/GitHub/InfinityCN/src/lib/processing/pdfWorker.ts)
+- [chapterEngine.ts](file:///c:/GitHub/InfinityCN/src/lib/engine/cinematifier/chapterEngine.ts)
+- [fullSystemPipeline.ts](file:///c:/GitHub/InfinityCN/src/lib/engine/cinematifier/fullSystemPipeline.ts)
+- [renderer.ts](file:///c:/GitHub/InfinityCN/src/lib/runtime/renderer.ts)
+- [CinematicRenderer.tsx](file:///c:/GitHub/InfinityCN/src/components/reader/CinematicRenderer.tsx)
 
 
 ### Root docs
 
-- `/home/runner/work/InfinityCN/InfinityCN/README.md` — project overview, stack, scripts, and source layout
-- `/home/runner/work/InfinityCN/InfinityCN/docs/user-testing-checklist.md` — manual QA checklist
-- `/home/runner/work/InfinityCN/InfinityCN/docs/wireframes.md` — screen wireframes and interaction flow map
+- [README.md](file:///c:/GitHub/InfinityCN/README.md) — project overview, stack, scripts, and source layout
+- [user-testing-checklist.md](file:///c:/GitHub/InfinityCN/docs/user-testing-checklist.md) — manual QA checklist
+- [wireframes.md](file:///c:/GitHub/InfinityCN/docs/wireframes.md) — screen wireframes and interaction flow map
 
 ### Planning docs (`.planning/`)
 
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/PROJECT.md` — project vision, guardrails, success metrics
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/ROADMAP.md` — milestone and phase tracking
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/STATE.md` — current implementation state and blockers
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/REQUIREMENTS.md` — milestone functional/technical requirements
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/RULES.md` — global engineering and pipeline rules
+- [PROJECT.md](file:///c:/GitHub/InfinityCN/.planning/PROJECT.md) — project vision, guardrails, success metrics
+- [ROADMAP.md](file:///c:/GitHub/InfinityCN/.planning/ROADMAP.md) — milestone and phase tracking
+- [STATE.md](file:///c:/GitHub/InfinityCN/.planning/STATE.md) — current implementation state and blockers
+- [REQUIREMENTS.md](file:///c:/GitHub/InfinityCN/.planning/REQUIREMENTS.md) — milestone functional/technical requirements
+- [RULES.md](file:///c:/GitHub/InfinityCN/.planning/RULES.md) — global engineering and pipeline rules
 
 ### Codebase map docs (`.planning/codebase/`)
 
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/STACK.md` — framework and dependency map
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/STRUCTURE.md` — folder/module structure map
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/ARCHITECTURE.md` — layer and processing-flow map
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/INTEGRATIONS.md` — external/internal integration map
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/CONVENTIONS.md` — code and architecture conventions
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/TESTING.md` — validation/testing strategy map
-- `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/CONCERNS.md` — technical risk/concern map
+- [STACK.md](file:///c:/GitHub/InfinityCN/.planning/codebase/STACK.md) — framework and dependency map
+- [STRUCTURE.md](file:///c:/GitHub/InfinityCN/.planning/codebase/STRUCTURE.md) — folder/module structure map
+- [ARCHITECTURE.md](file:///c:/GitHub/InfinityCN/.planning/codebase/ARCHITECTURE.md) — layer and processing-flow map
+- [INTEGRATIONS.md](file:///c:/GitHub/InfinityCN/.planning/codebase/INTEGRATIONS.md) — external/internal integration map
+- [CONVENTIONS.md](file:///c:/GitHub/InfinityCN/.planning/codebase/CONVENTIONS.md) — code and architecture conventions
+- [TESTING.md](file:///c:/GitHub/InfinityCN/.planning/codebase/TESTING.md) — validation/testing strategy map
+- [CONCERNS.md](file:///c:/GitHub/InfinityCN/.planning/codebase/CONCERNS.md) — technical risk/concern map
+
+### Specification docs (`.planning/specs/`)
+
+- [SRS.md](file:///c:/GitHub/InfinityCN/.planning/specs/SRS.md) — Software Requirements Specification
+- [PRD.md](file:///c:/GitHub/InfinityCN/.planning/specs/PRD.md) — Product Requirements Document
+- [TRD.md](file:///c:/GitHub/InfinityCN/.planning/specs/TRD.md) — Technical Requirements Document
+- [UI_UX_DESIGN.md](file:///c:/GitHub/InfinityCN/.planning/specs/UI_UX_DESIGN.md) — UI/UX Design System Specification
+- [APP_FLOW.md](file:///c:/GitHub/InfinityCN/.planning/specs/APP_FLOW.md) — Application Flow and User Journeys Map
+- [BACKEND_SCHEMA.md](file:///c:/GitHub/InfinityCN/.planning/specs/BACKEND_SCHEMA.md) — Backend and Local Storage Database Schema
 
 ### Instruction docs
 
-- `/home/runner/work/InfinityCN/InfinityCN/.github/copilot-instructions.md` — repository-level Copilot architecture and safety instructions
+- [copilot-instructions.md](file:///c:/GitHub/InfinityCN/.github/copilot-instructions.md) — repository-level Copilot architecture and safety instructions
 
 ## Getting Started
 
@@ -184,24 +193,44 @@ npm run build
 ```
 src/
   components/
-    CinematifierApp.tsx      # Main app: upload → process → read flow
-    CinematicReader.tsx      # Dual-mode reader with ambient audio
-    CinematifierSettings.tsx # AI provider configuration
     ProcessingOverlay.tsx    # Processing status with inspirational quotes
     UploadZone.tsx           # Drag-and-drop file upload component
+    landing/
+      LandingPage.tsx        # Ingestion landing wrapper
+      HeroSection.tsx        # Hero with continue reading card
+      UploadSection.tsx      # File selector component
+      FeatureShowcase.tsx    # Grid of core platform highlights
+      LandingFooter.tsx      # Minimal footer
+    layout/
+      AppShell.tsx           # Application layout frame and theme manager
+      AppRouter.tsx          # Lightweight hash-based custom router
+      PageTransition.tsx     # Framer motion layout transitions
     reader/
-      ChapterNav.tsx         # Chapter navigation sidebar
-      CinematicBlockView.tsx # Cinematic block renderer
-      EmotionHeatmap.tsx     # Emotion intensity heatmap
-      OriginalTextView.tsx   # Original text display
-      ReaderFooter.tsx       # Reader footer with progress
-      ReaderHeader.tsx       # Reader header with mode toggle
-      ReaderSettingsPanel.tsx # Font, spacing, immersion settings
+      ReaderPage.tsx         # Unified coordinator for dual-mode reading
+      CinematicRenderer.tsx  # High-performance cinematic block virtualizer
+      CinematicBlockView.tsx # Custom block display with ambient glow & tension metrics
+      OriginalTextView.tsx   # Clean plain text reading view with drop-caps
+      ReaderHeader.tsx       # Header with audio/scroll toggles and exit controls
+      ReaderFooter.tsx       # Footer with Scrubber progress tracking
+      ReaderChapterSidebar.tsx # Collapsible chapter navigation menu
+      ReaderCharactersPanel.tsx # Insights sidebar (character discovery / analytics)
+      ReaderSettingsPanel.tsx # Visual typography / theme settings overlay
+      EmotionHeatmap.tsx     # Emotion tension timeline overview
+      ChapterNav.tsx         # Keyboard navigations overlay
       index.ts               # Reader barrel export
     ui/
-      ErrorBoundary.tsx      # React error boundary
+      ErrorBoundary.tsx      # Redesigned Velvet Noir error fallback UI
+      Scrubber.tsx           # Custom interactive scrubber progress bar
     __tests__/
-      CinematifierApp.test.tsx  # Component tests
+      CinematifierApp.test.tsx  # Router, Suspense, and ErrorBoundary tests
+  features/
+    settings/
+      components/
+        AppSettings.tsx      # AI providers/models tabbed settings
+        ProviderSection.tsx  # Provider grid wrapper
+        ProviderCard.tsx     # Provider toggle card
+        ApiKeyInput.tsx      # Secure password text toggle input
+        PreferencesSection.tsx # Typography / theme preferences options
   lib/
     ai/
       cache.ts               # AI response caching

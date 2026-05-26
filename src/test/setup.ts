@@ -20,3 +20,48 @@ Object.defineProperty(window, 'matchMedia', {
         dispatchEvent: () => false,
     }),
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).URL.createObjectURL = vi.fn();
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).indexedDB = {
+    open: vi.fn(),
+    deleteDatabase: vi.fn(),
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).Worker = class {
+    postMessage = vi.fn();
+    terminate = vi.fn();
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).IntersectionObserver = class {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+};
+
+// Mock framer-motion to bypass animation delays in the JSDOM test suite
+import React from 'react';
+import { vi } from 'vitest';
+
+vi.mock('framer-motion', async (importOriginal) => {
+    const actual = await importOriginal<any>();
+    return {
+        ...actual,
+        AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+        motion: new Proxy(
+            (props: any) => React.createElement('div', props),
+            {
+                get: (_target, key) => {
+                    if (key === 'custom') return actual.motion?.custom;
+                    return React.forwardRef(({ children, ...props }: any, ref: any) =>
+                        React.createElement(key as string, { ...props, ref }, children)
+                    );
+                },
+            }
+        ) as any,
+    };
+});

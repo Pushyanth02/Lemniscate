@@ -1,9 +1,7 @@
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
-import './cinematifier.css';
-import CinematifierApp from './components/CinematifierApp';
-import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import AppShell from './components/layout/AppShell';
 import { client } from './lib/runtime/appwrite';
 
 // Lazy load non-critical analytics — deferred from critical path
@@ -31,9 +29,7 @@ if (!root) throw new Error('Missing #root element in index.html');
 
 createRoot(root).render(
     <StrictMode>
-        <ErrorBoundary>
-            <CinematifierApp />
-        </ErrorBoundary>
+        <AppShell />
         <Suspense fallback={null}>
             <Analytics />
             <SpeedInsights />

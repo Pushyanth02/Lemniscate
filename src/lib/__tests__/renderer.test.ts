@@ -21,7 +21,7 @@ describe('runtime renderer plan', () => {
                 content: '"Stay close," Aria said.',
                 speaker: 'Aria',
                 intensity: 'emphasis',
-                emotion: 'fear',
+                emotion: 'dark',
                 tensionScore: 62,
                 timing: 'quick',
             },

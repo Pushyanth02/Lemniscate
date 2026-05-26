@@ -43,13 +43,7 @@ export {
 } from './sceneDetection';
 export type { Scene } from './sceneDetection';
 
-// ─── Block Parser ──────────────────────────────────────────
-export { parseCinematifiedText } from './parser';
-
-// ─── AI Engine ─────────────────────────────────────────────
-export { cinematifyText } from './aiEngine';
-
-// ─── Offline Engine ────────────────────────────────────────
+// ─── Offline Heuristic Engine ────────────────────────────────────────
 export { cinematifyOffline } from './offlineEngine';
 
 // ─── Entity Factories ──────────────────────────────────────
@@ -76,7 +70,6 @@ export {
     CinematificationPipeline,
     TextCleaningStage,
     ParagraphReconstructionStage,
-    AICinematificationStage,
     OfflineCinematificationStage,
     ReadabilityAnalysisStage,
     SentimentEnrichmentStage,

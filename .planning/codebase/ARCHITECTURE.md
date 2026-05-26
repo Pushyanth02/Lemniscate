@@ -1,6 +1,6 @@
 # Architecture
 
-**Analysis Date:** 2026-05-03
+**Analysis Date:** 2026-05-22
 
 ## Pattern Overview
 
@@ -15,7 +15,7 @@
 
 **UI Components:**
 - Location: `src/components` and `src/features`
-- Contains: React TSX files (`CinematifierApp.tsx`, `ProcessingOverlay.tsx`).
+- Contains: React TSX files (`LandingPage.tsx`, `ReaderPage.tsx`, `ProcessingOverlay.tsx`).
 - Depends on: Local custom hooks, Zustand stores.
 - Used by: React rendering root.
 
@@ -64,4 +64,4 @@
 
 ---
 
-*Architecture analysis: 2026-05-03*
+*Architecture analysis: 2026-05-22*

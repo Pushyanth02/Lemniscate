@@ -95,6 +95,12 @@ Your job is to ship a cinematic narrative system that works, scales, and stays c
 
 - **NEVER MIX:** UI logic inside AI pipeline ❌ | AI calls inside UI ❌ | Data mutation across layers ❌
 
+### Strict Implementation Guards:
+- **No Legacy Cryptography:** Never use XOR obfuscation for credential storage. All sensitive keys must be encrypted/decrypted via AES-GCM helper functions.
+- **Design Token Purity:** The legacy `--cine-*` namespace is deprecated and removed. All styles must use core theme tokens directly (e.g. `--surface`, `--primary`, `--on-surface`).
+- **No `any` Types:** All APIs and data models must have strict, explicit TypeScript type annotations.
+- **Pure Presentation UI:** UI components must remain pure, declarative, and presentation-only. State, effects, and business logic must reside in Zustand stores or runtime engines.
+
 ---
 
 ## 🎬 VI. RUNTIME ENGINE RULES
@@ -144,6 +150,7 @@ If it doesn't improve narrative quality, system reliability, or performance, it 
 
 ## Documentation Map Reference
 
-- Master repository map: `/home/runner/work/InfinityCN/InfinityCN/README.md`
-- Planning overview: `/home/runner/work/InfinityCN/InfinityCN/.planning/PROJECT.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/ROADMAP.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/STATE.md`
-- Codebase map set: `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/STRUCTURE.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/ARCHITECTURE.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/INTEGRATIONS.md`
+- Master repository map: [README.md](file:///c:/GitHub/InfinityCN/README.md)
+- Planning overview: [PROJECT.md](file:///c:/GitHub/InfinityCN/.planning/PROJECT.md), [ROADMAP.md](file:///c:/GitHub/InfinityCN/.planning/ROADMAP.md), [STATE.md](file:///c:/GitHub/InfinityCN/.planning/STATE.md)
+- Codebase map set: [STRUCTURE.md](file:///c:/GitHub/InfinityCN/.planning/codebase/STRUCTURE.md), [ARCHITECTURE.md](file:///c:/GitHub/InfinityCN/.planning/codebase/ARCHITECTURE.md), [INTEGRATIONS.md](file:///c:/GitHub/InfinityCN/.planning/codebase/INTEGRATIONS.md)
+- Specification set: [SRS.md](file:///c:/GitHub/InfinityCN/.planning/specs/SRS.md), [PRD.md](file:///c:/GitHub/InfinityCN/.planning/specs/PRD.md), [TRD.md](file:///c:/GitHub/InfinityCN/.planning/specs/TRD.md), [UI_UX_DESIGN.md](file:///c:/GitHub/InfinityCN/.planning/specs/UI_UX_DESIGN.md), [APP_FLOW.md](file:///c:/GitHub/InfinityCN/.planning/specs/APP_FLOW.md), [BACKEND_SCHEMA.md](file:///c:/GitHub/InfinityCN/.planning/specs/BACKEND_SCHEMA.md)

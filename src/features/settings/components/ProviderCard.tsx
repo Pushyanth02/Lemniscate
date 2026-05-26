@@ -29,7 +29,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
     >
         <div
             className="cine-provider-icon cine-provider-icon-dynamic"
-            style={{ '--cine-provider-icon-color': color } as React.CSSProperties}
+            style={{ '--provider-icon-color': color } as React.CSSProperties}
         >
             {icon}
         </div>

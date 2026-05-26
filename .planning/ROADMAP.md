@@ -35,14 +35,28 @@
     - Added persistent in-app feedback capture for suggestion tracking.
     - Added release-readiness gates for mobile + filtered discovery workflows.
 
+
+## Milestone 4: Engine Modernization & Feature Decoupling (v2.0.0)
+
+**Goal:** Modernize core cinematification engine, decouple features, and build NLP offline heuristics.
+
+- [x] **Phase 11: Feature Removal & JSON Pipeline**
+    - Removed Ambient Sound and Auto Scroll features.
+    - Refactored core pipeline to serialize/parse structured JSON blocks.
+- [x] **Phase 12: Offline APIs, Single Chapter Support, & Animation Enhancements**
+    - Implemented robust `navigator.onLine` checks for offline API support in `freeApis.ts`, `quotableApi.ts`, and `readerApis.ts`.
+    - Fixed single-chapter misdetection caused by duplicate/recap headings.
+    - Smoothed cinematic color transitions with extended duration and opacity pulsing in `mood-themes.css`.
+
 ---
 
-_Roadmap updated: 2026-04-13_
+_Roadmap updated: 2026-05-26_
 
 ---
 
 ## Documentation Map Reference
 
-- Master repository map: `/home/runner/work/InfinityCN/InfinityCN/README.md`
-- Planning overview: `/home/runner/work/InfinityCN/InfinityCN/.planning/PROJECT.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/ROADMAP.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/STATE.md`
-- Codebase map set: `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/STRUCTURE.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/ARCHITECTURE.md`, `/home/runner/work/InfinityCN/InfinityCN/.planning/codebase/INTEGRATIONS.md`
+- Master repository map: [README.md](file:///c:/GitHub/InfinityCN/README.md)
+- Planning overview: [PROJECT.md](file:///c:/GitHub/InfinityCN/.planning/PROJECT.md), [ROADMAP.md](file:///c:/GitHub/InfinityCN/.planning/ROADMAP.md), [STATE.md](file:///c:/GitHub/InfinityCN/.planning/STATE.md)
+- Codebase map set: [STRUCTURE.md](file:///c:/GitHub/InfinityCN/.planning/codebase/STRUCTURE.md), [ARCHITECTURE.md](file:///c:/GitHub/InfinityCN/.planning/codebase/ARCHITECTURE.md), [INTEGRATIONS.md](file:///c:/GitHub/InfinityCN/.planning/codebase/INTEGRATIONS.md)
+- Specification set: [SRS.md](file:///c:/GitHub/InfinityCN/.planning/specs/SRS.md), [PRD.md](file:///c:/GitHub/InfinityCN/.planning/specs/PRD.md), [TRD.md](file:///c:/GitHub/InfinityCN/.planning/specs/TRD.md), [UI_UX_DESIGN.md](file:///c:/GitHub/InfinityCN/.planning/specs/UI_UX_DESIGN.md), [APP_FLOW.md](file:///c:/GitHub/InfinityCN/.planning/specs/APP_FLOW.md), [BACKEND_SCHEMA.md](file:///c:/GitHub/InfinityCN/.planning/specs/BACKEND_SCHEMA.md)

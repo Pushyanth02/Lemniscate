@@ -29,19 +29,16 @@ vi.mock('../../lib/cinematifierDb', () => ({
 
 describe('Lazy component loading', () => {
     it(
-        'CinematicReader lazy component module can be imported',
+        'ReaderPage lazy component module can be imported',
         async () => {
         // Verify the module resolves (does not throw at import time)
-        const module = await import('../../components/CinematicReader');
+        const module = await import('../../components/reader/ReaderPage');
         expect(module).toBeDefined();
         },
         15_000,
     );
 
-    it('CinematifierSettings lazy component module can be imported', async () => {
-        const module = await import('../../features/settings/components/AppSettings');
-        expect(module).toBeDefined();
-    });
+
 });
 
 // ─── ERROR BOUNDARY ────────────────────────────────────────────────

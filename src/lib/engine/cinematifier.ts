@@ -41,11 +41,7 @@ export {
     detectPOVShift,
     detectNarrativeMode,
     deriveSceneTitle,
-    // Block Parser
-    parseCinematifiedText,
-    // AI Engine
-    cinematifyText,
-    // Offline Engine
+    // Heuristic Offline Engine
     cinematifyOffline,
     // Entity Factories
     createBookFromSegments,
@@ -56,7 +52,6 @@ export {
     CinematificationPipeline,
     TextCleaningStage,
     ParagraphReconstructionStage,
-    AICinematificationStage,
     OfflineCinematificationStage,
     TextStatisticsStage,
     NarrativeAnalysisStage,

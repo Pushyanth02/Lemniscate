@@ -13,7 +13,7 @@
 .cine-blocks {
     display: flex;
     flex-direction: column;
-    gap: var(--cine-space-lg);
+    gap: var(--spacing-6);
 }
 
 .cine-block {
@@ -21,54 +21,6 @@
     transition: box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
 }
 
-/* ── Emotion Glows ── */
-.cine-block[data-emotion="anger"],
-.cine-block[data-emotion="fury"],
-.cine-block[data-emotion="rage"],
-.cine-block[data-emotion="tension"] {
-    box-shadow: -20px 0 40px -20px rgba(239, 68, 68, 0.25);
-}
-.cine-block--dialogue[data-emotion="anger"],
-.cine-block--dialogue[data-emotion="fury"],
-.cine-block--dialogue[data-emotion="rage"],
-.cine-block--dialogue[data-emotion="tension"] {
-    border-left-color: #ef4444;
-}
-
-.cine-block[data-emotion="sadness"],
-.cine-block[data-emotion="melancholy"],
-.cine-block[data-emotion="sorrow"] {
-    box-shadow: -20px 0 40px -20px rgba(59, 130, 246, 0.25);
-}
-.cine-block--dialogue[data-emotion="sadness"],
-.cine-block--dialogue[data-emotion="melancholy"],
-.cine-block--dialogue[data-emotion="sorrow"] {
-    border-left-color: #3b82f6;
-}
-
-.cine-block[data-emotion="joy"],
-.cine-block[data-emotion="happiness"],
-.cine-block[data-emotion="triumph"],
-.cine-block[data-emotion="revelation"] {
-    box-shadow: -20px 0 40px -20px rgba(234, 179, 8, 0.25);
-}
-.cine-block--dialogue[data-emotion="joy"],
-.cine-block--dialogue[data-emotion="happiness"],
-.cine-block--dialogue[data-emotion="triumph"],
-.cine-block--dialogue[data-emotion="revelation"] {
-    border-left-color: #eab308;
-}
-
-.cine-block[data-emotion="fear"],
-.cine-block[data-emotion="terror"],
-.cine-block[data-emotion="panic"] {
-    box-shadow: -20px 0 40px -20px rgba(168, 85, 247, 0.25);
-}
-.cine-block--dialogue[data-emotion="fear"],
-.cine-block--dialogue[data-emotion="terror"],
-.cine-block--dialogue[data-emotion="panic"] {
-    border-left-color: #a855f7;
-}
 
 .cine-paragraph {
     position: relative;
@@ -83,76 +35,81 @@
 }
 
 .cine-paragraph--scene {
-    margin-block: var(--cine-space-2xl);
+    margin-block: var(--spacing-20);
 }
 
 .cine-paragraph--tension {
-    margin-block: var(--cine-space-xl);
+    margin-block: var(--spacing-12);
 }
 
 /* Action/Narration */
 .cine-block--action {
-    padding: var(--cine-space-md) 0;
+    padding: var(--spacing-4) 0;
 }
 
 .cine-action {
     margin: 0;
     color: var(--on-surface, #e8e6e1);
     font-family: var(--font-body);
-    font-size: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
-    line-height: 1.65;
+    font-size: var(--reader-font-size, 18px);
+    line-height: 1.8;
+    letter-spacing: 0.3px;
+    word-spacing: 0.6px;
     text-align: justify;
 }
 
 .cine-block--action.cine-block--emphasis .cine-action {
-    color: var(--cine-text-primary);
+    color: var(--on-surface);
     font-weight: 500;
 }
 
 /* Camera Direction */
 .cine-camera {
-    font-family: var(--cine-font-mono);
+    font-family: var(--font-label);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--cine-action);
-    margin-bottom: var(--cine-space-sm);
+    color: var(--primary);
+    margin-bottom: var(--spacing-2);
 }
 
 /* Dialogue */
 .cine-block--dialogue {
-    padding: var(--cine-space-md) var(--cine-space-lg);
-    margin: calc(var(--cine-space-md) + 0.1rem) 0;
-    background: linear-gradient(135deg, var(--cine-bg-tertiary) 0%, transparent 100%);
-    border-left: 3px solid var(--cine-dialogue);
+    display: block;
+    padding: var(--spacing-4) var(--spacing-6);
+    margin: 1.2rem 0;
+    background: linear-gradient(135deg, var(--surface-container) 0%, transparent 100%);
+    border-left: 3px solid var(--secondary);
     border-radius: 0 8px 8px 0;
 }
 
 .cine-speaker {
-    font-family: var(--cine-font-display);
+    font-family: var(--font-body);
     font-weight: 700;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--cine-dialogue);
-    margin-bottom: var(--cine-space-sm);
+    color: var(--secondary);
+    margin-bottom: var(--spacing-2);
 }
 
 .cine-dialogue {
     font-family: var(--font-body);
-    font-size: clamp(1.1rem, 1.02rem + 0.35vw, 1.25rem);
-    line-height: 1.75;
-    color: var(--on-surface, var(--cine-text-primary));
+    font-size: calc(var(--reader-font-size, 18px) * 1.05);
+    line-height: 1.8;
+    letter-spacing: 0.3px;
+    word-spacing: 0.6px;
+    color: var(--on-surface);
 }
 
 .cine-quote {
-    color: var(--cine-text-muted);
+    color: var(--outline);
     font-size: 1.25em;
 }
 
 .cine-block--dialogue.cine-block--whisper .cine-dialogue {
     font-style: italic;
-    color: var(--cine-text-secondary);
+    color: var(--on-surface-variant);
     font-size: 0.95em;
 }
 
@@ -164,15 +121,15 @@
 
 /* Inner Thought */
 .cine-block--inner_thought {
-    padding: var(--cine-space-md);
-    margin: var(--cine-space-md) var(--cine-space-xl);
-    border: 1px solid var(--cine-thought);
+    padding: var(--spacing-4);
+    margin: var(--spacing-4) var(--spacing-12);
+    border: 1px solid var(--tertiary-container);
     border-radius: 8px;
     background: rgba(167, 139, 250, 0.05);
 }
 
 .cine-thought {
-    color: var(--cine-thought);
+    color: var(--tertiary-container);
     font-style: italic;
 }
 
@@ -180,31 +137,31 @@
 .cine-block--sfx {
     display: flex;
     justify-content: center;
-    padding: var(--cine-space-lg) 0;
+    padding: var(--spacing-6) 0;
 }
 
 .cine-sfx {
     display: inline-flex;
     align-items: center;
-    gap: var(--cine-space-sm);
-    padding: var(--cine-space-sm) var(--cine-space-lg);
-    background: linear-gradient(135deg, var(--cine-sfx) 0%, #d4b85a 100%);
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-6);
+    background: linear-gradient(135deg, var(--secondary) 0%, #d4b85a 100%);
     border-radius: 4px;
     animation: sfxPulse 0.5s ease-out;
 }
 
 .cine-sfx-icon {
-    color: var(--cine-bg-primary);
+    color: var(--surface);
     opacity: 0.8;
 }
 
 .cine-sfx-text {
-    font-family: var(--cine-font-display);
+    font-family: var(--font-body);
     font-weight: 700;
     font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--cine-bg-primary);
+    color: var(--surface);
 }
 
 .cine-block--sfx.cine-block--explosive .cine-sfx {
@@ -248,30 +205,30 @@
 .cine-block--beat {
     display: flex;
     justify-content: center;
-    padding: var(--cine-space-xl) 0;
+    padding: var(--spacing-12) 0;
 }
 
 .cine-beat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--cine-space-xs);
+    gap: var(--spacing-1);
 }
 
 .cine-beat-dots {
     font-size: 1.5rem;
     letter-spacing: 0.5em;
-    color: var(--cine-beat);
+    color: var(--tertiary-fixed);
     animation: beatPulse 2s ease-in-out infinite;
 }
 
 .cine-beat-label {
-    font-family: var(--cine-font-body);
+    font-family: var(--font-body);
     font-size: 1rem;
     font-style: italic;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: var(--cine-beat);
+    color: var(--tertiary-fixed);
 }
 
 @keyframes beatPulse {
@@ -287,13 +244,13 @@
 
 /* Transitions */
 .cine-block--transition {
-    padding: var(--cine-space-2xl) 0;
+    padding: var(--spacing-20) 0;
 }
 
 .cine-transition {
     display: flex;
     align-items: center;
-    gap: var(--cine-space-lg);
+    gap: var(--spacing-6);
 }
 
 .cine-transition-line {
@@ -302,33 +259,33 @@
     background: linear-gradient(
         90deg,
         transparent 0%,
-        var(--cine-transition) 50%,
+        var(--tertiary) 50%,
         transparent 100%
     );
 }
 
 .cine-transition-text {
-    font-family: var(--cine-font-display);
+    font-family: var(--font-body);
     font-size: 0.875rem;
     font-variant: small-caps;
     letter-spacing: 0.15em;
-    color: var(--cine-transition);
+    color: var(--tertiary);
     white-space: nowrap;
 }
 
 /* Title Cards */
 .cine-block--title_card {
-    padding: var(--cine-space-2xl);
+    padding: var(--spacing-20);
     text-align: center;
 }
 
 .cine-title-card {
-    font-family: var(--cine-font-display);
+    font-family: var(--font-body);
     font-size: 2.5rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--cine-text-primary);
+    color: var(--on-surface);
     text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
     margin: 0;
 }

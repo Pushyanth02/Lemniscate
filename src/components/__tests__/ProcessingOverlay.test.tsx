@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { ProcessingOverlay } from '../ProcessingOverlay';
+import { ProcessingOverlay } from '../landing/ProcessingOverlay';
 import type { ProcessingProgress } from '../../types/cinematifier';
 
 function makeProgress(overrides: Partial<ProcessingProgress>): ProcessingProgress {

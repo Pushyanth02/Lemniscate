@@ -1,22 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { AIConfig } from '../ai';
 import { runFullSystemPipeline, clearFullSystemPipelineCache } from '../cinematifier';
-
-function makeConfig(provider: AIConfig['provider']): AIConfig {
-    return {
-        provider,
-        model: '',
-        universalApiKey: '',
-        geminiKey: '',
-        useSearchGrounding: false,
-        openAiKey: '',
-        anthropicKey: '',
-        groqKey: '',
-        deepseekKey: '',
-        ollamaUrl: 'http://localhost:11434',
-        ollamaModel: 'llama3',
-    };
-}
 
 function canonicalWithoutWhitespace(text: string): string {
     return text.replace(/\s+/g, '').trim();
@@ -43,7 +26,7 @@ describe('fullSystemPipeline', () => {
         const text =
             'At dawn the station was silent. Wind scraped the signs.\n\n"Move now," Mara whispered.\n\nA siren broke the stillness.';
 
-        const result = await runFullSystemPipeline(text, makeConfig('none'));
+        const result = await runFullSystemPipeline(text);
 
         expect(result.cacheHit).toBe(false);
         expect(result.rebuiltText.length).toBeGreaterThan(0);

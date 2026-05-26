@@ -754,8 +754,10 @@ export function downloadExport(result: ExportResult): void {
 
     // Cleanup
     setTimeout(() => {
-        document.body.removeChild(anchor);
-        URL.revokeObjectURL(url);
+        if (anchor && document.body && typeof document.body.contains === 'function' && document.body.contains(anchor)) {
+            document.body.removeChild(anchor);
+        }
+        if (url) URL.revokeObjectURL(url);
     }, 100);
 }
 

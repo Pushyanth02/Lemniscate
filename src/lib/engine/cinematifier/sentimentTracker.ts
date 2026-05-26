@@ -399,11 +399,10 @@ export interface SentimentFlowResult {
  * Map a sentiment score to an EmotionCategory.
  */
 export function scoreToEmotion(score: number): EmotionCategory {
-    if (score >= 0.3) return 'joy';
-    if (score >= 0.1) return 'surprise';
-    if (score <= -0.4) return 'fear';
-    if (score <= -0.2) return 'sadness';
-    if (score <= -0.1) return 'anger';
+    if (score >= 0.3) return 'romantic';
+    if (score >= 0.1) return 'peaceful';
+    if (score <= -0.4) return 'dark';
+    if (score <= -0.1) return 'suspense';
     return 'neutral';
 }
 

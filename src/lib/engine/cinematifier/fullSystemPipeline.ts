@@ -1,4 +1,3 @@
-import type { AIConfig } from '../../ai';
 import type { CinematicBlock, CinematificationResult } from '../../../types/cinematifier';
 import type { Scene } from './sceneDetection';
 import { detectOriginalModeScenes } from './sceneDetection';
@@ -131,7 +130,6 @@ function ensureSceneConsistency(originalModeText: string, scenes: Scene[]): Scen
  */
 export async function runFullSystemPipeline(
     chapterText: string,
-    config: AIConfig,
     options: FullSystemPipelineOptions = {},
 ): Promise<FullSystemPipelineResult> {
     const normalizedInput = chapterText.replace(/\r\n|\r/g, '\n').trim();
@@ -167,7 +165,7 @@ export async function runFullSystemPipeline(
     const engineProgressStart = 0.3;
     const engineProgressSpan = 0.7;
 
-    const cinematizedResult = await runChapterEngine(originalModeText, config, {
+    const cinematizedResult = await runChapterEngine(originalModeText, {
         preprocessedInput: true,
         onProgress: (percent, message) => {
             options.onProgress?.(engineProgressStart + percent * engineProgressSpan, message);

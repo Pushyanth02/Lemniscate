@@ -22,7 +22,6 @@ interface ReaderSettingsPanelProps {
     toggleDyslexiaFont: () => void;
     darkMode: boolean;
     toggleDarkMode: () => void;
-    aiProvider: string;
     bookmarkCount: number;
 }
 
@@ -37,7 +36,6 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
     toggleDyslexiaFont,
     darkMode,
     toggleDarkMode,
-    aiProvider,
     bookmarkCount,
 }) => {
     const immersionToValue: Record<ImmersionLevel, number> = {
@@ -68,7 +66,7 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
                     <span className="cine-setting-label">Font Size</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
-                            className="cine-btn--icon"
+                            className="cine-settings-adjust-btn"
                             onClick={() => setFontSize(Math.max(12, fontSize - 1))}
                             aria-label="Decrease font size"
                         >
@@ -76,7 +74,7 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
                         </button>
                         <span className="cine-setting-value">{fontSize}px</span>
                         <button
-                            className="cine-btn--icon"
+                            className="cine-settings-adjust-btn"
                             onClick={() => setFontSize(Math.min(32, fontSize + 1))}
                             aria-label="Increase font size"
                         >
@@ -89,7 +87,7 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
                     <span className="cine-setting-label">Line Spacing</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
-                            className="cine-btn--icon"
+                            className="cine-settings-adjust-btn"
                             onClick={() =>
                                 setLineSpacing(Math.max(1, +(lineSpacing - 0.1).toFixed(1)))
                             }
@@ -99,7 +97,7 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
                         </button>
                         <span className="cine-setting-value">{lineSpacing.toFixed(1)}</span>
                         <button
-                            className="cine-btn--icon"
+                            className="cine-settings-adjust-btn"
                             onClick={() =>
                                 setLineSpacing(Math.min(3, +(lineSpacing + 0.1).toFixed(1)))
                             }
@@ -165,9 +163,9 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
                 <h4 className="cine-settings-section-title">Info</h4>
 
                 <div className="cine-setting-row">
-                    <span className="cine-setting-label">AI Provider</span>
+                    <span className="cine-setting-label">Engine Mode</span>
                     <span className="cine-ai-provider-label">
-                        {aiProvider === 'none' ? 'Offline' : aiProvider}
+                        Offline Heuristics
                     </span>
                 </div>
 

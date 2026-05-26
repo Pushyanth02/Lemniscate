@@ -96,6 +96,9 @@ function timeoutSignal(timeoutMs: number): AbortSignal {
 }
 
 async function fetchJson<T>(url: string, timeoutMs: number): Promise<T | null> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return null;
+    }
     try {
         const response = await fetch(url, {
             method: 'GET',
@@ -231,6 +234,9 @@ export async function lookupReaderWordInsight(
     rawWord: string,
     options?: { timeoutMs?: number },
 ): Promise<ReaderWordInsight | null> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return null;
+    }
     const word = normalizeWord(rawWord);
     if (word.length < 2) return null;
 
@@ -313,6 +319,9 @@ export async function searchReaderWordCompletions(
     rawQuery: string,
     options?: { timeoutMs?: number },
 ): Promise<string[]> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return [];
+    }
     const query = normalizeWord(rawQuery);
     if (query.length < 2) return [];
 

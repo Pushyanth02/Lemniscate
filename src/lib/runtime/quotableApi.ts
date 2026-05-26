@@ -98,6 +98,9 @@ function timeoutSignal(timeoutMs: number): AbortSignal {
 }
 
 async function fetchJson<T>(url: string, timeoutMs: number): Promise<T | null> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return null;
+    }
     try {
         const response = await fetch(url, {
             method: 'GET',
@@ -187,6 +190,9 @@ export async function getProcessingQuote(
     seed?: string,
     options: ProcessingQuoteOptions = {},
 ): Promise<Quote> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return getOfflineQuote(seed);
+    }
     const allowNetwork = options.allowNetwork ?? !IS_TEST_MODE;
     const timeoutMs = Math.max(1200, options.timeoutMs ?? NETWORK_QUOTE_TIMEOUT_MS);
 

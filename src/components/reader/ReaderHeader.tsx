@@ -11,12 +11,8 @@ import {
     Film,
     BookOpen,
     Settings,
-    Volume2,
-    List,
     Bookmark,
     BookmarkCheck,
-    Play,
-    Square,
     Download,
     ChevronLeft,
     ChevronRight,
@@ -33,21 +29,13 @@ interface ReaderHeaderProps {
     isBookmarked: boolean;
     currentChapterIndex: number;
     toggleBookmark: (chapterIndex: number) => void;
-    isAmbientSoundEnabled: boolean;
-    onToggleAmbientSound: () => void;
-    isAutoScrolling: boolean;
-    onToggleAutoScroll: () => void;
-    isChapterSidebarOpen: boolean;
-    onToggleChapterSidebar: () => void;
-    isInsightsSidebarOpen: boolean;
-    onToggleInsightsSidebar: () => void;
+    onPreviousChapter: () => void;
+    onNextChapter: () => void;
     onToggleSettings: () => void;
-    onShowChapterNav: () => void;
     onClose: () => void;
 }
 
 interface ReaderHeaderWithRefProps extends ReaderHeaderProps {
-    chapterNavTriggerRef?: React.RefObject<HTMLButtonElement | null>;
     isHidden?: boolean;
 }
 
@@ -58,18 +46,10 @@ export const ReaderHeader: React.FC<ReaderHeaderWithRefProps> = ({
     isBookmarked,
     currentChapterIndex,
     toggleBookmark,
-    isAmbientSoundEnabled,
-    onToggleAmbientSound,
-    isAutoScrolling,
-    onToggleAutoScroll,
-    isChapterSidebarOpen,
-    onToggleChapterSidebar,
-    isInsightsSidebarOpen,
-    onToggleInsightsSidebar,
+    onPreviousChapter,
+    onNextChapter,
     onToggleSettings,
-    onShowChapterNav,
     onClose,
-    chapterNavTriggerRef,
     isHidden = false,
 }) => {
     const handleDownload = () => {
@@ -88,15 +68,6 @@ export const ReaderHeader: React.FC<ReaderHeaderWithRefProps> = ({
     return (
         <header className={`cine-header ${isHidden ? 'cine-header--hidden' : ''}`}>
             <div className="cine-header-left">
-                <button
-                    className="cine-btn--icon cine-header-action"
-                    onClick={onShowChapterNav}
-                    title="Chapter list"
-                    aria-label="Chapter list"
-                    ref={chapterNavTriggerRef}
-                >
-                    <List size={20} strokeWidth={2} />
-                </button>
                 <div className="cine-header-book-info">
                     <h1 className="cine-header-book-title">{book.title}</h1>
                     <span className="cine-header-chapter">Chapter {book.chapters[currentChapterIndex]?.number}</span>
@@ -125,57 +96,27 @@ export const ReaderHeader: React.FC<ReaderHeaderWithRefProps> = ({
             </div>
 
             <div className="cine-header-right">
-                <button
-                    className={`cine-btn--icon cine-header-action cine-sidebar-toggle cine-sidebar-toggle--chapter ${isChapterSidebarOpen ? 'cine-btn--active' : ''}`}
-                    onClick={onToggleChapterSidebar}
-                    title={isChapterSidebarOpen ? 'Hide chapter sidebar' : 'Show chapter sidebar'}
-                    aria-label={
-                        isChapterSidebarOpen ? 'Hide chapter sidebar' : 'Show chapter sidebar'
-                    }
-                    aria-pressed={isChapterSidebarOpen}
-                >
-                    {isChapterSidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-                </button>
-                <button
-                    className={`cine-btn--icon cine-header-action cine-sidebar-toggle cine-sidebar-toggle--insights ${isInsightsSidebarOpen ? 'cine-btn--active' : ''}`}
-                    onClick={onToggleInsightsSidebar}
-                    title={isInsightsSidebarOpen ? 'Hide insights sidebar' : 'Show insights sidebar'}
-                    aria-label={
-                        isInsightsSidebarOpen ? 'Hide insights sidebar' : 'Show insights sidebar'
-                    }
-                    aria-pressed={isInsightsSidebarOpen}
-                >
-                    {isInsightsSidebarOpen ? (
-                        <ChevronRight size={18} />
-                    ) : (
+                <div className="cine-header-nav-group">
+                    <button
+                        className="cine-btn--icon cine-header-action"
+                        onClick={onPreviousChapter}
+                        disabled={currentChapterIndex === 0}
+                        title="Previous Chapter"
+                        aria-label="Previous Chapter"
+                    >
                         <ChevronLeft size={18} />
-                    )}
-                </button>
-                <button
-                    className={`cine-btn--icon cine-header-action ${isAmbientSoundEnabled ? 'cine-btn--active' : ''}`}
-                    onClick={onToggleAmbientSound}
-                    title={isAmbientSoundEnabled ? 'Disable Ambient Sound' : 'Enable Ambient Sound'}
-                    aria-label={
-                        isAmbientSoundEnabled ? 'Disable Ambient Sound' : 'Enable Ambient Sound'
-                    }
-                >
-                    <Volume2
-                        size={18}
-                        color={isAmbientSoundEnabled ? 'var(--primary)' : undefined}
-                    />
-                </button>
-                <button
-                    className={`cine-btn--icon cine-header-action ${isAutoScrolling ? 'cine-btn--active' : ''}`}
-                    onClick={onToggleAutoScroll}
-                    title={isAutoScrolling ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}
-                    aria-label={isAutoScrolling ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}
-                >
-                    {isAutoScrolling ? (
-                        <Square size={18} color="var(--cine-red)" />
-                    ) : (
-                        <Play size={18} />
-                    )}
-                </button>
+                    </button>
+                    <button
+                        className="cine-btn--icon cine-header-action"
+                        onClick={onNextChapter}
+                        disabled={currentChapterIndex === book.chapters.length - 1}
+                        title="Next Chapter"
+                        aria-label="Next Chapter"
+                    >
+                        <ChevronRight size={18} />
+                    </button>
+                </div>
+                <div className="cine-header-separator" />
                 <button
                     className={`cine-btn--icon cine-header-action ${isBookmarked ? 'cine-btn--bookmarked' : ''}`}
                     onClick={() => toggleBookmark(currentChapterIndex)}

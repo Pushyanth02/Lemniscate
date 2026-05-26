@@ -156,14 +156,7 @@ describe('CinematificationPipeline', () => {
         ]);
     });
 
-    it('createAIPipeline has 3 stages', () => {
-        const pipeline = CinematificationPipeline.createAIPipeline();
-        expect(pipeline.getStageNames()).toEqual([
-            'Text Cleaning',
-            'Paragraph Reconstruction',
-            'AI Cinematification',
-        ]);
-    });
+
 
     it('enriched offline pipeline ends with Renderer stage', () => {
         const pipeline = CinematificationPipeline.createEnrichedOfflinePipeline();

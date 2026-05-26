@@ -130,6 +130,19 @@ describe('readerApis', () => {
         expect(results).toContain('resonate');
     });
 
+    it('returns null instantly when offline', async () => {
+        vi.stubGlobal('navigator', { onLine: false });
+        const fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);
+
+        const result = await lookupReaderWordInsight('noir');
+        const completions = await searchReaderWordCompletions('reso');
+
+        expect(result).toBeNull();
+        expect(completions).toEqual([]);
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
     it('returns null for too-short queries', async () => {
         const result = await lookupReaderWordInsight('a');
         expect(result).toBeNull();

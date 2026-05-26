@@ -208,7 +208,7 @@ describe('readerBackend analytics', () => {
         const progress = makeProgress();
 
         book.chapters[1].cinematifiedBlocks = [
-            makeBlock({ id: 'b1', type: 'dialogue', emotion: 'fear', timing: 'rapid', tensionScore: 80 }),
+            makeBlock({ id: 'b1', type: 'dialogue', emotion: 'dark', timing: 'rapid', tensionScore: 80 }),
             makeBlock({
                 id: 'b2',
                 type: 'action',
@@ -219,15 +219,15 @@ describe('readerBackend analytics', () => {
             makeBlock({
                 id: 'b3',
                 type: 'sfx',
-                emotion: 'fear',
+                emotion: 'dark',
                 tensionScore: 60,
                 sfx: { sound: 'BOOM', intensity: 'loud' },
             }),
-            makeBlock({ id: 'b4', type: 'inner_thought', emotion: 'fear', timing: 'rapid', tensionScore: 50 }),
+            makeBlock({ id: 'b4', type: 'inner_thought', emotion: 'dark', timing: 'rapid', tensionScore: 50 }),
             makeBlock({
                 id: 'b5',
                 type: 'transition',
-                emotion: 'fear',
+                emotion: 'dark',
                 timing: 'rapid',
                 tensionScore: 70,
                 transition: { type: 'FADE OUT' },
@@ -254,7 +254,7 @@ describe('readerBackend analytics', () => {
         expect(summary?.cinematicCueCount).toBe(5);
         expect(summary?.cinematicAverageTension).toBe(56);
         expect(summary?.cinematicTensionSwing).toBe(60);
-        expect(summary?.cinematicDominantEmotion).toBe('fear');
+        expect(summary?.cinematicDominantEmotion).toBe('dark');
         expect(summary?.cinematicEmotionRange).toBe(2);
         expect(summary?.cinematicTransitionCount).toBe(2);
         expect(summary?.cinematicSfxCount).toBe(1);

@@ -22,7 +22,6 @@
  *   const result = await pipeline.execute(rawText);
  */
 
-import type { AIConfig } from '../../ai';
 import type {
     CinematicBlock,
     CinematificationResult,
@@ -32,7 +31,6 @@ import type {
 import { buildRenderPlan } from '../../runtime/renderer';
 import { cleanExtractedText, reconstructParagraphs } from './textProcessing';
 import { cinematifyOffline } from './offlineEngine';
-import { cinematifyText } from './aiEngine';
 import { analyzeReadability, type ReadabilityMetrics } from './readability';
 import { analyzeSentimentFlow, type SentimentFlowResult } from './sentimentTracker';
 import { analyzePacing, type PacingMetrics } from './pacingAnalyzer';
@@ -63,8 +61,6 @@ export interface PipelineContext {
     };
     /** Pipeline start time for timing measurement */
     startTime: number;
-    /** Optional AI configuration (required for AI stages) */
-    aiConfig?: AIConfig;
     /** Optional progress callback */
     onProgress?: (percent: number, message: string) => void;
     /** Optional chunk callback for streaming updates */
@@ -134,31 +130,7 @@ export class ParagraphReconstructionStage implements PipelineStage {
     }
 }
 
-/** Stage 3a: AI-powered cinematification (streaming + context-aware) */
-export class AICinematificationStage implements PipelineStage {
-    readonly name = 'AI Cinematification';
 
-    async execute(context: PipelineContext): Promise<void> {
-        checkCancelled(context);
-        if (!context.aiConfig) {
-            throw new Error('AICinematificationStage requires aiConfig in the pipeline context');
-        }
-
-        const result = await cinematifyText(
-            context.text,
-            context.aiConfig,
-            context.onProgress,
-            context.onChunk,
-            context.signal,
-        );
-
-        context.blocks = result.blocks;
-        context.rawText = result.rawText ?? '';
-        context.metadata.sfxCount = result.metadata.sfxCount;
-        context.metadata.transitionCount = result.metadata.transitionCount;
-        context.metadata.beatCount = result.metadata.beatCount;
-    }
-}
 
 /** Stage 3b: Offline heuristic-based cinematification (no AI needed) */
 export class OfflineCinematificationStage implements PipelineStage {
@@ -323,7 +295,6 @@ export class CinematificationPipeline {
     async execute(
         text: string,
         options: {
-            aiConfig?: AIConfig;
             onProgress?: (percent: number, message: string) => void;
             onChunk?: (blocks: CinematicBlock[], isDone: boolean) => void;
             signal?: AbortSignal;
@@ -340,7 +311,6 @@ export class CinematificationPipeline {
                 originalWordCount: text.split(/\s+/).filter(Boolean).length,
             },
             startTime: performance.now(),
-            aiConfig: options.aiConfig,
             onProgress: options.onProgress,
             onChunk: options.onChunk,
             signal: options.signal,
@@ -398,18 +368,6 @@ export class CinematificationPipeline {
     // ─── Factory Methods ───────────────────────────────────
 
     /**
-     * Create a pipeline for AI-powered cinematification.
-     *
-     * Stages: TextCleaning → ParagraphReconstruction → AICinematification
-     */
-    static createAIPipeline(): CinematificationPipeline {
-        return new CinematificationPipeline()
-            .addStage(new TextCleaningStage())
-            .addStage(new ParagraphReconstructionStage())
-            .addStage(new AICinematificationStage());
-    }
-
-    /**
      * Create a pipeline for offline/fallback cinematification.
      *
      * Stages: TextCleaning → ParagraphReconstruction → OfflineCinematification
@@ -436,28 +394,6 @@ export class CinematificationPipeline {
             .addStage(new SceneSegmentationStage())
             .addStage(new NarrativeAnalysisStage())
             .addStage(new OfflineCinematificationStage())
-            .addStage(new ReadabilityAnalysisStage())
-            .addStage(new TextStatisticsStage())
-            .addStage(new SentimentEnrichmentStage())
-            .addStage(new PacingAnalysisStage())
-            .addStage(new RendererStage());
-    }
-
-    /**
-     * Create an enriched AI pipeline with analytics stages.
-     *
-     * Stages: TextCleaning → ParagraphReconstruction → SceneSegmentation
-     *         → NarrativeAnalysis → AICinematification
-     *         → ReadabilityAnalysis → TextStatistics
-     *         → SentimentEnrichment → PacingAnalysis → Renderer
-     */
-    static createEnrichedAIPipeline(): CinematificationPipeline {
-        return new CinematificationPipeline()
-            .addStage(new TextCleaningStage())
-            .addStage(new ParagraphReconstructionStage())
-            .addStage(new SceneSegmentationStage())
-            .addStage(new NarrativeAnalysisStage())
-            .addStage(new AICinematificationStage())
             .addStage(new ReadabilityAnalysisStage())
             .addStage(new TextStatisticsStage())
             .addStage(new SentimentEnrichmentStage())

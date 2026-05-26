@@ -41,16 +41,6 @@
     outline-offset: 2px;
 }
 
-.cine-btn--active {
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.15);
-}
-
-.cine-btn--active:hover {
-    color: #fff;
-    background: #dc2626;
-}
-
 .cine-btn--bookmarked {
     color: #dc2626;
     background: rgba(220, 38, 38, 0.15);
@@ -342,6 +332,32 @@
     margin: 0;
 }
 
+.cine-settings-adjust-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--ghost-border);
+    background: var(--surface-container);
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cine-settings-adjust-btn:hover {
+    color: var(--on-surface);
+    background: var(--surface-container-high);
+    border-color: var(--primary);
+}
+
+.cine-settings-adjust-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .cine-setting-row {
     display: flex;
     align-items: center;
@@ -415,9 +431,10 @@
 
 .original-paragraph {
     font-family: var(--font-body);
-    font-size: clamp(1.05rem, 1rem + 0.2vw, 1.16rem);
-    line-height: max(1.75, var(--cine-reader-line-height, 1.8));
-    letter-spacing: 0.01em;
+    font-size: var(--reader-font-size, 18px);
+    line-height: max(1.8, var(--reader-line-height, 1.85));
+    letter-spacing: 0.3px;
+    word-spacing: 0.6px;
     color: var(--on-surface);
     text-align: left;
     margin: 0;
@@ -451,4 +468,46 @@
     max-width: 760px;
     padding: 0;
     flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ── Scrubber UI ── */
+.scrubber-track {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-container-highest);
+    border-radius: var(--radius-full);
+    position: relative;
+    cursor: pointer;
+    transition: height var(--transition-fast);
+}
+
+.scrubber-track:hover {
+    height: 6px;
+}
+
+.scrubber-fill {
+    height: 100%;
+    background: var(--primary-gradient);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: width 0.1s ease;
+}
+
+.scrubber-playhead {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 6px var(--glow-primary);
+    transition: transform var(--transition-fast);
+    pointer-events: none;
+}
+
+.scrubber-track:hover .scrubber-playhead {
+    transform: translateY(-50%) scale(1);
 }

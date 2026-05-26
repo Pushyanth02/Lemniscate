@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface APIKeyInputProps {
     id: string;
@@ -6,9 +7,7 @@ interface APIKeyInputProps {
     value: string;
     placeholder?: string;
     onChange: (value: string) => void;
-    onTest?: () => void;
-    isTesting?: boolean;
-    testStatus?: { ok: boolean; message: string; latencyMs?: number } | null;
+    helpText?: string;
 }
 
 export const APIKeyInput: React.FC<APIKeyInputProps> = ({
@@ -17,9 +16,7 @@ export const APIKeyInput: React.FC<APIKeyInputProps> = ({
     value,
     placeholder = '',
     onChange,
-    onTest,
-    isTesting = false,
-    testStatus = null,
+    helpText,
 }) => {
     const [show, setShow] = useState(false);
 
@@ -33,35 +30,19 @@ export const APIKeyInput: React.FC<APIKeyInputProps> = ({
                     value={value}
                     onChange={e => onChange(e.target.value)}
                     placeholder={placeholder}
-                    autoComplete="off"
+                    autoComplete="new-password"
                 />
                 <button
                     type="button"
-                    className="cine-btn--icon"
+                    className="cine-btn cine-btn--ghost"
+                    style={{ padding: '8px', minWidth: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     aria-label={show ? 'Hide API key' : 'Show API key'}
                     onClick={() => setShow(s => !s)}
                 >
-                    {show ? '🙈' : '👁️'}
+                    {show ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
-                {onTest && (
-                    <button
-                        type="button"
-                        className="cine-btn cine-btn--sm"
-                        onClick={onTest}
-                        disabled={isTesting}
-                    >
-                        {isTesting ? 'Testing...' : 'Test'}
-                    </button>
-                )}
             </div>
-            {testStatus && (
-                <div className={`cine-test-result ${testStatus.ok ? 'success' : 'error'}`}>
-                    {testStatus.ok ? '✔️' : '❌'} {testStatus.message}
-                    {testStatus.latencyMs && (
-                        <span className="latency">{testStatus.latencyMs}ms</span>
-                    )}
-                </div>
-            )}
+            {helpText && <p className="cine-field-help">{helpText}</p>}
         </div>
     );
 };

@@ -142,9 +142,11 @@ describe('corePipeline (Prompt 2A)', () => {
         expect(result.rebuiltText.length).toBeGreaterThan(0);
         expect(result.scenes.length).toBeGreaterThan(0);
         expect(result.outputText.length).toBeGreaterThan(0);
-        expect(result.outputText).toContain('[CAMERA:');
-        expect(result.outputText).toContain('[SCENE:');
-        expect(result.outputText).toContain('[SFX: gunshot]');
+        
+        // Assert on structured blocks
+        expect(result.blocks.some(b => b.cameraDirection)).toBe(true);
+        expect(result.blocks.some(b => b.type === 'title_card')).toBe(true);
+        expect(result.blocks.some(b => b.type === 'sfx' && b.sfx?.sound === 'GUNSHOT')).toBe(true);
         expect(result.validation).toBeDefined();
     });
 
@@ -154,20 +156,17 @@ describe('corePipeline (Prompt 2A)', () => {
 
         const result = runCorePipeline(input);
 
-        expect(result.outputText).toContain('[TRANSITION:');
-        expect(result.outputText.match(/\[TRANSITION:/g)?.length ?? 0).toBeGreaterThanOrEqual(1);
+        expect(result.blocks.some(b => b.type === 'transition')).toBe(true);
     });
 
-    it('runCorePipeline adds at most one tension wrapper per scene', () => {
+    it('runCorePipeline adds tension metrics to blocks', () => {
         const input =
             'Run now! Danger is everywhere. The alarm screamed and footsteps rushed the hall. Everyone froze.';
 
         const result = runCorePipeline(input);
-        const openCount = (result.outputText.match(/\[TENSION\]/g) || []).length;
-        const closeCount = (result.outputText.match(/\[\/TENSION\]/g) || []).length;
+        const tensionBlocks = result.blocks.filter(b => b.tensionScore && b.tensionScore >= 60);
 
-        expect(openCount).toBeLessThanOrEqual(result.scenes.length);
-        expect(openCount).toBe(closeCount);
+        expect(tensionBlocks.length).toBeGreaterThan(0);
     });
 
     it('runCorePipeline avoids unnecessary markers on calm narrative', () => {
@@ -176,8 +175,8 @@ describe('corePipeline (Prompt 2A)', () => {
 
         const result = runCorePipeline(input);
 
-        expect(result.outputText).toContain('[SCENE:');
-        expect(result.outputText).not.toContain('[TENSION]');
-        expect(result.outputText).not.toContain('[SFX:');
+        expect(result.blocks.some(b => b.type === 'title_card')).toBe(true);
+        expect(result.blocks.some(b => b.tensionScore && b.tensionScore >= 65)).toBe(false);
+        expect(result.blocks.some(b => b.type === 'sfx')).toBe(false);
     });
 });

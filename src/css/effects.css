@@ -13,8 +13,8 @@
 .cine-action-metadata {
     display: flex;
     align-items: center;
-    gap: var(--cine-space-md);
-    margin-top: var(--cine-space-sm);
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-2);
 }
 
 .cine-emotion-tag {
@@ -23,7 +23,7 @@
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.75rem;
-    font-family: var(--cine-font-mono);
+    font-family: var(--font-label);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
@@ -36,7 +36,7 @@
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.75rem;
-    font-family: var(--cine-font-mono);
+    font-family: var(--font-label);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-weight: 600;
@@ -46,28 +46,10 @@
     opacity: 0.9;
 }
 
-.cine-emotion--joy {
-    background-color: rgba(250, 204, 21, 0.15);
-    color: #fde047;
-    border: 1px solid rgba(250, 204, 21, 0.3);
-}
-
-.cine-emotion--sadness {
-    background-color: rgba(56, 189, 248, 0.15);
-    color: #7dd3fc;
-    border: 1px solid rgba(56, 189, 248, 0.3);
-}
-
-.cine-emotion--anger {
+.cine-emotion--action {
     background-color: rgba(239, 68, 68, 0.15);
     color: #fca5a5;
     border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.cine-emotion--fear {
-    background-color: rgba(168, 85, 247, 0.15);
-    color: #d8b4fe;
-    border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .cine-emotion--suspense {
@@ -76,10 +58,22 @@
     border: 1px solid rgba(249, 115, 22, 0.3);
 }
 
-.cine-emotion--surprise {
+.cine-emotion--romantic {
     background-color: rgba(236, 72, 153, 0.15);
     color: #f9a8d4;
     border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.cine-emotion--dark {
+    background-color: rgba(153, 0, 0, 0.15);
+    color: #e57373;
+    border: 1px solid rgba(153, 0, 0, 0.3);
+}
+
+.cine-emotion--peaceful {
+    background-color: rgba(74, 222, 128, 0.12);
+    color: #a3e635;
+    border: 1px solid rgba(74, 222, 128, 0.28);
 }
 
 .cine-emotion--neutral {
@@ -88,11 +82,12 @@
     border: 1px solid rgba(156, 163, 175, 0.3);
 }
 
+
 .cine-tension-meter {
     flex: 1;
     max-width: 150px;
     height: 4px;
-    background: var(--cine-bg-tertiary);
+    background: var(--surface-container);
     border-radius: 2px;
     overflow: hidden;
     display: flex;
@@ -101,8 +96,8 @@
 .cine-tension-bar {
     height: 100%;
     transition:
-        width var(--cine-transition-normal),
-        background-color var(--cine-transition-normal);
+        width var(--transition-normal),
+        background-color var(--transition-normal);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -116,49 +111,29 @@
 }
 
 /* Subtle background washing based on active emotion */
-.cine-reader[data-active-emotion='joy'] {
-    box-shadow: inset 0 0 150px rgba(250, 204, 21, 0.05);
-}
-
-.cine-reader[data-active-emotion='sadness'] {
-    box-shadow: inset 0 0 150px rgba(56, 189, 248, 0.05);
-}
-
-.cine-reader[data-active-emotion='anger'] {
+.cine-reader[data-active-emotion='action'] {
     box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.08);
-}
-
-.cine-reader[data-active-emotion='fear'] {
-    box-shadow: inset 0 0 150px rgba(168, 85, 247, 0.05);
 }
 
 .cine-reader[data-active-emotion='suspense'] {
     box-shadow: inset 0 0 150px rgba(249, 115, 22, 0.05);
 }
 
-.cine-reader[data-active-emotion='surprise'] {
+.cine-reader[data-active-emotion='romantic'] {
     box-shadow: inset 0 0 150px rgba(236, 72, 153, 0.05);
 }
 
+.cine-reader[data-active-emotion='dark'] {
+    box-shadow: inset 0 0 150px rgba(153, 0, 0, 0.1);
+}
+
+.cine-reader[data-active-emotion='peaceful'] {
+    box-shadow: inset 0 0 150px rgba(74, 222, 128, 0.05);
+}
+
 /* In dark mode cinematic immersion, make it slightly stronger */
-.cine-reader.cine-reader--immersion-cinematic:not(.cine-reader--light)[data-active-emotion='joy'] {
-    box-shadow: inset 0 0 300px rgba(250, 204, 21, 0.1);
-}
-
-.cine-reader.cine-reader--immersion-cinematic:not(
-        .cine-reader--light
-    )[data-active-emotion='sadness'] {
-    box-shadow: inset 0 0 300px rgba(56, 189, 248, 0.1);
-}
-
-.cine-reader.cine-reader--immersion-cinematic:not(
-        .cine-reader--light
-    )[data-active-emotion='anger'] {
+.cine-reader.cine-reader--immersion-cinematic:not(.cine-reader--light)[data-active-emotion='action'] {
     box-shadow: inset 0 0 300px rgba(239, 68, 68, 0.15);
-}
-
-.cine-reader.cine-reader--immersion-cinematic:not(.cine-reader--light)[data-active-emotion='fear'] {
-    box-shadow: inset 0 0 300px rgba(168, 85, 247, 0.1);
 }
 
 .cine-reader.cine-reader--immersion-cinematic:not(
@@ -169,9 +144,20 @@
 
 .cine-reader.cine-reader--immersion-cinematic:not(
         .cine-reader--light
-    )[data-active-emotion='surprise'] {
+    )[data-active-emotion='romantic'] {
     box-shadow: inset 0 0 300px rgba(236, 72, 153, 0.1);
 }
+
+.cine-reader.cine-reader--immersion-cinematic:not(.cine-reader--light)[data-active-emotion='dark'] {
+    box-shadow: inset 0 0 300px rgba(153, 0, 0, 0.2);
+}
+
+.cine-reader.cine-reader--immersion-cinematic:not(
+        .cine-reader--light
+    )[data-active-emotion='peaceful'] {
+    box-shadow: inset 0 0 300px rgba(74, 222, 128, 0.1);
+}
+
 
 .cine-blocks-wrapper {
     max-width: 800px;
@@ -184,8 +170,8 @@
    ═══════════════════════════════════════════════════════════ */
 
 .cine-reader--dyslexia {
-    --cine-font-body: 'Lexend', sans-serif;
-    --cine-font-display: 'Lexend', sans-serif;
+    --font-body: 'Lexend', sans-serif;
+    --font-headline: 'Lexend', sans-serif;
     letter-spacing: 0.02em;
 }
 /* ─── Emotion Heatmap ──────────────────────────────────── */
@@ -202,32 +188,36 @@
 .cine-heatmap-block {
     width: 18px;
     height: 6px;
-    background: var(--cine-text-primary, #eae7e1);
-    border-radius: 1px;
-    transition: opacity 0.3s ease;
+    background: var(--on-surface, #eae7e1);
+    border-radius: var(--radius-xs, 2px);
+    transition: opacity var(--transition-normal, 240ms cubic-bezier(0.4, 0, 0.2, 1));
+    opacity: var(--cine-heatmap-opacity, 1);
 }
 
-.cine-heatmap-block--fear,
+.cine-heatmap-block--action {
+    background: #f87171; /* premium ember red */
+}
+
 .cine-heatmap-block--suspense {
-    background: #ef4444;
+    background: #fb923c; /* premium sunset orange */
 }
 
-.cine-heatmap-block--joy,
-.cine-heatmap-block--surprise {
-    background: #f59e0b;
+.cine-heatmap-block--romantic {
+    background: #f472b6; /* premium electric pink */
 }
 
-.cine-heatmap-block--sadness {
-    background: #6366f1;
+.cine-heatmap-block--dark {
+    background: #a855f7; /* premium deep purple */
 }
 
-.cine-heatmap-block--anger {
-    background: #dc2626;
+.cine-heatmap-block--peaceful {
+    background: #4ade80; /* premium mint green */
 }
 
 .cine-heatmap-block--neutral {
-    background: var(--cine-text-primary, #eae7e1);
+    background: var(--surface-container-highest, #353534);
 }
+
 
 /* ─── Tension-Driven Spacing ────────────────────────────── */
 

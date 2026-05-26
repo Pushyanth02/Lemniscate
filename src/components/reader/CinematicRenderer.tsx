@@ -94,12 +94,19 @@ export const CinematicRenderer: React.FC<CinematicRendererProps> = React.memo(
                     pacing.pacingClass,
                 ].filter(Boolean).join(' ');
 
+                // Classify tension level for CSS-driven spacing
+                const tensionScore = block.tensionScore ?? 0;
+                const tensionLevel = tensionScore >= 85 ? 'extreme'
+                    : tensionScore >= 70 ? 'high'
+                    : undefined;
+
                 items.push({
                     key: block.id,
                     content: (
                         <div
                             className={wrapperClasses}
                             data-paragraph-type={getParagraphType(block)}
+                            data-tension={tensionLevel}
                             style={blockStyle}
                         >
                             <CinematicBlockView

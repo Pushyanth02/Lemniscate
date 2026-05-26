@@ -10,53 +10,19 @@
  */
 
 import type { ChapterSegment } from '../../../types/cinematifier';
+import {
+    STRICT_CHAPTER_RE,
+    SUB_CHAPTER_RE,
+    CHAPTER_PATTERNS,
+    DIVIDER_RE,
+    TITLE_LABEL_RE,
+    MARKDOWN_TITLE_RE,
+    BYLINE_RE,
+    CHAPTER_HEADING_RE,
+    NOISE_LINE_RE,
+} from './regexPatterns';
 
-// Validated Roman numeral pattern — matches I through MMMCMXCIX (and beyond L).
-// Case-insensitivity is provided by the `i` flag on each compiled regex.
-const ROMAN = '(?=[ivxlcdm])m{0,3}(?:cm|cd|d?c{0,3})(?:xc|xl|l?x{0,3})(?:ix|iv|v?i{0,3})';
-
-// Separator characters accepted between a heading label and its subtitle:
-// colon, period, hyphen, en-dash (–), em-dash (—)
-const SEP = '[\\-:.–—]';
-
-const CHAPTER_PATTERNS: RegExp[] = [
-    // Chapter / Part / Book headings
-    new RegExp(`^(chapter\\s+)(\\d+|${ROMAN}|\\w+)(?:\\s*${SEP}\\s*(.*))?$`, 'im'),
-    new RegExp(`^(part\\s+)(\\d+|${ROMAN}|\\w+)(?:\\s*${SEP}\\s*(.*))?$`, 'im'),
-    new RegExp(`^(book\\s+)(\\d+|${ROMAN}|\\w+)(?:\\s*${SEP}\\s*(.*))?$`, 'im'),
-    // Act / Scene headings
-    new RegExp(`^(act\\s+)(\\d+|${ROMAN}|\\w+)(?:\\s*${SEP}\\s*(.*))?$`, 'im'),
-    new RegExp(`^(scene\\s+)(\\d+|${ROMAN}|\\w+)(?:\\s*${SEP}\\s*(.*))?$`, 'im'),
-    // Section headings (e.g. "Section 1", "Section III")
-    new RegExp(`^(section\\s+)(\\d+|${ROMAN}|\\w+)(?:\\s*${SEP}\\s*(.*))?$`, 'im'),
-    // Prologue / Epilogue / other book parts with optional subtitle
-    /^(prologue|epilogue|introduction|foreword|afterword|preface|appendix|postscript)(?:\s*[:.\-–—]\s*(.*))?$/im,
-    // Book/Part/Section/Volume/Act/Scene with Roman numerals or words (e.g., "Book One", "Part I")
-    /^\s*(book|part|section|volume|act|scene)[ .:,-]*([\divxlc]+)?[ .:,-]*([\w\s'"-]*)$/i,
-    // Numbered chapter headings: "1. The Beginning" or "II. The Return"
-    new RegExp(`^(\\d+|${ROMAN})[.)]\\s+(.+)$`, 'im'),
-    // Numbered chapter headings: "1 - The Beginning" or "IV: The Return"
-    new RegExp(`^(\\d+|${ROMAN})\\s*${SEP}\\s*(.+)$`, 'im'),
-    // Standalone PROLOGUE/EPILOGUE
-    /^\s*(prologue|epilogue)\s*$/i,
-    // Dividers (***, ---, ###, ..., etc.)
-    /^\*{3,}\s*$/m,
-    /^-{3,}\s*$/m,
-    /^#{3,}\s*$/m,
-    /^\.{3,}\s*$/m,
-    // ALL-CAPS standalone named titles (≥ 4 uppercase letters/spaces, e.g. "THE AWAKENING")
-    /^([A-Z][A-Z ]{2,}[A-Z])\s*$/m,
-];
-
-const DIVIDER_RE = /^[-*#=~_]{3,}\s*$|^\.{3,}\s*$/;
 const TITLE_FALLBACK = 'Untitled Novel';
-const TITLE_LABEL_RE = /^(?:title|book\s*title)\s*[:-–—]\s*(.+)$/i;
-const MARKDOWN_TITLE_RE = /^#{1,2}\s+(.+)$/;
-const BYLINE_RE = /^by\s+[\p{L}\d][\p{L}\d\s.'’-]{1,80}$/iu;
-const CHAPTER_HEADING_RE =
-    /^(chapter|part|book|act|scene|section|prologue|epilogue|introduction|foreword|afterword|preface|appendix|postscript)\b/i;
-const NOISE_LINE_RE =
-    /^(copyright|all rights reserved|published by|printed in|isbn|project gutenberg|www\.|https?:\/\/|table of contents|contents)\b/i;
 
 function normalizeTitleCandidate(line: string): string {
     return line
@@ -198,12 +164,108 @@ function isSubtitleLine(line: string): boolean {
     return trimmed.length > 0 && trimmed.length < 80 && !matchesAnyPattern(trimmed);
 }
 
+/**
+ * Pre-scan text to count strict chapter headings ("Chapter N" only).
+ * Used to decide whether sub-chapter markers should create new segments.
+ */
+function countStrictChapters(lines: string[]): number {
+    let count = 0;
+    for (const line of lines) {
+        if (STRICT_CHAPTER_RE.test(line.trim())) {
+            count++;
+        }
+    }
+    return count;
+}
+
+function getChapterIdentifier(line: string): string | null {
+    const match = line.match(STRICT_CHAPTER_RE);
+    if (!match) return null;
+    return match[1].trim().toLowerCase();
+}
+
+/**
+ * Pre-scan text to count major structural heading candidates (including "Part", "Section", "Scene", "Prologue", "Epilogue", or numeric headings).
+ * Only counts sub-chapter markers (Section/Scene/Part) if strict chapters are NOT present.
+ */
+function countMajorStructuralHeadings(lines: string[], strictChapterCount: number): number {
+    let count = 0;
+    const hasStrictChapters = strictChapterCount > 0;
+    let skipTo = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+        if (i < skipTo) continue;
+        const line = lines[i].trim();
+
+        // If we have strict chapters, skip sub-chapter markers (they are nested under chapters)
+        if (hasStrictChapters && SUB_CHAPTER_RE.test(line) && !STRICT_CHAPTER_RE.test(line)) {
+            continue;
+        }
+
+        let isStructural = false;
+        let hasSubtitle = false;
+
+        for (const pattern of CHAPTER_PATTERNS) {
+            const match = line.match(pattern);
+            if (match) {
+                if (DIVIDER_RE.test(line)) {
+                    break; // Dividers are visual breaks, not major structural headings
+                }
+                isStructural = true;
+                if (match[3]) {
+                    hasSubtitle = true;
+                }
+                break;
+            }
+        }
+
+        if (isStructural) {
+            count++;
+            // Handle multi-line subtitle peek to mirror main loop skipTo logic
+            if (!hasSubtitle) {
+                let nextIdx = i + 1;
+                while (nextIdx < lines.length && lines[nextIdx].trim() === '') {
+                    nextIdx++;
+                }
+                if (nextIdx < lines.length && isSubtitleLine(lines[nextIdx])) {
+                    skipTo = nextIdx + 1;
+                }
+            }
+        }
+    }
+    return count;
+}
+
 export function segmentChapters(fullText: string): ChapterSegment[] {
     if (fullText.trim().length === 0) return [];
     const lines = fullText.split('\n');
     const segments: ChapterSegment[] = [];
-    let currentSegment: { title: string; startLine: number; lines: string[] } | null = null;
+    let currentSegment: { title: string; startLine: number; lines: string[]; sections: string[] } | null = null;
     let skipTo = -1;
+
+    // Pre-scan: count how many strict "Chapter N" headings exist.
+    const strictChapterCount = countStrictChapters(lines);
+    
+    // Extract distinct strict chapter identifiers (e.g. {"1"} for duplicate "Chapter 1" headings)
+    const distinctStrictIdentifiers = new Set<string>();
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (STRICT_CHAPTER_RE.test(trimmed)) {
+            const id = getChapterIdentifier(trimmed);
+            if (id) {
+                distinctStrictIdentifiers.add(id);
+            }
+        }
+    }
+
+    const majorHeadingsCount = countMajorStructuralHeadings(lines, strictChapterCount);
+    
+    // Force single chapter mode if:
+    // 1. There is at most 1 major structural heading candidate overall, OR
+    // 2. There are multiple strict chapter headings, but they all refer to the same chapter (e.g., duplicates of "Chapter 1")
+    const isSingleChapterMode =
+        majorHeadingsCount <= 1 ||
+        (distinctStrictIdentifiers.size <= 1 && strictChapterCount > 1);
 
     for (let i = 0; i < lines.length; i++) {
         if (i < skipTo) continue;
@@ -214,6 +276,15 @@ export function segmentChapters(fullText: string): ChapterSegment[] {
         let isChapterStart = false;
         let chapterTitle = '';
         let hasSubtitle = false;
+
+        // If strict chapters are present, fold sub-chapter markers (Section/Scene/Part) into sections
+        if (strictChapterCount > 0 && SUB_CHAPTER_RE.test(line) && !STRICT_CHAPTER_RE.test(line)) {
+            if (currentSegment) {
+                currentSegment.sections.push(line);
+                currentSegment.lines.push(lines[i]);
+            }
+            continue;
+        }
 
         for (const pattern of CHAPTER_PATTERNS) {
             const match = line.match(pattern);
@@ -234,10 +305,14 @@ export function segmentChapters(fullText: string): ChapterSegment[] {
             }
         }
 
-        // Handle dividers as chapter breaks — preserves the existing dual-match
-        // behaviour where dividers match BOTH a CHAPTER_PATTERNS entry AND this
-        // test, resulting in a "Section N" title override.
+        // Handle dividers — in single-chapter mode, fold dividers into
+        // the current segment instead of splitting into new "Section N" segments.
         if (DIVIDER_RE.test(line)) {
+            if (isSingleChapterMode && currentSegment) {
+                // Just keep content flowing — divider is visual, not structural
+                currentSegment.lines.push(lines[i]);
+                continue;
+            }
             isChapterStart = true;
             chapterTitle = 'Section ' + String(segments.length + 1);
         }
@@ -276,6 +351,7 @@ export function segmentChapters(fullText: string): ChapterSegment[] {
                 title: chapterTitle,
                 startLine: i,
                 lines: [],
+                sections: [],
             };
         } else if (currentSegment) {
             currentSegment.lines.push(lines[i]);
@@ -285,6 +361,7 @@ export function segmentChapters(fullText: string): ChapterSegment[] {
                 title: 'Introduction',
                 startLine: 0,
                 lines: [],
+                sections: [],
             };
             currentSegment.lines.push(lines[i]);
         }
@@ -301,6 +378,22 @@ export function segmentChapters(fullText: string): ChapterSegment[] {
                 endIndex: lines.length - 1,
             });
         }
+    }
+
+    // ── Single Chapter Enforcement ──
+    // When only one strict chapter heading was found and the segmentation
+    // produced multiple segments (from stray sub-headings or dividers that
+    // slipped through), collapse everything into the single chapter.
+    if (isSingleChapterMode && segments.length > 1) {
+        const primaryTitle = segments.find(s => STRICT_CHAPTER_RE.test(s.title))?.title
+            ?? segments[0].title;
+        const mergedContent = segments.map(s => s.content).join('\n\n');
+        return [{
+            title: primaryTitle,
+            content: mergedContent,
+            startIndex: segments[0].startIndex,
+            endIndex: segments[segments.length - 1].endIndex,
+        }];
     }
 
     // If no chapters were found, create one chapter from all text (AI fallback stub)

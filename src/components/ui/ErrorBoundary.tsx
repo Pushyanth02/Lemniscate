@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import type { ReactNode } from 'react';
+import { AlertCircle, RotateCcw } from 'lucide-react';
 
 interface ErrorBoundaryProps {
     children: ReactNode;
@@ -24,20 +25,29 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     render() {
         if (this.state.hasError) {
+            if (this.props.fallback) {
+                return this.props.fallback;
+            }
             return (
-                this.props.fallback ?? (
-                    <div role="alert" className="cine-error-alert">
-                        Something went wrong loading this component.
+                <div role="alert" className="cin-error-card" style={{ width: '100%', margin: '16px 0', boxSizing: 'border-box' }}>
+                    <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', alignItems: 'flex-start' }}>
+                        <p className="cin-error-message">
+                            <strong>Cinematic Engine Interrupted:</strong> {this.state.error?.message || 'An unexpected runtime error occurred.'}
+                        </p>
                         <button
                             onClick={() => this.setState({ hasError: false, error: null })}
-                            className="cine-ml-05 cine-underline cine-btn-reset"
+                            className="cine-btn cine-btn--ghost cine-btn--sm"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '32px', padding: '0 12px' }}
                         >
-                            Try again
+                            <RotateCcw size={14} />
+                            Recover Component
                         </button>
                     </div>
-                )
+                </div>
             );
         }
         return this.props.children;
     }
 }
+

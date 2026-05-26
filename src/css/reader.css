@@ -109,12 +109,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius-sm);
     border: none;
-    background: rgba(220, 38, 38, 0.08);
-    color: #dc2626;
+    background: transparent;
+    color: var(--on-surface-variant);
     cursor: pointer;
     gap: 6px;
     font-family: var(--font-label);
@@ -128,9 +128,18 @@
 .cine-back-btn:hover,
 .cine-header-action:hover {
     color: #fff;
-    background: #dc2626;
-    transform: scale(1.08);
-    box-shadow: 0 0 14px rgba(220, 38, 38, 0.45);
+    background: rgba(255, 255, 255, 0.1);
+}
+.cine-header-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.cine-header-separator {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 8px;
 }
 .cine-back-btn {
     width: auto;
@@ -145,19 +154,22 @@
 
 .cine-header-book-title {
     font-family: var(--font-headline);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 1.75rem;
+    font-weight: 300;
     color: var(--on-surface);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 280px;
+    margin: 0;
+    line-height: 1.1;
 }
 
 .cine-header-chapter {
     font-family: var(--font-label);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: var(--on-surface-variant);
+    letter-spacing: 0.05em;
 }
 
 .cine-header-center {
@@ -195,13 +207,13 @@
     white-space: nowrap;
 }
 
-/* Support both .active (used in TSX) and .cine-mode-btn--active */
 .cine-mode-btn.active,
 .cine-mode-btn--active {
-    background: var(--primary-gradient);
-    color: var(--on-primary);
+    background: rgba(220, 38, 38, 0.2);
+    color: #dc2626;
     font-weight: 600;
-    box-shadow: 0 2px 8px var(--glow-primary);
+    box-shadow: none;
+    border-radius: var(--radius-full);
 }
 
 .cine-mode-btn:not(.active):not(.cine-mode-btn--active):hover {
@@ -250,6 +262,7 @@
     transition:
         width var(--transition-slow),
         opacity var(--transition-slow);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .cine-chapter-nav-sidebar.is-closed {
@@ -356,6 +369,100 @@
     opacity: 0.7;
 }
 
+/* Search bar in Chapter Sidebar */
+.cine-sidebar-search-container {
+    padding: 0 var(--spacing-4) var(--spacing-3);
+    flex-shrink: 0;
+}
+
+.cine-sidebar-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.cine-sidebar-search-icon {
+    position: absolute;
+    left: var(--spacing-2);
+    color: var(--on-surface-variant);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.cine-sidebar-search-input {
+    width: 100%;
+    padding: 7px var(--spacing-6) 7px var(--spacing-6);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--ghost-border);
+    background: var(--surface-container-lowest);
+    color: var(--on-surface);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.cine-sidebar-search-input:focus {
+    border-color: var(--primary);
+    background: var(--surface-container);
+    box-shadow: 0 0 8px rgba(220, 38, 38, 0.15);
+}
+
+.cine-sidebar-search-clear {
+    position: absolute;
+    right: var(--spacing-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all var(--transition-fast);
+}
+
+.cine-sidebar-search-clear:hover {
+    color: var(--on-surface);
+    background: var(--surface-container);
+}
+
+/* Indicators in Chapter Item */
+.cine-chapter-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.cine-chapter-item-indicators {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.indicator-bookmark {
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+}
+
+.indicator-read {
+    color: var(--tertiary);
+    display: flex;
+    align-items: center;
+}
+
+.indicator-processed {
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+}
+
 /* ─── Main Content Area ── */
 
 .cine-content {
@@ -363,14 +470,16 @@
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
     min-width: 0;
+    font-size: var(--reader-font-size, 18px);
 }
 
 .cine-content-inner {
     max-width: 720px;
     width: min(100%, 720px);
     margin: 0 auto;
-    padding: var(--spacing-16) var(--spacing-8) var(--spacing-24);
+    padding: var(--spacing-16) 2rem var(--spacing-24);
 }
 
 /* ── Chapter Header ── */
@@ -391,14 +500,23 @@
 }
 
 .cine-chapter-title {
-    font-family: var(--font-body);
+    font-family: var(--font-headline);
     font-size: clamp(1.75rem, 4vw, 2.5rem);
-    font-weight: 300;
-    font-style: italic;
     color: var(--on-surface);
     line-height: 1.2;
     letter-spacing: -0.01em;
     margin: 0 0 var(--spacing-4);
+}
+
+.cine-reader--original .cine-chapter-title {
+    font-weight: 300;
+    font-style: italic;
+    font-family: var(--font-body);
+}
+
+.cine-reader--cinematified .cine-chapter-title {
+    font-weight: 700;
+    font-style: normal;
 }
 
 .cine-chapter-meta {
@@ -468,38 +586,36 @@
     animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-@keyframes spin-slow {
-    to {
-        transform: rotate(360deg);
-    }
-}
+
 
 /* ─── Right Sidebar — Insights Panel ── */
 
 .cine-insights-sidebar {
-    width: 260px;
+    width: 280px;
     flex-shrink: 0;
     background: var(--surface-container-low);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
-    overflow-y: auto;
-    padding: var(--spacing-6) var(--spacing-5);
+    overflow: hidden;
     transition:
         width var(--transition-slow),
         opacity var(--transition-slow);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0 !important;
+}
+
+.cine-insights-header-wrapper {
+    padding: var(--spacing-5) var(--spacing-5) var(--spacing-3);
+    background: var(--surface-container-low);
+    border-bottom: 1px solid var(--ghost-border);
+    flex-shrink: 0;
 }
 
 .cine-insights-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--spacing-2);
+    margin-bottom: var(--spacing-3);
 }
 
 .cine-insights-title {
@@ -515,7 +631,55 @@
     width: 0;
     opacity: 0;
     pointer-events: none;
-    padding: 0;
+    padding: 0 !important;
+}
+
+.cine-insights-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface-container);
+    border-radius: var(--radius-sm);
+    padding: 2px;
+}
+
+.cine-insights-tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-1);
+    border-radius: var(--radius-xs);
+    border: none;
+    background: transparent;
+    color: var(--on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.65rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cine-insights-tab-btn:hover {
+    color: var(--on-surface);
+}
+
+.cine-insights-tab-btn--active {
+    background: var(--surface-container-low);
+    color: var(--primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+
+.cine-insights-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-5);
+}
+
+.cine-insights-tab-panel {
+    display: flex;
+    flex-direction: column;
 }
 
 .cine-insight-section {
@@ -1061,6 +1225,40 @@
 
 .cine-pacing--tense {
     --pacing-transition-duration: 0.5s;
+}
+
+/* ── Tension-Responsive Paragraph Spacing ──
+   Dynamic padding based on narrative intensity markers.
+   Applied automatically by the pacing engine via data attributes. */
+
+.cine-paragraph[data-tension="high"] {
+    margin-block: var(--spacing-12);
+    transition: margin var(--pacing-transition-duration, 0.4s) ease;
+}
+
+.cine-paragraph[data-tension="extreme"] {
+    margin-block: calc(var(--spacing-12) * 1.4);
+    transition: margin var(--pacing-transition-duration, 0.4s) ease;
+}
+
+/* Auto paragraph spacing between consecutive dialogue blocks */
+.cine-paragraph--dialogue + .cine-paragraph--dialogue {
+    margin-top: 0.6rem;
+}
+
+/* Tighter gap when dialogue follows narration for pacing flow */
+.cine-paragraph--action + .cine-paragraph--dialogue {
+    margin-top: 1rem;
+}
+
+/* Breathing room after dialogue returns to narration */
+.cine-paragraph--dialogue + .cine-paragraph--action {
+    margin-top: 1.4rem;
+}
+
+/* Scroll snap alignment for scene-level dividers */
+.cine-scene-divider {
+    scroll-snap-align: start;
 }
 
 /* Scene divider — three-dot ornament between detected scene boundaries */

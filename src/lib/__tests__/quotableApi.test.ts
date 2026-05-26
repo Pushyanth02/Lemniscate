@@ -101,4 +101,19 @@ describe('getProcessingQuote', () => {
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(second).toEqual(first);
     });
+
+    it('returns offline quote instantly when navigator is offline', async () => {
+        vi.stubGlobal('navigator', { onLine: false });
+        const fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);
+
+        const quote = await getProcessingQuote('offline-seed', {
+            allowNetwork: true,
+            timeoutMs: 1200,
+        });
+
+        expect(fetchMock).not.toHaveBeenCalled();
+        expect(quote.source).toBe('offline');
+        expect(quote.content.length).toBeGreaterThan(0);
+    });
 });

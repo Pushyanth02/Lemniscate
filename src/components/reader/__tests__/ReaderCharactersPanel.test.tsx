@@ -73,6 +73,9 @@ describe('ReaderCharactersPanel', () => {
 
         render(<ReaderCharactersPanel insights={null} isOpen onClose={() => {}} />);
 
+        // Switch to Discovery tab
+        fireEvent.click(screen.getByRole('tab', { name: 'Discovery' }));
+
         fireEvent.click(screen.getByRole('button', { name: 'ally' }));
         fireEvent.click(screen.getByRole('button', { name: 'enemy' }));
 
@@ -97,6 +100,9 @@ describe('ReaderCharactersPanel', () => {
         });
 
         render(<ReaderCharactersPanel insights={null} isOpen onClose={() => {}} />);
+
+        // Switch to Feedback tab
+        fireEvent.click(screen.getByRole('tab', { name: 'Feedback' }));
 
         fireEvent.click(screen.getByRole('button', { name: 'Submit feedback' }));
         expect(submitFeedback).toHaveBeenCalledWith('reader-insights');

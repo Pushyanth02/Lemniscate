@@ -5,18 +5,29 @@
  * and immersive ambient effects for the Cinematifier app.
  *
  * Modular structure:
- *   variables.css  — CSS custom properties / design tokens
- *   reader.css     — Reader layout, chapter header, content area
- *   blocks.css     — Cinematic block type styles
- *   controls.css   — Buttons, forms, settings, upload zone
- *   effects.css    — Ambient effects, emotion metadata, heatmap
- *   responsive.css — Responsive design + light mode overrides
+ *   variables.css        — CSS custom properties / design tokens
+ *   reader.css           — Reader layout, chapter header, content area
+ *   reader-components.css — Reader sub-components
+ *   blocks.css           — Cinematic block type styles
+ *   landing.css          — Landing page styles
+ *   upload.css           - Upload zone styles
+ *   processing.css       - Processing overlay styles
+ *   buttons.css          - Button system styles
+ *   forms.css            - Input groups, toggles, settings, modals
+ *   effects.css          — Ambient effects, emotion metadata, heatmap
+ *   responsive.css       — Responsive design + light mode overrides
  */
 
 @import './css/variables.css';
 @import './css/reader.css';
 @import './css/reader-components.css';
 @import './css/blocks.css';
-@import './css/controls.css';
+@import './css/landing.css';
+@import './css/upload.css';
+@import './css/processing.css';
+@import './css/buttons.css';
+@import './css/forms.css';
 @import './css/effects.css';
 @import './css/responsive.css';
+@import './css/mood-themes.css';
+

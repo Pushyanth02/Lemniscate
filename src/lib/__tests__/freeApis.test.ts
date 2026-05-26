@@ -186,6 +186,20 @@ describe('freeApis', () => {
         expect(metadata?.sources).toContain('wikipedia');
     });
 
+    it('returns null instantly when navigator is offline', async () => {
+        vi.stubGlobal('navigator', { onLine: false });
+        const fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);
+
+        const metadata = await enrichBookMetadataFromFreeApis({
+            title: 'Dune',
+            timeoutMs: 1800,
+        });
+
+        expect(metadata).toBeNull();
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
     it('returns null when free APIs are unreachable', async () => {
         const fetchMock = vi.fn().mockRejectedValue(new Error('network down'));
         vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);

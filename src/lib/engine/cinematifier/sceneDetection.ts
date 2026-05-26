@@ -10,69 +10,42 @@
  */
 
 import { analyzeSentiment } from './sentimentTracker';
+import {
+    SCENE_BREAK_SIGNALS,
+    CUSTOM_SCENE_BREAK_PATTERNS,
+    LOCATION_PATTERN,
+    TIME_PATTERN,
+    TIME_SHIFT_PATTERN,
+    LOCATION_SHIFT_PATTERN,
+    NARRATIVE_TRANSITION_PATTERN,
+    ORIGINAL_MODE_TIME_SHIFT_PATTERN,
+    ORIGINAL_MODE_LOCATION_PATTERN,
+    ORIGINAL_MODE_SCENE_DIVIDER_PATTERN,
+    POV_NAME_PATTERN,
+    FLASHBACK_PATTERN,
+    DREAM_PATTERN,
+    MEMORY_PATTERN,
+    DIALOGUE_OPENING_PATTERN,
+    ACTION_PATTERN,
+    MOOD_PATTERNS,
+} from './regexPatterns';
 
-/** Matches time shifts, location changes, whitespace dividers, and narrative jumps that typically indicate scene breaks */
-export const SCENE_BREAK_SIGNALS =
-    /(later that night|meanwhile|hours later|at dawn|suddenly|in another place|elsewhere|the next (morning|day|evening|night)|days later|weeks later|months later|years later|across town|back at|far away|on the other side|that morning|at nightfall|before sunrise|after sunset|in a flash|without warning|in an instant|moments later|a while later|at the same time|at that moment|\*\*\*|---|###|\.{3,}|\s{3,})/i;
-
-/** Customizable scene break patterns (user/configurable) */
-export const CUSTOM_SCENE_BREAK_PATTERNS: RegExp[] = [
-    /^\s*[*\-#=~_]{3,}\s*$/, // e.g., *** --- ###
-    /^\s*\.{3,}\s*$/, // e.g., ...
-    /^\s*\s*$/, // blank/whitespace-only lines (optional, can be toggled)
-];
-
-/** Matches preposition + optional article + capitalized location name (e.g., "in the Forest", "at Castle Rock") */
-export const LOCATION_PATTERN =
-    /\b(?:[Ii]n|[Aa]t|[Oo]n|[Nn]ear|[Bb]eside|[Ii]nside|[Oo]utside|[Bb]eneath|[Aa]bove|[Aa]cross)\s+(?:the\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
-
-/** Matches time-of-day or temporal phrases for scene title derivation */
-export const TIME_PATTERN =
-    /\b(that night|that morning|the next day|at dawn|at dusk|hours later|days later|meanwhile)\b/i;
-
-const TIME_SHIFT_PATTERN =
-    /\b(later|earlier|meanwhile|the next (?:morning|day|night|evening)|at (?:dawn|dusk|sunrise|sunset|nightfall)|that (?:night|morning|evening)|hours later|days later|weeks later|months later|years later)\b/i;
-const LOCATION_SHIFT_PATTERN =
-    /\b(?:[Ii]n|[Aa]t|[Oo]n|[Ii]nside|[Oo]utside|[Nn]ear|[Aa]cross|[Bb]ack at|[Bb]eyond)\s+(?:the\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
-const NARRATIVE_TRANSITION_PATTERN =
-    /\b(meanwhile|elsewhere|back in|back at|on the other side|later|earlier|in another place|at the same time|as for)\b/i;
-const EMOTIONAL_RESET_THRESHOLD = 0.55;
-const SCENE_BREAK_THRESHOLD = 2;
-const MAX_PARAGRAPHS_PER_SCENE = 8;
-
-const ORIGINAL_MODE_TIME_SHIFT_PATTERN =
-    /\b(later that night|later that day|hours later|days later|weeks later|months later|years later|meanwhile|the next morning|the next day|the following morning|at dawn|at dusk|at nightfall|before sunrise|after sunset|that night|that morning)\b/i;
-const ORIGINAL_MODE_LOCATION_PATTERN =
-    /\b(?:in|at|on|inside|outside|near|within|beneath|beyond|across)\s+(?:the\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})/i;
-const ORIGINAL_MODE_SCENE_DIVIDER_PATTERN = /^\s*(?:\*{3,}|-{3,}|#{3,}|\.{3,}|—\s*✦\s*—)\s*$/;
-const ORIGINAL_MODE_STRONG_BREAK_NEWLINES = 3;
+export {
+    SCENE_BREAK_SIGNALS,
+    CUSTOM_SCENE_BREAK_PATTERNS,
+    LOCATION_PATTERN,
+    TIME_PATTERN,
+};
 
 export interface Scene {
     id: string;
     text: string;
 }
 
-/** Matches a capitalized character name at the start of a sentence followed by a verb */
-const POV_NAME_PATTERN =
-    /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:walked|thought|felt|saw|heard|knew|looked|stood|turned|ran|sat|watched|wondered|realized|remembered|noticed|whispered|said|spoke|asked|replied|muttered|sighed|screamed|cried|laughed|smiled|frowned|gazed|stared|glanced|moved|stepped|entered|left|opened|closed|grabbed|held|dropped|pulled|pushed|reached|waited|paused|hesitated|decided|began|started|continued|tried|wanted|needed|wished|hoped|feared|loved|hated)\b/;
-
-const FLASHBACK_PATTERN =
-    /\b(he remembered|she remembered|they remembered|remembered when|she recalled|he recalled|they recalled|memories flooded|years ago|long ago)\b/i;
-const DREAM_PATTERN = /\b(dreaming|in the dream|the dream faded|woke with a start)\b/i;
-const MEMORY_PATTERN = /\b(the memory|recollection)\b/i;
-
-const DIALOGUE_OPENING_PATTERN = /^[""\u201C]/;
-const ACTION_PATTERN =
-    /\b(explosion|attack|battle|fight|chase|escape|collision|confrontation|argument|scream|crash|gunshot|ambush|pursuit)\b/i;
-
-/** Mood keywords mapped to descriptive prefixes for scene title derivation */
-const MOOD_PATTERNS: { pattern: RegExp; prefix: string }[] = [
-    { pattern: /\b(terror|dread|horror|fear|scream|dark|shadow|death)\b/i, prefix: 'Dark' },
-    { pattern: /\b(joy|laugh|smile|happy|delight|celebrate|cheer)\b/i, prefix: 'Joyful' },
-    { pattern: /\b(sorrow|tears|grief|mourn|weep|loss|tragic)\b/i, prefix: 'Sorrowful' },
-    { pattern: /\b(tense|danger|threat|warn|urgent|desperate)\b/i, prefix: 'Tense' },
-    { pattern: /\b(calm|peace|quiet|gentle|serene|still|rest)\b/i, prefix: 'Quiet' },
-];
+const EMOTIONAL_RESET_THRESHOLD = 0.55;
+const SCENE_BREAK_THRESHOLD = 2;
+const MAX_PARAGRAPHS_PER_SCENE = 8;
+const ORIGINAL_MODE_STRONG_BREAK_NEWLINES = 3;
 
 function extractLocationHint(paragraph: string): string | undefined {
     const match = paragraph.match(LOCATION_SHIFT_PATTERN) || paragraph.match(LOCATION_PATTERN);

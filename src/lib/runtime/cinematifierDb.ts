@@ -7,13 +7,31 @@
  */
 
 import Dexie, { type Table } from 'dexie';
-import type { Book, ReadingProgress } from '../../types/cinematifier';
+import type { Book, ReadingProgress, CinematicBlock, ExtractedEntities } from '../../types/cinematifier';
+
+export interface CinematifiedChapterCache {
+    id: string; // `${bookId}_${chapterIndex}`
+    bookId: string;
+    chapterIndex: number;
+    blocks: CinematicBlock[];
+    entityRegistry: ExtractedEntities;
+    processedAt: number;
+    engineVersion: string;
+    originalModeText?: string;
+    originalModeScenes?: any[];
+    cinematifiedText?: string;
+    renderPlan?: any;
+    cinematizedScenes?: any[];
+    narrativeMode?: 'normal' | 'flashback' | 'dream' | 'memory';
+    povCharacter?: string;
+}
 
 // ─── Database Schema ──────────────────────────────────────────
 
 class CinematifierDatabase extends Dexie {
     books!: Table<Book>;
     readingProgress!: Table<ReadingProgress>;
+    cinematifiedChapters!: Table<CinematifiedChapterCache>;
 
     constructor() {
         super('CinematifierDB');
@@ -50,10 +68,16 @@ class CinematifierDatabase extends Dexie {
                     }
                 }
             });
+        this.version(3)
+            .stores({
+                books: 'id, title, createdAt',
+                readingProgress: 'id, bookId, lastReadAt',
+                cinematifiedChapters: 'id, bookId, chapterIndex, [bookId+chapterIndex]',
+            });
     }
 }
 
-const db = new CinematifierDatabase();
+export const db = new CinematifierDatabase();
 
 // ─── Book Operations ─────────────────────────────────────────
 

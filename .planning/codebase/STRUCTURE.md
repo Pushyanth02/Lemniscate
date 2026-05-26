@@ -1,6 +1,6 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-05-03
+**Analysis Date:** 2026-05-22
 
 ## Directory Layout
 
@@ -46,7 +46,7 @@
 ## Naming Conventions
 
 **Files:**
-- PascalCase: `CinematifierApp.tsx` (React Components)
+- PascalCase: `ReaderPage.tsx` (React Components)
 - camelCase: `streamController.ts`, `pdfWorker.ts`, `requestPipeline.ts` (Logic, Scripts)
 
 **Directories:**
@@ -71,4 +71,4 @@
 
 ---
 
-*Structure analysis: 2026-05-03*
+*Structure analysis: 2026-05-22*

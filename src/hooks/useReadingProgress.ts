@@ -6,19 +6,20 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { useCinematifierStore } from '../store/cinematifierStore';
+import { useBookStore, useReaderStore } from '../store';
 import { saveReadingProgress, loadReadingProgress } from '../lib/runtime/cinematifierDb';
 import { createReadingProgress } from '../lib/cinematifier';
 
 export function useReadingProgress() {
-    const book = useCinematifierStore(s => s.book);
-    const currentChapterIndex = useCinematifierStore(s => s.currentChapterIndex);
-    const readingProgress = useCinematifierStore(s => s.readingProgress);
-    const setReadingProgress = useCinematifierStore(s => s.setReadingProgress);
-    const updateReadingProgress = useCinematifierStore(s => s.updateReadingProgress);
-    const markChapterRead = useCinematifierStore(s => s.markChapterRead);
-    const addReadingTime = useCinematifierStore(s => s.addReadingTime);
-    const toggleBookmark = useCinematifierStore(s => s.toggleBookmark);
+    const book = useBookStore(s => s.book);
+    const readingProgress = useBookStore(s => s.readingProgress);
+    const setReadingProgress = useBookStore(s => s.setReadingProgress);
+    const updateReadingProgress = useBookStore(s => s.updateReadingProgress);
+    const markChapterRead = useBookStore(s => s.markChapterRead);
+    const addReadingTime = useBookStore(s => s.addReadingTime);
+    const toggleBookmark = useBookStore(s => s.toggleBookmark);
+
+    const currentChapterIndex = useReaderStore(s => s.currentChapterIndex);
 
     const readingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -37,11 +38,11 @@ export function useReadingProgress() {
                     if (stored.currentChapter > 1) {
                         const idx = stored.currentChapter - 1;
                         if (idx < book.chapters.length) {
-                            useCinematifierStore.getState().setCurrentChapter(idx);
+                            useReaderStore.getState().setCurrentChapter(idx);
                         }
                     }
                     if (stored.readingMode) {
-                        useCinematifierStore.getState().setReaderMode(stored.readingMode);
+                        useReaderStore.getState().setReaderMode(stored.readingMode);
                     }
                 } else {
                     setReadingProgress(createReadingProgress(book.id));
@@ -60,7 +61,7 @@ export function useReadingProgress() {
 
         return () => {
             if (readingTimerRef.current) clearInterval(readingTimerRef.current);
-            const progress = useCinematifierStore.getState().readingProgress;
+            const progress = useBookStore.getState().readingProgress;
             if (progress)
                 saveReadingProgress(progress).catch(e => {
                     console.warn('[CinematicReader] Failed to persist reading progress:', e);

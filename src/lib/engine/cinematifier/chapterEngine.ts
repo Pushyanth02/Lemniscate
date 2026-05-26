@@ -5,14 +5,12 @@
  * on-demand reader processing use the same core pipeline path.
  */
 
-import type { AIConfig } from '../../ai';
 import type { CinematicBlock, CinematificationResult } from '../../../types/cinematifier';
 import {
     CinematificationPipeline,
     SceneSegmentationStage,
     NarrativeAnalysisStage,
     OfflineCinematificationStage,
-    AICinematificationStage,
     ReadabilityAnalysisStage,
     TextStatisticsStage,
     SentimentEnrichmentStage,
@@ -28,29 +26,23 @@ export interface ChapterEngineOptions {
 }
 
 /**
- * Build the canonical chapter pipeline for the selected provider mode.
+ * Build the canonical chapter pipeline for the offline mode.
  * Order is strict: Text Input -> Paragraph Rebuilder -> Scene Segmentation
  * -> Narrative Analysis -> Cinematization -> Renderer.
  */
-export function createChapterPipeline(config: AIConfig): CinematificationPipeline {
-    return config.provider === 'none'
-        ? CinematificationPipeline.createEnrichedOfflinePipeline()
-        : CinematificationPipeline.createEnrichedAIPipeline();
+export function createChapterPipeline(): CinematificationPipeline {
+    return CinematificationPipeline.createEnrichedOfflinePipeline();
 }
 
 /**
  * Build chapter pipeline when input text is already cleaned/rebuilt.
  * Skips duplicate preprocessing stages while preserving canonical stage order.
  */
-export function createPreprocessedChapterPipeline(config: AIConfig): CinematificationPipeline {
+export function createPreprocessedChapterPipeline(): CinematificationPipeline {
     const pipeline = new CinematificationPipeline()
         .addStage(new SceneSegmentationStage())
         .addStage(new NarrativeAnalysisStage())
-        .addStage(
-            config.provider === 'none'
-                ? new OfflineCinematificationStage()
-                : new AICinematificationStage(),
-        )
+        .addStage(new OfflineCinematificationStage())
         .addStage(new ReadabilityAnalysisStage())
         .addStage(new TextStatisticsStage())
         .addStage(new SentimentEnrichmentStage())
@@ -66,17 +58,16 @@ export function createPreprocessedChapterPipeline(config: AIConfig): Cinematific
  */
 export async function runChapterEngine(
     text: string,
-    config: AIConfig,
     options: ChapterEngineOptions = {},
 ): Promise<CinematificationResult> {
     const pipeline = options.preprocessedInput
-        ? createPreprocessedChapterPipeline(config)
-        : createChapterPipeline(config);
+        ? createPreprocessedChapterPipeline()
+        : createChapterPipeline();
 
     return pipeline.execute(text, {
-        aiConfig: config,
         onProgress: options.onProgress,
         onChunk: options.onChunk,
         signal: options.signal,
     });
 }
+

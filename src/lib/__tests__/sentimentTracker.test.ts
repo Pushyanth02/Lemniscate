@@ -12,13 +12,13 @@ import {
 // ─── scoreToEmotion ────────────────────────────────────────
 
 describe('scoreToEmotion', () => {
-    it('maps positive scores to joy', () => {
-        expect(scoreToEmotion(0.5)).toBe('joy');
-        expect(scoreToEmotion(0.3)).toBe('joy');
+    it('maps positive scores to romantic', () => {
+        expect(scoreToEmotion(0.5)).toBe('romantic');
+        expect(scoreToEmotion(0.3)).toBe('romantic');
     });
 
-    it('maps slight positive to surprise', () => {
-        expect(scoreToEmotion(0.15)).toBe('surprise');
+    it('maps slight positive to peaceful', () => {
+        expect(scoreToEmotion(0.15)).toBe('peaceful');
     });
 
     it('maps neutral to neutral', () => {
@@ -27,13 +27,9 @@ describe('scoreToEmotion', () => {
         expect(scoreToEmotion(-0.05)).toBe('neutral');
     });
 
-    it('maps negative scores to sadness/fear', () => {
-        expect(scoreToEmotion(-0.3)).toBe('sadness');
-        expect(scoreToEmotion(-0.5)).toBe('fear');
-    });
-
-    it('maps slightly negative to anger', () => {
-        expect(scoreToEmotion(-0.15)).toBe('anger');
+    it('maps negative scores to suspense/dark', () => {
+        expect(scoreToEmotion(-0.15)).toBe('suspense');
+        expect(scoreToEmotion(-0.5)).toBe('dark');
     });
 });
 
@@ -43,13 +39,13 @@ describe('analyzeSentiment', () => {
     it('returns positive sentiment for happy text', () => {
         const result = analyzeSentiment('I love this wonderful beautiful day');
         expect(result.score).toBeGreaterThan(0);
-        expect(result.emotion).toBe('joy');
+        expect(result.emotion).toBe('romantic');
     });
 
     it('returns negative sentiment for sad text', () => {
         const result = analyzeSentiment('This is horrible and terrible pain and suffering');
         expect(result.score).toBeLessThan(0);
-        expect(['fear', 'sadness', 'anger']).toContain(result.emotion);
+        expect(['dark', 'suspense']).toContain(result.emotion);
     });
 
     it('returns near-neutral for neutral text', () => {

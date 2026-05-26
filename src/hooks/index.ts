@@ -1,10 +1,9 @@
 export { useReadingProgress } from './useReadingProgress';
-export { useAmbientAudio } from './useAmbientAudio';
-export { useAutoScroll } from './useAutoScroll';
 export { useChapterProcessing } from './useChapterProcessing';
 export { useBookHydration } from './useBookHydration';
 export { useFileProcessing } from './useFileProcessing';
-export { useAIConnectionTest } from './useAIConnectionTest';
+export { useDocumentParser } from './useDocumentParser';
+export { useProcessingPipeline } from './useProcessingPipeline';
 export { useReaderAnalytics } from './useReaderAnalytics';
 export { useReaderDiscovery } from './useReaderDiscovery';
 export { useReaderFeedback } from './useReaderFeedback';

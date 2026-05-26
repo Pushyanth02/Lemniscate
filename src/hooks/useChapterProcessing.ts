@@ -7,15 +7,14 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useCinematifierStore, getCinematifierAIConfig } from '../store/cinematifierStore';
+import { useBookStore, useProcessingStore } from '../store';
 import {
     runFullSystemPipeline,
-    cinematifyOffline,
     extractOverallMetadata,
 } from '../lib/cinematifier';
 import { CinematicStreamAdapter } from '../lib/rendering/cinematicStreamAdapter';
 import { useRenderBridge } from './useRenderBridge';
-import { saveBook } from '../lib/runtime/cinematifierDb';
+import { saveBook, getCachedChapter, cacheChapter } from '../lib/runtime';
 import type { ReaderMode, Chapter } from '../types/cinematifier';
 
 function toChapterErrorMessage(error: unknown): string {
@@ -42,8 +41,8 @@ export function useChapterProcessing(
     currentChapterIndex: number,
     readerMode: ReaderMode,
 ) {
-    const updateChapter = useCinematifierStore(s => s.updateChapter);
-    const setError = useCinematifierStore(s => s.setError);
+    const updateChapter = useBookStore(s => s.updateChapter);
+    const setError = useProcessingStore(s => s.setError);
     const [isProcessingChapter, setIsProcessingChapter] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
     const bridgeHook = useRenderBridge({
@@ -59,22 +58,54 @@ export function useChapterProcessing(
         abortControllerRef.current = controller;
         updateChapter(currentChapterIndex, { status: 'processing', errorMessage: undefined });
 
-        const config = getCinematifierAIConfig();
+        const book = useBookStore.getState().book;
+        if (book) {
+            try {
+                const cached = await getCachedChapter(book.id, currentChapterIndex);
+                if (cached && cached.blocks && cached.blocks.length > 0) {
+                    const metadata = extractOverallMetadata(
+                        cached.cinematifiedText ?? cached.blocks.map(b => b.content).join('\n\n'),
+                        cached.blocks,
+                    );
+
+                    updateChapter(currentChapterIndex, {
+                        originalModeText: cached.originalModeText ?? currentChapter.originalModeText ?? currentChapter.originalText,
+                        originalModeScenes: cached.originalModeScenes ?? currentChapter.originalModeScenes,
+                        cinematifiedBlocks: cached.blocks,
+                        cinematifiedText: cached.cinematifiedText ?? cached.blocks.map(b => b.content).join('\n\n'),
+                        isProcessed: true,
+                        status: 'ready',
+                        errorMessage: undefined,
+                        toneTags: metadata.toneTags,
+                        characters: metadata.characters,
+                        entityRegistry: cached.entityRegistry,
+                        renderPlan: cached.renderPlan,
+                        cinematizedScenes: cached.cinematizedScenes,
+                        narrativeMode: cached.narrativeMode,
+                        povCharacter: cached.povCharacter,
+                    });
+
+                    const updatedBook = useBookStore.getState().book;
+                    if (updatedBook) {
+                        await saveBook(updatedBook);
+                    }
+                    setIsProcessingChapter(false);
+                    abortControllerRef.current = null;
+                    return;
+                }
+            } catch (e) {
+                console.warn('[CinematicReader] Cache read error, falling back to processing:', e);
+            }
+        }
+
         const chapterSourceText = currentChapter.originalModeText ?? currentChapter.originalText;
         const adapter = new CinematicStreamAdapter();
         const unbindStream = bridgeHook.bindStream(adapter, [currentChapter.id]);
 
         try {
-            adapter.start(config.provider);
-            const result = await runFullSystemPipeline(chapterSourceText, config, {
+            adapter.start('none');
+            const result = await runFullSystemPipeline(chapterSourceText, {
                 inputIsRebuilt: true,
-                onChunk:
-                    config.provider === 'none'
-                        ? undefined
-                        : (blocks, isDone) => {
-                              adapter.pushChunk(blocks);
-                              if (isDone) adapter.complete();
-                          },
                 signal: controller.signal,
             });
             adapter.complete();
@@ -99,8 +130,28 @@ export function useChapterProcessing(
                 cinematizedScenes: result.cinematizedMode.scenes,
                 narrativeMode: result.cinematizedMode.narrativeMode,
                 povCharacter: result.cinematizedMode.povCharacter,
+                entityRegistry: result.cinematizedMode.entityRegistry,
             });
-            const updatedBook = useCinematifierStore.getState().book;
+
+            if (book) {
+                await cacheChapter(
+                    book.id,
+                    currentChapterIndex,
+                    result.cinematizedMode.blocks,
+                    result.cinematizedMode.entityRegistry || { characters: [], locations: [] },
+                    {
+                        originalModeText: result.originalMode.text,
+                        originalModeScenes: result.originalMode.scenes,
+                        cinematifiedText: result.cinematizedMode.rawText,
+                        renderPlan: result.cinematizedMode.renderPlan,
+                        cinematizedScenes: result.cinematizedMode.scenes,
+                        narrativeMode: result.cinematizedMode.narrativeMode,
+                        povCharacter: result.cinematizedMode.povCharacter,
+                    }
+                ).catch(e => console.warn('[CinematicReader] Failed to write cache:', e));
+            }
+
+            const updatedBook = useBookStore.getState().book;
             if (updatedBook)
                 saveBook(updatedBook).catch(e => {
                     console.warn('[CinematicReader] Failed to persist book:', e);
@@ -110,43 +161,15 @@ export function useChapterProcessing(
                 adapter.error('Cancelled by user');
                 return;
             }
-            adapter.error(toChapterErrorMessage(err));
+            const message = toChapterErrorMessage(err);
+            adapter.error(message);
             console.error('[CinematicReader] Process error:', err);
-            if (!currentChapter) return;
-            try {
-                const sourceText = currentChapter.originalModeText ?? currentChapter.originalText;
-                const result = cinematifyOffline(sourceText);
-                const metadata = extractOverallMetadata(result.rawText, result.blocks);
-                updateChapter(currentChapterIndex, {
-                    originalModeText: sourceText,
-                    cinematifiedBlocks: result.blocks,
-                    cinematifiedText: result.rawText,
-                    isProcessed: true,
-                    status: 'ready',
-                    errorMessage: 'AI provider failed; offline fallback applied for this chapter.',
-                    toneTags: metadata.toneTags,
-                    characters: metadata.characters,
-                    renderPlan: undefined,
-                    stageTrace: undefined,
-                    cinematizedScenes: undefined,
-                    narrativeMode: undefined,
-                    povCharacter: undefined,
-                });
-                setError('AI processing failed for the chapter; offline fallback was applied.');
-                const updatedBook = useCinematifierStore.getState().book;
-                if (updatedBook)
-                    saveBook(updatedBook).catch(e => {
-                        console.warn('[CinematicReader] Failed to persist book:', e);
-                    });
-            } catch (fallbackError) {
-                const message = toChapterErrorMessage(fallbackError);
-                updateChapter(currentChapterIndex, {
-                    status: 'error',
-                    isProcessed: false,
-                    errorMessage: message,
-                });
-                setError(`Chapter processing failed: ${message}`);
-            }
+            updateChapter(currentChapterIndex, {
+                status: 'error',
+                isProcessed: false,
+                errorMessage: message,
+            });
+            setError(`Chapter processing failed: ${message}`);
         } finally {
             unbindStream();
             setIsProcessingChapter(false);

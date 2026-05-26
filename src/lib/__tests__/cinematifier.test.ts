@@ -15,7 +15,6 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-    parseCinematifiedText,
     cleanExtractedText,
     reconstructParagraphs,
     formatOriginalText,
@@ -30,300 +29,10 @@ import {
     extractOverallMetadata,
 } from '../cinematifier';
 import { rebuildParagraphs } from '../engine/cinematifier/textProcessing';
+import { TensionTracker, SpeakerAttributor, MockDirector, AmbienceEngine } from '../engine/cinematifier/offlineEngine';
 import type { ChapterSegment } from '../../types/cinematifier';
 
-describe('parseCinematifiedText', () => {
-    it('returns empty array for empty input', () => {
-        expect(parseCinematifiedText('')).toEqual([]);
-    });
 
-    it('parses a plain action line', () => {
-        const blocks = parseCinematifiedText('The door creaks open slowly.');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('action');
-        expect(blocks[0].content).toBe('The door creaks open slowly.');
-    });
-
-    it('parses a standalone BEAT marker', () => {
-        const blocks = parseCinematifiedText('BEAT');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('beat');
-        expect(blocks[0].beat?.type).toBe('BEAT');
-    });
-
-    it('parses PAUSE marker', () => {
-        const blocks = parseCinematifiedText('PAUSE');
-        expect(blocks[0].type).toBe('beat');
-        expect(blocks[0].beat?.type).toBe('PAUSE');
-    });
-
-    it('parses SILENCE marker', () => {
-        const blocks = parseCinematifiedText('SILENCE');
-        expect(blocks[0].type).toBe('beat');
-        expect(blocks[0].beat?.type).toBe('SILENCE');
-    });
-
-    it('parses CUT TO scene transition', () => {
-        const blocks = parseCinematifiedText('CUT TO: THE FOREST');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('transition');
-        expect(blocks[0].transition?.type).toBe('CUT TO');
-        expect(blocks[0].transition?.description).toBe('THE FOREST');
-    });
-
-    it('parses bracket transition markers emitted by core pipeline', () => {
-        const blocks = parseCinematifiedText('[TRANSITION: SMASH CUT]');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('transition');
-        expect(blocks[0].transition?.type).toBe('SMASH CUT');
-    });
-
-    it('parses FADE IN transition', () => {
-        const blocks = parseCinematifiedText('FADE IN');
-        expect(blocks[0].type).toBe('transition');
-        expect(blocks[0].transition?.type).toBe('FADE IN');
-    });
-
-    it('parses FADE TO BLACK transition', () => {
-        const blocks = parseCinematifiedText('FADE TO BLACK');
-        expect(blocks[0].type).toBe('transition');
-        expect(blocks[0].transition?.type).toBe('FADE TO BLACK');
-    });
-
-    it('parses a standalone SFX line', () => {
-        const blocks = parseCinematifiedText('SFX: THUNDERCLAP');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('sfx');
-        expect(blocks[0].sfx?.sound).toBe('THUNDERCLAP');
-        expect(blocks[0].sfx?.intensity).toBe('loud');
-    });
-
-    it('parses bracketed [SFX] tag lines', () => {
-        const blocks = parseCinematifiedText('[SFX] THUNDERCLAP');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('sfx');
-        expect(blocks[0].sfx?.sound).toBe('THUNDERCLAP');
-    });
-
-    it('parses a soft SFX', () => {
-        const blocks = parseCinematifiedText('SFX: soft whisper');
-        expect(blocks[0].sfx?.intensity).toBe('soft');
-    });
-
-    it('parses an explosive SFX', () => {
-        const blocks = parseCinematifiedText('SFX: DETONATION');
-        expect(blocks[0].sfx?.intensity).toBe('explosive');
-    });
-
-    it('parses inline SFX attached to a text line', () => {
-        const blocks = parseCinematifiedText('She slammed the door. SFX: SLAM');
-        expect(blocks.length).toBeGreaterThanOrEqual(2);
-        const sfxBlock = blocks.find(b => b.type === 'sfx');
-        expect(sfxBlock).toBeDefined();
-        expect(sfxBlock?.sfx?.sound).toBe('SLAM');
-    });
-
-    it('parses inline bracket SFX attached to a text line', () => {
-        const blocks = parseCinematifiedText('She slammed the door. [SFX: SLAM]');
-        expect(blocks.length).toBeGreaterThanOrEqual(2);
-        const sfxBlock = blocks.find(b => b.type === 'sfx');
-        expect(sfxBlock).toBeDefined();
-        expect(sfxBlock?.sfx?.sound).toBe('SLAM');
-    });
-
-    it('parses a dialogue line', () => {
-        const blocks = parseCinematifiedText('"I have to go," she whispered.');
-        const dialogueBlock = blocks.find(b => b.type === 'dialogue');
-        expect(dialogueBlock).toBeDefined();
-        expect(dialogueBlock?.content).toBe('I have to go,');
-        expect(dialogueBlock?.intensity).toBe('whisper');
-    });
-
-    it('parses a shouted dialogue line', () => {
-        const blocks = parseCinematifiedText('"Run!" he shouted.');
-        const dialogueBlock = blocks.find(b => b.type === 'dialogue');
-        expect(dialogueBlock?.intensity).toBe('shout');
-    });
-
-    it('parses an inner thought with *asterisks*', () => {
-        const blocks = parseCinematifiedText('*He knew this was wrong.*');
-        expect(blocks[0].type).toBe('inner_thought');
-        expect(blocks[0].content).toBe('He knew this was wrong.');
-    });
-
-    it('parses an inner thought with _underscores_', () => {
-        const blocks = parseCinematifiedText('_Nothing would ever be the same._');
-        expect(blocks[0].type).toBe('inner_thought');
-    });
-
-    it('parses camera direction', () => {
-        const blocks = parseCinematifiedText('(CLOSE ON: his face)');
-        expect(blocks[0].type).toBe('action');
-        expect(blocks[0].cameraDirection).toBe('CLOSE ON');
-    });
-
-    it('parses [CAMERA] markers with optional trailing text', () => {
-        const blocks = parseCinematifiedText('[CAMERA: OVER THE SHOULDER] He watches the door.');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('action');
-        expect(blocks[0].cameraDirection).toBe('OVER THE SHOULDER');
-        expect(blocks[0].content).toBe('He watches the door.');
-    });
-
-    it('parses [AMBIENCE] markers as action metadata', () => {
-        const blocks = parseCinematifiedText('[AMBIENCE: distant rainfall]');
-        expect(blocks).toHaveLength(1);
-        expect(blocks[0].type).toBe('action');
-        expect(blocks[0].ambience).toBe('distant rainfall');
-        expect(blocks[0].content).toBe('');
-    });
-
-    it('extracts [EMOTION] tag from action line', () => {
-        const blocks = parseCinematifiedText('She wept. [EMOTION: sadness]');
-        expect(blocks[0].emotion).toBe('sadness');
-        expect(blocks[0].content).not.toContain('[EMOTION:');
-    });
-
-    it('extracts [TENSION] tag from action line', () => {
-        const blocks = parseCinematifiedText('The gun clicked. [TENSION: 85]');
-        expect(blocks[0].tensionScore).toBe(85);
-        expect(blocks[0].content).not.toContain('[TENSION:');
-    });
-
-    it('clamps tension score to 0-100', () => {
-        const blocks = parseCinematifiedText('Something. [TENSION: 150]');
-        expect(blocks[0].tensionScore).toBe(100);
-    });
-
-    it('assigns rapid timing to very short lines (≤4 words)', () => {
-        const blocks = parseCinematifiedText('Stop. Drop. Roll.');
-        // Even if grouped differently, at least one should have rapid timing
-        const rapidBlock = blocks.find(b => b.timing === 'rapid');
-        expect(rapidBlock).toBeDefined();
-    });
-
-    it('handles multiple paragraphs', () => {
-        const text = 'First paragraph.\n\nSecond paragraph.\n\nSFX: BOOM';
-        const blocks = parseCinematifiedText(text);
-        const sfxBlock = blocks.find(b => b.type === 'sfx');
-        expect(sfxBlock).toBeDefined();
-    });
-
-    it('each block has a unique id', () => {
-        const blocks = parseCinematifiedText('Line one.\n\nLine two.\n\nLine three.');
-        const ids = blocks.map(b => b.id);
-        const unique = new Set(ids);
-        expect(unique.size).toBe(ids.length);
-    });
-
-    // ─── Scene Marker Tests ──────────────────────────────────
-
-    it('parses [SCENE: description] markers as title_card blocks', () => {
-        const blocks = parseCinematifiedText('[SCENE: Abandoned Mountain Path]');
-        expect(blocks.length).toBe(1);
-        expect(blocks[0].type).toBe('title_card');
-        expect(blocks[0].content).toBe('Abandoned Mountain Path');
-    });
-
-    it('parses [SCENE] markers without colon', () => {
-        const blocks = parseCinematifiedText('[SCENE] Abandoned Mountain Path');
-        expect(blocks.length).toBe(1);
-        expect(blocks[0].type).toBe('title_card');
-        expect(blocks[0].content).toBe('Abandoned Mountain Path');
-    });
-
-    it('parses scene markers with surrounding text', () => {
-        const text = `[SCENE: Forest Clearing]
-
-The wind rustled through the trees.
-
-— ✦ —
-
-[SCENE: Cave Entrance]
-
-The air smelled damp.`;
-        const blocks = parseCinematifiedText(text);
-
-        const titleCards = blocks.filter(b => b.type === 'title_card');
-        expect(titleCards.length).toBe(2);
-        expect(titleCards[0].content).toBe('Forest Clearing');
-        expect(titleCards[1].content).toBe('Cave Entrance');
-
-        const sceneBreaks = blocks.filter(b => b.type === 'beat' && b.content === '— ✦ —');
-        expect(sceneBreaks.length).toBe(1);
-    });
-
-    it('parses scene break markers (— ✦ —)', () => {
-        const blocks = parseCinematifiedText('Some text.\n\n— ✦ —\n\nMore text.');
-        const breaks = blocks.filter(b => b.type === 'beat' && b.content === '— ✦ —');
-        expect(breaks.length).toBe(1);
-        expect(breaks[0].beat?.type).toBe('PAUSE');
-    });
-
-    it('parses *** as scene break', () => {
-        const blocks = parseCinematifiedText('Before.\n\n***\n\nAfter.');
-        const breaks = blocks.filter(b => b.type === 'beat' && b.content === '— ✦ —');
-        expect(breaks.length).toBe(1);
-    });
-
-    // ─── Wrapper Block Tests ─────────────────────────────────
-
-    it('parses [TENSION] wrapper blocks with heightened tension', () => {
-        const text = `[TENSION]
-Footsteps approached.
-Closer.
-Closer.
-[/TENSION]`;
-        const blocks = parseCinematifiedText(text);
-
-        // All content inside [TENSION] should be action blocks with heightened tension
-        expect(blocks.length).toBe(3);
-        blocks.forEach(block => {
-            expect(block.type).toBe('action');
-            expect(block.intensity).toBe('emphasis');
-            expect(block.tensionScore).toBe(80);
-            expect(block.emotion).toBe('suspense');
-        });
-    });
-
-    it('parses [REFLECTION] wrapper blocks as inner_thought', () => {
-        const text = `[REFLECTION]
-She remembered the old house.
-The way the light fell through the window.
-[/REFLECTION]`;
-        const blocks = parseCinematifiedText(text);
-
-        expect(blocks.length).toBe(2);
-        blocks.forEach(block => {
-            expect(block.type).toBe('inner_thought');
-            expect(block.intensity).toBe('whisper');
-        });
-    });
-
-    it('parses mixed content with scene markers, SFX, and wrappers', () => {
-        const text = `[SCENE: Forest Clearing]
-
-The wind rustled through the trees.
-
-— ✦ —
-
-"You shouldn't have followed me."
-
-SFX: distant thunder
-
-[TENSION]
-Footsteps approached.
-Closer.
-[/TENSION]`;
-        const blocks = parseCinematifiedText(text);
-
-        expect(blocks.some(b => b.type === 'title_card')).toBe(true);
-        expect(blocks.some(b => b.type === 'beat' && b.content === '— ✦ —')).toBe(true);
-        expect(blocks.some(b => b.type === 'dialogue')).toBe(true);
-        expect(blocks.some(b => b.type === 'sfx')).toBe(true);
-        expect(blocks.some(b => b.type === 'action' && b.tensionScore === 80)).toBe(true);
-    });
-});
 
 // ─── cleanExtractedText ───────────────────────────────────────────────────────
 
@@ -629,6 +338,13 @@ describe('segmentChapters', () => {
         expect(segments.length).toBe(2);
         expect(segments[0].title).toMatch(/^1\s+/);
         expect(segments[1].title).toMatch(/^2\s+/);
+    });
+
+    it('forces single chapter mode when strict chapter headings are duplicates', () => {
+        const text = `Chapter 1: The heart of a demon never has regret\n\n${makeContent(5)}\n\nChapter 1: The heart of a demon never has regret even in death\n\n${makeContent(5)}\n\nSection 2\n\n${makeContent(5)}\n\nSection 3\n\n${makeContent(5)}`;
+        const segments = segmentChapters(text);
+        expect(segments.length).toBe(1);
+        expect(segments[0].title).toContain('Chapter 1');
     });
 });
 
@@ -1031,5 +747,111 @@ describe('extractOverallMetadata', () => {
         const meta = extractOverallMetadata(undefined, []);
         expect(meta.genre).toBeUndefined();
         expect(meta.toneTags).toBeUndefined();
+    });
+});
+
+describe('cinematifyOffline Reworked Heuristic Engines', () => {
+    it('TensionTracker tracks sentence-by-sentence tension and maps emotion', () => {
+        const tracker = new TensionTracker();
+        expect(tracker.getTension()).toBe(20);
+
+        // Positive calm sentence should decrease/maintain low tension
+        tracker.processSentence('The warm sun smiled down gently.');
+        expect(tracker.getTension()).toBeLessThanOrEqual(20);
+        expect(tracker.getEmotion('The warm sun smiled down gently.', tracker.getTension())).toBe('romantic');
+
+        // Intense threat sentence should increase tension
+        tracker.reset();
+        tracker.processSentence('Suddenly, a dark figure drew a sharp knife and yelled "Stop!"');
+        expect(tracker.getTension()).toBeGreaterThan(30);
+        expect(tracker.getEmotion('drew a sharp knife and yelled', 80)).toBe('action');
+    });
+
+    it('SpeakerAttributor attributes alternating dialogues correctly', () => {
+        const attributor = new SpeakerAttributor();
+        const known = new Set<string>(['MARA', 'JON']);
+
+        // Explicit speaker detection
+        const s1 = attributor.detectSpeaker('Mara said, "I am here."', known);
+        expect(s1).toBe('MARA');
+
+        const s2 = attributor.detectSpeaker('"Hello," replied Jon.', known);
+        expect(s2).toBe('JON');
+
+        // Register them explicitly to pre-populate attributor memory
+        attributor.registerSpeaker('MARA');
+        attributor.registerSpeaker('JON');
+
+        // Alternation state machine check
+        // Mara was registered first, then Jon. So Jon is recent[0] and Mara is recent[1]
+        // Let's explicitly mock a back-and-forth conversation
+        const a1 = attributor.attributeDialogue(undefined);
+        const a2 = attributor.attributeDialogue(undefined);
+        expect(a1).toBeDefined();
+        expect(a2).toBeDefined();
+        expect(a1).not.toBe(a2);
+    });
+
+    it('MockDirector assigns camera angles dynamically', () => {
+        const director = new MockDirector();
+
+        // Establishing shot on new scene action
+        const camera1 = director.getCameraDirection('action', 'The silent forest stretched for miles.', 20, undefined, true);
+        expect(camera1).toBe('WIDE ESTABLISHING');
+
+        // Close on high tension action
+        const camera2 = director.getCameraDirection('action', 'The glass shattered violently!', 85, undefined, false);
+        expect(camera2).toBe('HANDHELD CLOSE');
+
+        // Dialogue alternation angles
+        const camera3 = director.getCameraDirection('dialogue', 'Sure.', 30, 'MARA', false);
+        const camera4 = director.getCameraDirection('dialogue', 'Okay.', 30, 'JON', false);
+        expect(camera3).toBeDefined();
+        expect(camera4).toBeDefined();
+    });
+
+    it('AmbienceEngine tracks persistent weather/setting tags', () => {
+        const engine = new AmbienceEngine();
+        expect(engine.getAmbience()).toBe('ambient stillness');
+
+        // Weather trigger
+        const a1 = engine.updateAmbience('Heavy rain started falling from the sky.', 30);
+        expect(a1).toBe('distant rainfall');
+
+        // Persistent carryover on neutral line
+        const a2 = engine.updateAmbience('They walked slowly down the path.', 30);
+        expect(a2).toBe('distant rainfall');
+
+        // Setting trigger update
+        const a3 = engine.updateAmbience('They entered a dark forest.', 30);
+        expect(a3).toBe('forest rustle');
+    });
+
+    it('cinematifyOffline coordinates everything into structured blocks', () => {
+        const text = `
+Chapter 1
+
+The rain fell on the forest path.
+
+"Are you ready?" Mara whispered.
+
+"No," Jon muttered.
+
+A loud crash shook the trees!
+        `.trim();
+
+        const result = cinematifyOffline(text);
+        expect(result.blocks.length).toBeGreaterThan(3);
+
+        const dialogueBlocks = result.blocks.filter(b => b.type === 'dialogue');
+        expect(dialogueBlocks.length).toBe(2);
+        expect(dialogueBlocks[0].speaker).toBe('MARA');
+        expect(dialogueBlocks[1].speaker).toBe('JON');
+        expect(dialogueBlocks[0].ambience).toBe('distant rainfall');
+
+        const sfxBlocks = result.blocks.filter(b => b.type === 'sfx');
+        expect(sfxBlocks.length).toBeGreaterThanOrEqual(2);
+        const crashBlock = sfxBlocks.find(b => b.sfx?.sound === 'CRASH');
+        expect(crashBlock).toBeDefined();
     });
 });

@@ -1,19 +1,14 @@
 /**
  * useReaderState.ts — Consolidated Reader State Hook
  *
- * Replaces 15+ individual `useCinematifierStore(s => s.X)` selectors
- * in CinematicReader.tsx with a single hook that provides:
- *   - All reader data (book, chapter, blocks)
- *   - All reader settings
- *   - Derived convenience values (isOriginalMode, hasBlocks, etc.)
- *   - All reader actions
- *
- * Uses Zustand's shallow equality to prevent unnecessary re-renders.
+ * Replaces 15+ individual store selectors in CinematicReader.tsx
+ * with a single hook that provides all reader data, settings,
+ * actions, and derived convenience values.
  */
 
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { useCinematifierStore } from '../store/cinematifierStore';
+import { useBookStore, useReaderStore } from '../store';
 import type {
     Book,
     Chapter,
@@ -21,7 +16,6 @@ import type {
     ReaderMode,
     ImmersionLevel,
 } from '../types/cinematifier';
-import type { AIProviderName } from '../lib/ai/index';
 
 // ─── Return Type ───────────────────────────────────────────────────────────────
 
@@ -40,7 +34,6 @@ export interface ReaderState {
     immersionLevel: ImmersionLevel;
     darkMode: boolean;
     dyslexiaFont: boolean;
-    aiProvider: AIProviderName;
 
     // ── Derived ──
     isOriginalMode: boolean;
@@ -65,9 +58,10 @@ export interface ReaderState {
 // ─── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useReaderState(): ReaderState {
-    // Pull all raw values from store with shallow comparison
+    const book = useBookStore(s => s.book);
+
+    // Pull raw reader setting values from the reader slice
     const {
-        book,
         currentChapterIndex,
         readerMode,
         fontSize,
@@ -75,7 +69,6 @@ export function useReaderState(): ReaderState {
         immersionLevel,
         darkMode,
         dyslexiaFont,
-        aiProvider,
         setReaderMode,
         setCurrentChapter,
         setFontSize,
@@ -83,9 +76,8 @@ export function useReaderState(): ReaderState {
         setImmersionLevel,
         toggleDarkMode,
         toggleDyslexiaFont,
-    } = useCinematifierStore(
+    } = useReaderStore(
         useShallow(s => ({
-            book: s.book,
             currentChapterIndex: s.currentChapterIndex,
             readerMode: s.readerMode,
             fontSize: s.fontSize,
@@ -93,7 +85,6 @@ export function useReaderState(): ReaderState {
             immersionLevel: s.immersionLevel,
             darkMode: s.darkMode,
             dyslexiaFont: s.dyslexiaFont,
-            aiProvider: s.aiProvider,
             setReaderMode: s.setReaderMode,
             setCurrentChapter: s.setCurrentChapter,
             setFontSize: s.setFontSize,
@@ -138,7 +129,6 @@ export function useReaderState(): ReaderState {
         immersionLevel,
         darkMode,
         dyslexiaFont,
-        aiProvider,
         // Derived
         isOriginalMode,
         isCinematizedMode,

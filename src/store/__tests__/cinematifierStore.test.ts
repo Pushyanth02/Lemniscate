@@ -34,17 +34,11 @@ vi.mock('../../lib/cinematifierDb', () => ({
     loadReadingProgress: vi.fn().mockResolvedValue(null),
 }));
 
-// Mock crypto to avoid Web Crypto API (not meaningful in jsdom for key derivation)
-vi.mock('../../lib/security/crypto', () => ({
-    encrypt: vi.fn().mockResolvedValue('encrypted'),
-    decrypt: vi.fn().mockResolvedValue(''),
-    deobfuscateLegacy: vi.fn().mockReturnValue(''),
-    isLegacyEncryption: vi.fn().mockReturnValue(false),
-}));
+
 
 // ─── Imports (after mocks) ────────────────────────────────────────────────────
 
-import { useCinematifierStore, getCinematifierAIConfig } from '../cinematifierStore';
+import { useCinematifierStore } from '../cinematifierStore';
 import type { CinematifierState } from '../cinematifierStore';
 import type { Book, ReadingProgress, ProcessingProgress } from '../../types/cinematifier';
 
@@ -88,34 +82,7 @@ beforeEach(() => {
     useCinematifierStore.getState().reset();
 });
 
-// ─── getCinematifierAIConfig ──────────────────────────────────────────────────
 
-describe('getCinematifierAIConfig', () => {
-    it('returns an AIConfig object with all required fields', () => {
-        const config = getCinematifierAIConfig();
-        expect(config.provider).toBeDefined();
-        expect(typeof config.geminiKey).toBe('string');
-        expect(typeof config.openAiKey).toBe('string');
-        expect(typeof config.anthropicKey).toBe('string');
-        expect(typeof config.groqKey).toBe('string');
-        expect(typeof config.deepseekKey).toBe('string');
-        expect(typeof config.ollamaUrl).toBe('string');
-        expect(typeof config.ollamaModel).toBe('string');
-        expect(typeof config.useSearchGrounding).toBe('boolean');
-    });
-
-    it('reflects store aiProvider changes', () => {
-        useCinematifierStore.getState().setAiConfig({ aiProvider: 'gemini' });
-        const config = getCinematifierAIConfig();
-        expect(config.provider).toBe('gemini');
-    });
-
-    it('reflects store geminiKey changes', () => {
-        useCinematifierStore.getState().setAiConfig({ geminiKey: 'my-key' });
-        const config = getCinematifierAIConfig();
-        expect(config.geminiKey).toBe('my-key');
-    });
-});
 
 // ─── Book actions ─────────────────────────────────────────────────────────────
 
@@ -276,31 +243,7 @@ describe('store — processing actions', () => {
     });
 });
 
-// ─── AI config actions ────────────────────────────────────────────────────────
 
-describe('store — AI config actions', () => {
-    it('setAiConfig updates aiProvider', () => {
-        useCinematifierStore.getState().setAiConfig({ aiProvider: 'openai' });
-        expect(useCinematifierStore.getState().aiProvider).toBe('openai');
-    });
-
-    it('setAiConfig updates ollamaUrl', () => {
-        useCinematifierStore.getState().setAiConfig({ ollamaUrl: 'http://myserver:11434' });
-        expect(useCinematifierStore.getState().ollamaUrl).toBe('http://myserver:11434');
-    });
-
-    it('setAiConfig updates useSearchGrounding', () => {
-        useCinematifierStore.getState().setAiConfig({ useSearchGrounding: true });
-        expect(useCinematifierStore.getState().useSearchGrounding).toBe(true);
-    });
-
-    it('setAiConfig does partial updates (no other fields changed)', () => {
-        useCinematifierStore.getState().setAiConfig({ aiProvider: 'groq', groqKey: 'abc' });
-        useCinematifierStore.getState().setAiConfig({ aiProvider: 'openai' });
-        // groqKey should remain unchanged after the second setAiConfig
-        expect(useCinematifierStore.getState().groqKey).toBe('abc');
-    });
-});
 
 // ─── ReadingProgress actions ─────────────────────────────────────────────────
 

@@ -190,6 +190,9 @@ function timeoutSignal(timeoutMs: number): AbortSignal {
 }
 
 async function fetchJson<T>(url: string, timeoutMs: number): Promise<T | null> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return null;
+    }
     try {
         const response = await fetch(url, {
             method: 'GET',
@@ -390,6 +393,9 @@ function mergeMetadata(results: Array<FreeBookMetadata | null>): FreeBookMetadat
 export async function enrichBookMetadataFromFreeApis(
     input: EnrichBookMetadataInput,
 ): Promise<FreeBookMetadata | null> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return null;
+    }
     const title = input.title.trim();
     if (!title) return null;
 
