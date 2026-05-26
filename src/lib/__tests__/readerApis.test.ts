@@ -14,9 +14,10 @@ describe('readerApis', () => {
 
     it('builds word insight from dictionary and related-word APIs', async () => {
         const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-            const url = String(input);
+            const rawUrl = typeof input === 'string' ? input : String(input);
+            const parsedUrl = new URL(rawUrl);
 
-            if (url.includes('dictionaryapi.dev')) {
+            if (parsedUrl.hostname === 'dictionaryapi.dev') {
                 return new Response(
                     JSON.stringify([
                         {
@@ -41,21 +42,21 @@ describe('readerApis', () => {
                 );
             }
 
-            if (url.includes('rel_ant=')) {
+            if (parsedUrl.searchParams.has('rel_ant')) {
                 return new Response(JSON.stringify([{ word: 'bright' }, { word: 'radiant' }]), {
                     status: 200,
                     headers: { 'Content-Type': 'application/json' },
                 });
             }
 
-            if (url.includes('md=s')) {
+            if (parsedUrl.searchParams.get('md') === 's') {
                 return new Response(JSON.stringify([{ word: 'noir', numSyllables: 1 }]), {
                     status: 200,
                     headers: { 'Content-Type': 'application/json' },
                 });
             }
 
-            if (url.includes('api.datamuse.com')) {
+            if (parsedUrl.hostname === 'api.datamuse.com') {
                 return new Response(
                     JSON.stringify([{ word: 'shadowy' }, { word: 'dark' }, { word: 'grim' }]),
                     { status: 200, headers: { 'Content-Type': 'application/json' } },
