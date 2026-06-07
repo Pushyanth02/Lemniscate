@@ -24,6 +24,7 @@ import {
     detectSceneBreaks,
 } from './sceneDetection';
 import { analyzeSentiment } from './sentimentTracker';
+import { processParagraphsWithSpeakers } from '../../engine/offline/speakerTracker';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -107,11 +108,20 @@ export interface DocumentStats {
     totalScenes: number;
     dialogueFragments: number;
     narrationFragments: number;
+    actionBeatFragments: number;
     uniqueSpeakers: string[];
     averageWordsPerParagraph: number;
     averageWordsPerScene: number;
     /** Ratio of dialogue to total fragments (0-1) */
     dialogueRatio: number;
+    /** Speaker tracking statistics (if enabled) */
+    speakerStatistics?: {
+        totalSpeakers: number;
+        totalDialogueFragments: number;
+        averageFragmentsPerSpeaker: number;
+        dominantSpeaker?: string;
+        speakerEntropy: number;
+    };
 }
 
 export interface TextProcessingOptions {
@@ -557,10 +567,10 @@ export function segmentScenes(paragraphs: ProcessedParagraph[]): DetectedScene[]
  * Input:  raw messy text (PDF/OCR extracted)
  * Output: NarrativeDocument with structured paragraphs, dialogue, and scenes
  */
-export function processText(
+export async function processText(
     rawText: string,
     options: TextProcessingOptions = {},
-): NarrativeDocument {
+): Promise<NarrativeDocument> {
     const startTime = performance.now();
 
     if (!rawText.trim()) {
@@ -590,9 +600,25 @@ export function processText(
 
     // Stage 2: Dialogue detection (already done during reconstruction if detectSpeakers)
     // Re-run only if initial pass skipped speaker detection
-    const enrichedParagraphs = options.detectSpeakers === false
+    let enrichedParagraphs = options.detectSpeakers === false
         ? detectDialogue(paragraphs)
         : paragraphs;
+
+    // Stage 2.5: Speaker tracking (if speaker detection is enabled)
+    let speakerTrackingResult = null;
+    let uniqueSpeakers: string[] = [];
+    if (options.detectSpeakers !== false) {
+        const speakerResult = await processParagraphsWithSpeakers(enrichedParagraphs, {
+            minConfidence: 0.6,
+            attributionWindow: 200,
+            enableHeuristics: true,
+            enableNameDeduplication: true,
+            minFragmentsForSignificance: 1
+        });
+        enrichedParagraphs = speakerResult.paragraphs;
+        uniqueSpeakers = speakerResult.speakers.map(s => s.name);
+        speakerTrackingResult = speakerResult;
+    }
 
     // Stage 3: Scene segmentation
     const scenes = segmentScenes(enrichedParagraphs);
@@ -601,6 +627,7 @@ export function processText(
     const allFragments = enrichedParagraphs.flatMap(p => p.fragments);
     const dialogueFragments = allFragments.filter(f => f.type === 'dialogue').length;
     const narrationFragments = allFragments.filter(f => f.type === 'narration').length;
+    const actionBeatFragments = allFragments.filter(f => f.type === 'action_beat').length;
     const totalFragments = Math.max(1, allFragments.length);
 
     const speakerSet = new Set<string>();
@@ -610,12 +637,25 @@ export function processText(
 
     const totalWords = enrichedParagraphs.reduce((sum, p) => sum + p.wordCount, 0);
 
+    // Calculate speaker statistics if speaker tracking was performed
+    let speakerStatistics: DocumentStats['speakerStatistics'] | undefined;
+    if (speakerTrackingResult) {
+        speakerStatistics = {
+            totalSpeakers: speakerTrackingResult.statistics.totalSpeakers,
+            totalDialogueFragments: speakerTrackingResult.statistics.totalDialogueFragments,
+            averageFragmentsPerSpeaker: speakerTrackingResult.statistics.averageFragmentsPerSpeaker,
+            dominantSpeaker: speakerTrackingResult.statistics.dominantSpeaker,
+            speakerEntropy: speakerTrackingResult.statistics.speakerEntropy,
+        };
+    }
+
     const stats: DocumentStats = {
         totalWords,
         totalParagraphs: enrichedParagraphs.length,
         totalScenes: scenes.length,
         dialogueFragments,
         narrationFragments,
+        actionBeatFragments,
         uniqueSpeakers: [...speakerSet].sort(),
         averageWordsPerParagraph: enrichedParagraphs.length > 0
             ? Math.round(totalWords / enrichedParagraphs.length)
@@ -624,6 +664,7 @@ export function processText(
             ? Math.round(totalWords / scenes.length)
             : 0,
         dialogueRatio: Math.round((dialogueFragments / totalFragments) * 1000) / 1000,
+        speakerStatistics,
     };
 
     return {
