@@ -1,8 +1,8 @@
 /**
  * ReaderHeader.tsx — Reader Header Bar Component
  *
- * Contains the mode toggle (Original/Cinematic), ambient sound controls,
- * auto-scroll, bookmark, download, settings, and close buttons.
+ * Contains the mode toggle (Original/Cinematic), bookmark, 
+ * download, settings, and close buttons.
  */
 
 import React from 'react';

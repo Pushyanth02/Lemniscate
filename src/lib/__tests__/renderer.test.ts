@@ -10,8 +10,6 @@ describe('runtime renderer plan', () => {
                 type: 'action',
                 content: 'The hallway lights flickered as the storm rolled in.',
                 intensity: 'normal',
-                cameraDirection: 'WIDE ESTABLISHING',
-                ambience: 'storm rumble',
                 emotion: 'suspense',
                 tensionScore: 46,
             },
@@ -37,8 +35,6 @@ describe('runtime renderer plan', () => {
         expect(plan.totalEstimatedDurationMs).toBeGreaterThan(0);
         expect(plan.scenes[0].title).toBe('Storm Corridor');
         expect(plan.scenes[1].title).toBe('Whispered Warning');
-        expect(plan.cues[0].cameraDirection).toBe('WIDE ESTABLISHING');
-        expect(plan.cues[0].ambience).toBe('storm rumble');
     });
 
     it('returns an empty cue plan when no blocks are present', () => {

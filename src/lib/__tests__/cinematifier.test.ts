@@ -847,7 +847,6 @@ A loud crash shook the trees!
         expect(dialogueBlocks.length).toBe(2);
         expect(dialogueBlocks[0].speaker).toBe('MARA');
         expect(dialogueBlocks[1].speaker).toBe('JON');
-        expect(dialogueBlocks[0].ambience).toBe('distant rainfall');
 
         const sfxBlocks = result.blocks.filter(b => b.type === 'sfx');
         expect(sfxBlocks.length).toBeGreaterThanOrEqual(2);

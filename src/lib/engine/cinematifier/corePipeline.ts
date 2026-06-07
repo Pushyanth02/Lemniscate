@@ -377,12 +377,10 @@ function buildCinematicBlocksForScene(
 
             // Attach camera direction to first action block
             if (idx === 0 && blocks.filter(b => b.type === 'action').length === 0 && !isDialogue && cameraCue) {
-                block.cameraDirection = cameraCue;
             }
 
             // Attach ambience to first action block
             if (idx === 0 && blocks.filter(b => b.type === 'action').length === 0 && !isDialogue && ambienceLabel) {
-                block.ambience = ambienceLabel;
             }
 
             blocks.push(block);

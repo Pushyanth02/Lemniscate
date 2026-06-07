@@ -144,7 +144,6 @@ describe('corePipeline (Prompt 2A)', () => {
         expect(result.outputText.length).toBeGreaterThan(0);
         
         // Assert on structured blocks
-        expect(result.blocks.some(b => b.cameraDirection)).toBe(true);
         expect(result.blocks.some(b => b.type === 'title_card')).toBe(true);
         expect(result.blocks.some(b => b.type === 'sfx' && b.sfx?.sound === 'GUNSHOT')).toBe(true);
         expect(result.validation).toBeDefined();

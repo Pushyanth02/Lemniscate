@@ -155,7 +155,6 @@ function serializeChapter(chapter: Chapter, mode: ExportMode): SerializedChapter
         intensity: block.intensity,
         timing: block.timing,
         emotion: block.emotion,
-        cameraDirection: block.cameraDirection,
     }));
 
     return {

@@ -118,8 +118,6 @@ export function buildRenderPlan(
         intensity: block.intensity,
         timing: block.timing,
         speaker: block.speaker,
-        cameraDirection: block.cameraDirection,
-        ambience: block.ambience,
         emotion: block.emotion,
         tensionScore: block.tensionScore,
     }));

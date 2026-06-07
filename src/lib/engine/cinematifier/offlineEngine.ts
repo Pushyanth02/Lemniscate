@@ -2,7 +2,6 @@
  * offlineEngine.ts — Offline/Fallback Cinematification Engine
  *
  * Provides a sophisticated rule-based NLP pipeline when AI processing is unavailable.
- * Models character conversations, tension curves, persistent ambience, and cinematic
  * camera angles client-side without AI dependencies.
  */
 
@@ -533,7 +532,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
     const tensionTracker = new TensionTracker();
     const speakerAttributor = new SpeakerAttributor();
     const mockDirector = new MockDirector();
-    const ambienceEngine = new AmbienceEngine();
 
     const scenes = detectSceneBreaks(paragraphs);
     const knownCharacters = new Set<string>();
@@ -586,7 +584,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
             previousSceneIndex = currentSceneIndex;
             speakerAttributor.resetScene();
             mockDirector.resetScene();
-            ambienceEngine.resetScene();
 
             if (currentSceneIndex > 0) {
                 blocks.push({
@@ -629,8 +626,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 content: para,
                 intensity: 'normal',
                 transition: { type: transType },
-                cameraDirection: 'WIDE SHOT',
-                ambience: ambienceEngine.getAmbience(),
                 tensionScore: currentTension,
             });
 
@@ -650,7 +645,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 type: 'title_card',
                 content: para.toUpperCase(),
                 intensity: 'emphasis',
-                cameraDirection: 'WIDE SHOT',
             });
 
             blocks.push({
@@ -669,7 +663,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 type: 'title_card',
                 content: para.toUpperCase(),
                 intensity: 'emphasis',
-                cameraDirection: 'WIDE SHOT',
             });
 
             blocks.push({
@@ -688,7 +681,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 type: 'title_card',
                 content: para,
                 intensity: 'emphasis',
-                cameraDirection: 'WIDE SHOT',
             });
 
             blocks.push({
@@ -712,8 +704,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 lastT = tensionTracker.processSentence(s);
             }
             const emotion = tensionTracker.getEmotion(content, lastT);
-            const camera = mockDirector.getCameraDirection('inner_thought', content, lastT, undefined, isNewScene);
-            const ambience = ambienceEngine.updateAmbience(content, lastT);
 
             blocks.push({
                 id: generateBlockId(),
@@ -722,8 +712,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 intensity: 'whisper',
                 emotion,
                 tensionScore: lastT,
-                cameraDirection: camera,
-                ambience,
             });
             lastTension = lastT;
             continue;
@@ -737,9 +725,7 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                     lastT = tensionTracker.processSentence(s);
                 }
                 const emotion = tensionTracker.getEmotion(para, lastT);
-                const camera = mockDirector.getCameraDirection('inner_thought', para, lastT, undefined, isNewScene);
-                const ambience = ambienceEngine.updateAmbience(para, lastT);
-
+    
                 blocks.push({
                     id: generateBlockId(),
                     type: 'inner_thought',
@@ -747,8 +733,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                     intensity: 'whisper',
                     emotion,
                     tensionScore: lastT,
-                    cameraDirection: camera,
-                    ambience,
                 });
                 lastTension = lastT;
                 continue;
@@ -768,14 +752,12 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
             }
             lastTension = lastT;
             const emotion = tensionTracker.getEmotion(para, lastT);
-            const ambience = ambienceEngine.updateAmbience(para, lastT);
 
             for (const match of dialogueMatches) {
                 const dialogueContent = match[1];
                 const speaker = speakerAttributor.attributeDialogue(detectedSpeaker);
                 const intensity = speakerAttributor.getDialogueIntensity(dialogueContent, para, lastT);
-                const camera = mockDirector.getCameraDirection('dialogue', dialogueContent, lastT, speaker, isNewScene);
-
+    
                 blocks.push({
                     id: generateBlockId(),
                     type: 'dialogue',
@@ -784,24 +766,19 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                     intensity,
                     emotion,
                     tensionScore: lastT,
-                    cameraDirection: camera,
-                    ambience,
                 });
             }
 
             dialoguePattern.lastIndex = 0;
             const narration = para.replace(dialoguePattern, '').trim();
             if (narration.length > 20) {
-                const camera = mockDirector.getCameraDirection('action', narration, lastT, undefined, isNewScene);
-                blocks.push({
+                    blocks.push({
                     id: generateBlockId(),
                     type: 'action',
                     content: narration,
                     intensity: lastT >= 70 ? 'emphasis' : 'normal',
                     emotion,
                     tensionScore: lastT,
-                    cameraDirection: camera,
-                    ambience,
                 });
             }
         } else {
@@ -813,9 +790,7 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
             lastTension = lastT;
 
             const emotion = tensionTracker.getEmotion(para, lastT);
-            const ambience = ambienceEngine.updateAmbience(para, lastT);
             const pacing = analyseParagraphPacing(para);
-            const camera = mockDirector.getCameraDirection('action', para, lastT, undefined, isNewScene);
 
             blocks.push({
                 id: generateBlockId(),
@@ -824,8 +799,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 intensity: pacing.intensity,
                 emotion: pacing.emotion || emotion,
                 tensionScore: lastT,
-                cameraDirection: camera,
-                ambience,
                 ...(pacing.timing && { timing: pacing.timing }),
             });
         }
@@ -843,8 +816,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                     intensity: sfxIntensity === 'explosive' ? 'explosive' : 'emphasis',
                     sfx: { sound, intensity: sfxIntensity },
                     tensionScore: lastTension,
-                    cameraDirection: 'CLOSE ON',
-                    ambience: ambienceEngine.getAmbience(),
                 });
             }
         }
@@ -857,8 +828,6 @@ function createFallbackBlocks(text: string, entityRegistry: ExtractedEntities): 
                 intensity: 'normal',
                 beat: { type: 'BEAT' },
                 tensionScore: lastTension,
-                cameraDirection: 'CLOSE ON',
-                ambience: ambienceEngine.getAmbience(),
             });
         }
     }

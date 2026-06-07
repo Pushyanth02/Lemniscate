@@ -87,8 +87,6 @@ export interface CinematicBlock {
     beat?: CinematicBeat;
     transition?: SceneTransition;
     intensity: 'whisper' | 'normal' | 'emphasis' | 'shout' | 'explosive';
-    cameraDirection?: string; // e.g., "CLOSE ON", "WIDE SHOT", "POV"
-    ambience?: string; // e.g., "rainfall", "crowd murmur", "eerie silence"
     timing?: 'slow' | 'normal' | 'quick' | 'rapid';
     emotion?: EmotionCategory;
     tensionScore?: number; // 0-100
