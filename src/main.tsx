@@ -2,14 +2,13 @@ import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import AppShell from './components/layout/AppShell';
-import { client } from './lib/runtime/appwrite';
 
 // Lazy load non-critical analytics — deferred from critical path
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 const Analytics = lazy(() =>
     import('@vercel/analytics/react').then(m => ({ default: m.Analytics })),
 );
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 const SpeedInsights = lazy(() =>
     import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })),
 );
@@ -17,11 +16,6 @@ const SpeedInsights = lazy(() =>
 // Catch unhandled promise rejections so they don't fail silently
 window.addEventListener('unhandledrejection', e => {
     console.error('[Unhandled Rejection]', e.reason);
-});
-
-// Verify Appwrite connectivity when the app boots.
-void client.ping().catch(error => {
-    console.error('[Appwrite] Ping failed', error);
 });
 
 const root = document.getElementById('root');

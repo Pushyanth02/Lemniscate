@@ -29,8 +29,8 @@ import { OriginalTextView } from './OriginalTextView';
 import { EmotionHeatmap } from './EmotionHeatmap';
 import { ReaderChapterSidebar } from './ReaderChapterSidebar';
 import { ReaderCharactersPanel } from './ReaderCharactersPanel';
-import { ReaderHeader } from './ReaderHeader';
 import { ReaderFooter } from './ReaderFooter';
+import { M3ReaderHeader } from '../m3/ReaderHeader';
 
 // Hoisted constant to avoid recreating the threshold array on every render cycle
 const OBSERVER_THRESHOLDS: number[] = [0, 0.25, 0.5, 0.75, 1];
@@ -281,7 +281,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
 
     return (
         <div
-            className={`cine-reader cine-reader--${readerMode} cine-reader--immersion-${immersionLevel} ${dyslexiaFont ? 'cine-reader--dyslexia' : ''} ${!darkMode ? 'cine-reader--light' : ''}`}
+            className={`cine-reader cine-reader--${readerMode} cine-reader--immersion-${immersionLevel} ${dyslexiaFont ? 'cine-reader--dyslexia' : ''}`}
             data-active-emotion={activeEmotion}
             data-mood={currentMood}
         >
@@ -296,7 +296,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
             )}
 
             {/* Header */}
-            <ReaderHeader
+            <M3ReaderHeader
                 book={book}
                 readerMode={readerMode}
                 setReaderMode={setReaderMode}

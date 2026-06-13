@@ -17,7 +17,7 @@ describe('readerApis', () => {
             const rawUrl = typeof input === 'string' ? input : String(input);
             const parsedUrl = new URL(rawUrl);
 
-            if (parsedUrl.hostname === 'dictionaryapi.dev') {
+            if (parsedUrl.hostname === 'api.dictionaryapi.dev') {
                 return new Response(
                     JSON.stringify([
                         {

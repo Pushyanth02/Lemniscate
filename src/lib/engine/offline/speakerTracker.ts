@@ -7,6 +7,7 @@
  */
 
 import type { TextFragment, ProcessedParagraph } from '../../engine/cinematifier/textProcessingEngine';
+import nlp from 'compromise';
 
 /**
  * Speaker information with tracking metadata
@@ -232,10 +233,20 @@ function findExplicitSpeakerAttribution(
         fragmentIndex + Math.floor(windowSize / 10)
     );
 
-    // Check surrounding fragments for speaker names
-    for (let i = startIndex; i <= endIndex; i++) {
-        if (i === fragmentIndex) continue; // Skip the dialogue fragment itself
+    // Build candidate indices ordered by proximity (closer fragments first),
+    // with a bias toward forward-looking attribution (e.g. "text" John said.)
+    // because in fiction, attribution most often follows the dialogue.
+    const candidates: number[] = [];
+    for (let distance = 1; distance <= Math.max(endIndex - fragmentIndex, fragmentIndex - startIndex); distance++) {
+        const after = fragmentIndex + distance;
+        const before = fragmentIndex - distance;
+        // Check after-index first (forward attribution is more common)
+        if (after <= endIndex) candidates.push(after);
+        if (before >= startIndex) candidates.push(before);
+    }
 
+    // Check surrounding fragments for speaker names in proximity order
+    for (const i of candidates) {
         const surroundingFragment = allFragments[i];
         if (surroundingFragment.type !== 'narration' && surroundingFragment.type !== 'action_beat') {
             continue;
@@ -379,11 +390,15 @@ function checkForSpeechVerbNearby(text: string, speakerName: string): boolean {
     const endSearch = Math.min(lowerText.length, namePos + speakerName.length + 50);
     const searchText = lowerText.slice(startSearch, endSearch);
 
+    // Normalize search text to remove trailing punctuation for reliable matching
+    const normalizedText = searchText.replace(/[.,;!?]+$/, '').trimEnd();
+
     // Check for any speech verb in the vicinity
     for (const verb of SPEECH_VERBS) {
-        if (searchText.includes(` ${verb} `) ||
-            searchText.startsWith(`${verb} `) ||
-            searchText.endsWith(` ${verb}`)) {
+        if (normalizedText.includes(` ${verb} `) ||
+            normalizedText.startsWith(`${verb} `) ||
+            normalizedText.endsWith(` ${verb}`) ||
+            normalizedText === verb) {
             return true;
         }
     }
@@ -398,9 +413,15 @@ function inferSpeakerFromHeuristics(
     fragment: TextFragment,
     allFragments: TextFragment[],
     fragmentIndex: number,
-    options: SpeakerTrackingOptions
+    _options: SpeakerTrackingOptions
 ): SpeakerInfo | null {
-    // Heuristic 1: Gender inference from pronouns in dialogue
+    // Heuristic 1: Enhanced NLP-based speaker detection using compromise
+    const nlpSpeaker = inferSpeakerFromNLP(fragment);
+    if (nlpSpeaker) {
+        return nlpSpeaker;
+    }
+
+    // Heuristic 2: Gender inference from pronouns in dialogue
     const pronounSpeaker = inferSpeakerFromPronouns(fragment.content);
     if (pronounSpeaker) {
         return {
@@ -414,7 +435,7 @@ function inferSpeakerFromHeuristics(
         };
     }
 
-    // Heuristic 2: Speaker continuity - if previous dialogue had a clear speaker,
+    // Heuristic 3: Speaker continuity - if previous dialogue had a clear speaker,
     // and this dialogue is similar in style, assume same speaker
     const continuousSpeaker = inferSpeakerFromContinuity(
         fragment,
@@ -425,7 +446,7 @@ function inferSpeakerFromHeuristics(
         return continuousSpeaker;
     }
 
-    // Heuristic 3: Narrative perspective inference
+    // Heuristic 4: Narrative perspective inference
     const povSpeaker = inferSpeakerFromNarrativePOV(
         fragment,
         allFragments,
@@ -439,10 +460,57 @@ function inferSpeakerFromHeuristics(
 }
 
 /**
+ * Infer speaker using NLP techniques with compromise library
+ */
+function inferSpeakerFromNLP(fragment: TextFragment): SpeakerInfo | null {
+    try {
+        // Use compromise to extract persons/entities from dialogue
+        const doc = nlp(fragment.content);
+        const persons = doc.people().out('array');
+
+        if (persons.length > 0) {
+            // Take the first person mentioned as the likely speaker
+            const speakerName = persons[0];
+
+            return {
+                id: generateSpeakerId(speakerName),
+                name: speakerName,
+                firstSeen: 0, // Will be set when attached to actual fragment
+                lastSeen: 0,
+                dialogueCount: 0,
+                speechPatterns: [fragment.verb || 'said'],
+                confidence: 0.7, // Good confidence for NLP-based detection
+            };
+        }
+
+        // Fallback: try to extract organizations or other entities that might be speakers
+        const organizations = doc.organizations().out('array');
+        if (organizations.length > 0) {
+            const speakerName = organizations[0];
+
+            return {
+                id: generateSpeakerId(speakerName),
+                name: speakerName,
+                firstSeen: 0,
+                lastSeen: 0,
+                dialogueCount: 0,
+                speechPatterns: [fragment.verb || 'said'],
+                confidence: 0.6, // Slightly lower confidence for organizations
+            };
+        }
+
+        return null;
+    } catch (error) {
+        // If NLP processing fails, fall back to other heuristics
+        console.warn('NLP speaker detection failed:', error);
+        return null;
+    }
+}
+
+/**
  * Infer speaker from pronouns used in dialogue
  */
 function inferSpeakerFromPronouns(dialogue: string): string | null {
-    const lowerDialogue = dialogue.toLowerCase();
     const pronounCounts: Record<string, number> = {
         i: 0,
         me: 0,

@@ -751,10 +751,14 @@ export function downloadExport(result: ExportResult): void {
     document.body.appendChild(anchor);
     anchor.click();
 
-    // Cleanup
+    // Cleanup — guard against document being unavailable (e.g. after jsdom teardown in tests)
     setTimeout(() => {
-        if (anchor && document.body && typeof document.body.contains === 'function' && document.body.contains(anchor)) {
-            document.body.removeChild(anchor);
+        try {
+            if (anchor && typeof document !== 'undefined' && document.body && typeof document.body.contains === 'function' && document.body.contains(anchor)) {
+                document.body.removeChild(anchor);
+            }
+        } catch {
+            // Ignore DOM errors during cleanup
         }
         if (url) URL.revokeObjectURL(url);
     }, 100);

@@ -585,6 +585,7 @@ export async function processText(
                 totalScenes: 0,
                 dialogueFragments: 0,
                 narrationFragments: 0,
+                actionBeatFragments: 0,
                 uniqueSpeakers: [],
                 averageWordsPerParagraph: 0,
                 averageWordsPerScene: 0,
@@ -606,7 +607,6 @@ export async function processText(
 
     // Stage 2.5: Speaker tracking (if speaker detection is enabled)
     let speakerTrackingResult = null;
-    let uniqueSpeakers: string[] = [];
     if (options.detectSpeakers !== false) {
         const speakerResult = await processParagraphsWithSpeakers(enrichedParagraphs, {
             minConfidence: 0.6,
@@ -616,7 +616,6 @@ export async function processText(
             minFragmentsForSignificance: 1
         });
         enrichedParagraphs = speakerResult.paragraphs;
-        uniqueSpeakers = speakerResult.speakers.map(s => s.name);
         speakerTrackingResult = speakerResult;
     }
 

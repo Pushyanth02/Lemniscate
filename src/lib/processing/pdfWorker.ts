@@ -502,7 +502,7 @@ const extractTextFromPDF = async (
                                     if (ctx) {
                                         canvas.height = viewport.height;
                                         canvas.width = viewport.width;
-                                        await page.render({ canvas, canvasContext: ctx, viewport })
+                                        await page.render({ canvas, canvasContext: ctx, viewport } as Parameters<typeof page.render>[0])
                                             .promise;
                                         const dataUrl = canvas.toDataURL('image/png');
                                         const result = await Tesseract.recognize(dataUrl, 'eng');

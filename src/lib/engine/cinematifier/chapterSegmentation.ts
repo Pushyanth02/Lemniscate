@@ -399,17 +399,8 @@ export function segmentChapters(fullText: string): ChapterSegment[] {
     // If no chapters were found, create one chapter from all text (AI/ML fallback)
     if (segments.length === 0 && fullText.trim().length > 0) {
         // Try ML-based detection first, fallback to simple full text
-        try {
-            const { segmentChapters: mlSegmentChapters } = await import('../../../ml/chapterDetector');
-            const mlSegments = await mlSegmentChapters(fullText);
-            if (mlSegments.length > 0) {
-                return mlSegments;
-            }
-        } catch (error) {
-            console.warn('[ChapterSegmentation] ML chapter detection failed, falling back to rule-based:', error);
-        }
-
-        // Fallback to simple full text chapter
+        // Note: ML detection is async, so we skip it in synchronous context
+        // For now, fall back to rule-based simple full text chapter
         segments.push({
             title: 'Full Text',
             content: fullText.trim(),

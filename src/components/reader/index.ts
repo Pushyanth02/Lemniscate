@@ -10,7 +10,6 @@ export { OriginalTextView } from './OriginalTextView';
 export { EmotionHeatmap } from './EmotionHeatmap';
 export { ReaderChapterSidebar } from './ReaderChapterSidebar';
 export { ReaderCharactersPanel } from './ReaderCharactersPanel';
-export { ReaderHeader } from './ReaderHeader';
 export { ReaderSettingsPanel } from './ReaderSettingsPanel';
 export { ReaderFooter } from './ReaderFooter';
 export { CinematicRenderer } from './CinematicRenderer';

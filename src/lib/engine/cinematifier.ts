@@ -65,6 +65,16 @@ export {
     cinematizeScene,
     validateOutput,
     runCorePipeline,
+    // Text Processing Engine
+    processText,
+    // Full System Pipeline
+    runFullSystemPipeline,
+    clearFullSystemPipelineCache,
+    getFullSystemPipelineCacheSize,
+    // Chapter Engine
+    createChapterPipeline,
+    createPreprocessedChapterPipeline,
+    runChapterEngine,
 } from './cinematifier/index';
 
 export type {
@@ -81,4 +91,8 @@ export type {
     ParagraphBreakerStrategy,
     Scene,
     ChapterContent,
+    FullSystemPipelineOptions,
+    FullSystemPipelineResult,
+    OriginalModeResult,
+    ChapterEngineOptions,
 } from './cinematifier/index';

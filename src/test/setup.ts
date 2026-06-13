@@ -25,6 +25,9 @@ Object.defineProperty(window, 'matchMedia', {
 (window as any).URL.createObjectURL = vi.fn();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).URL.revokeObjectURL = vi.fn();
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).indexedDB = {
     open: vi.fn(),
     deleteDatabase: vi.fn(),

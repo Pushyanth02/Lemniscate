@@ -68,8 +68,8 @@ export const AppShell: React.FC = () => {
                         display: 'flex',
                         flexDirection: 'column',
                         minHeight: '100vh',
-                        background: 'var(--surface)',
-                        color: 'var(--on-surface)',
+                        background: 'var(--md-sys-color-background, var(--surface))',
+                        color: 'var(--md-sys-color-on-surface, var(--on-surface))',
                     }}
                 >
                     <RouterViews />

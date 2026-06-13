@@ -11,6 +11,7 @@
  */
 
 import type { EmotionCategory } from '../../../types/cinematifier';
+import { getGlobalCache } from '../../lru-cache';
 
 // ─── Compact Sentiment Lexicon ──────────────────────────────
 // A curated and expanded subset of AFINN-111 and narrative/emotion words.
@@ -406,10 +407,39 @@ export function scoreToEmotion(score: number): EmotionCategory {
     return 'neutral';
 }
 
+// ─── Cache Instance ─────────────────────────────────────────
+// Shared cache across all modules — keyed by text content.
+const _sentimentCache = getGlobalCache<SentimentResult>('sentiment', {
+    maxSize: 500,
+    ttlMs: 10 * 60 * 1000, // 10 minutes — sentiment doesn't change
+});
+
 /**
  * Analyze sentiment of a single sentence or short passage.
+ *
+ * Results are cached in an LRU cache keyed by the text itself.
+ * Clear the cache at any time with:
+ * ```ts
+ * clearSentimentCache();
+ * ```
  */
 export function analyzeSentiment(text: string): SentimentResult {
+    // Skip cache for very short inputs (noise) or trim whitespace
+    const normalized = text.trim();
+    if (!normalized) {
+        return {
+            score: 0,
+            rawScore: 0,
+            sentimentWordCount: 0,
+            emotion: 'neutral',
+            confidence: 0,
+        };
+    }
+
+    // Check cache first
+    const cached = _sentimentCache.get(normalized);
+    if (cached) return cached;
+
     const words = text
         .toLowerCase()
         .split(/\s+/)
@@ -474,13 +504,35 @@ export function analyzeSentiment(text: string): SentimentResult {
 
     // TODO: In future, call AI/ML model for sentiment if enabled
 
-    return {
+    const result: SentimentResult = {
         score: Math.round(normalizedScore * 1000) / 1000,
         rawScore: Math.round(rawScore * 100) / 100,
         sentimentWordCount,
         emotion: scoreToEmotion(normalizedScore),
         confidence: Math.round(confidence * 1000) / 1000,
     };
+
+    // Store in cache
+    _sentimentCache.set(normalized, result);
+
+    return result;
+}
+
+// ─── Cache Clear Helper ─────────────────────────────────────
+
+/**
+ * Clears the sentiment analysis LRU cache.
+ * Useful when testing or if memory pressure is detected.
+ */
+export function clearSentimentCache(): void {
+    _sentimentCache.clear();
+}
+
+/**
+ * Returns sentiment cache performance statistics.
+ */
+export function getSentimentCacheStats() {
+    return _sentimentCache.stats();
 }
 
 /**

@@ -9,7 +9,7 @@
 - **AI-Powered Transformation** — Converts text into screenplay-style content with SFX: annotations, BEAT/PAUSE markers, and CUT TO/FADE IN transitions
 - **Emotion & Tension Tracking** — Real-time emotion detection (joy, fear, sadness, suspense, anger, surprise) with tension scores (0-100)
 - **Semantic Context** — Uses embeddings (all-MiniLM-L6-v2) for long-range context continuity across chapters
-- **Ambient Audio** — Procedural Web Audio API soundscapes that adapt to story emotion
+- **Structured JSON Output** — Engine produces and consumes structured NDJSON blocks for deterministic rendering
 
 ### Document Support
 
@@ -193,94 +193,128 @@ npm run build
 ```
 src/
   components/
-    ProcessingOverlay.tsx    # Processing status with inspirational quotes
-    UploadZone.tsx           # Drag-and-drop file upload component
     landing/
-      LandingPage.tsx        # Ingestion landing wrapper
+      LandingPage.tsx        # Landing wrapper with header, hero, upload, features, footer
       HeroSection.tsx        # Hero with continue reading card
-      UploadSection.tsx      # File selector component
+      UploadSection.tsx      # File selector with error display
+      UploadZone.tsx         # Drag-and-drop file upload zone
+      ProcessingOverlay.tsx  # Full-screen processing status with quotes
       FeatureShowcase.tsx    # Grid of core platform highlights
       LandingFooter.tsx      # Minimal footer
     layout/
       AppShell.tsx           # Application layout frame and theme manager
       AppRouter.tsx          # Lightweight hash-based custom router
-      PageTransition.tsx     # Framer motion layout transitions
+      PageTransition.tsx     # Framer Motion page transitions
+    m3/
+      ReaderHeader.tsx       # M3-design-system reader header (active)
+      ReaderHeader.css
     reader/
       ReaderPage.tsx         # Unified coordinator for dual-mode reading
       CinematicRenderer.tsx  # High-performance cinematic block virtualizer
-      CinematicBlockView.tsx # Custom block display with ambient glow & tension metrics
-      OriginalTextView.tsx   # Clean plain text reading view with drop-caps
-      ReaderHeader.tsx       # Header with audio/scroll toggles and exit controls
+      CinematicBlockView.tsx # Block display with ambient glow and tension metrics
+      OriginalTextView.tsx   # Clean plain-text reading view with drop-caps
+      ReaderHeader.tsx       # Legacy reader header (kept for reference)
       ReaderFooter.tsx       # Footer with Scrubber progress tracking
       ReaderChapterSidebar.tsx # Collapsible chapter navigation menu
       ReaderCharactersPanel.tsx # Insights sidebar (character discovery / analytics)
-      ReaderSettingsPanel.tsx # Visual typography / theme settings overlay
+      ReaderSettingsPanel.tsx # Typography / theme settings overlay
       EmotionHeatmap.tsx     # Emotion tension timeline overview
-      ChapterNav.tsx         # Keyboard navigations overlay
+      ChapterNav.tsx         # Keyboard navigation overlay
+      VirtualizedContent.tsx # Variable-height virtual scroll renderer
       index.ts               # Reader barrel export
     ui/
-      ErrorBoundary.tsx      # Redesigned Velvet Noir error fallback UI
+      ErrorBoundary.tsx      # Velvet Noir error fallback UI
       Scrubber.tsx           # Custom interactive scrubber progress bar
     __tests__/
       CinematifierApp.test.tsx  # Router, Suspense, and ErrorBoundary tests
+      ProcessingOverlay.test.tsx # ProcessingOverlay state tests
   features/
     settings/
       components/
-        AppSettings.tsx      # AI providers/models tabbed settings
         ProviderSection.tsx  # Provider grid wrapper
         ProviderCard.tsx     # Provider toggle card
         ApiKeyInput.tsx      # Secure password text toggle input
-        PreferencesSection.tsx # Typography / theme preferences options
+        PreferencesSection.tsx # Typography / theme preferences
   lib/
-    ai/
-      cache.ts               # AI response caching
-      errors.ts              # AI error types
-      index.ts               # AI module barrel export
-      presets.ts             # Model presets per provider
-      providers.ts           # AI provider implementations
-      streaming.ts           # Streaming response handling
-      types.ts               # AI type definitions
     engine/
       cinematifier/
         chapterEngine.ts      # Canonical stage-ordered chapter pipeline
-        fullSystemPipeline.ts # Full text -> cinematic orchestration
-        paragraphBreakers.ts  # Paragraph-breaker API strategies
+        fullSystemPipeline.ts # Full text → cinematic orchestration
+        corePipeline.ts       # Core pipeline stage runner
         pipeline.ts           # Stage definitions and execution engine
         textProcessing.ts     # Text cleaning + paragraph reconstruction
+        paragraphBreakers.ts  # Paragraph-breaker API strategies
+        sceneDetection.ts     # Scene break detection
+        offlineEngine.ts      # Offline heuristic cinematification
+        entityExtractor.ts    # Character entity extraction
+        sentimentTracker.ts   # Sentiment + emotion tracking
+        pacingAnalyzer.ts     # Tension arc + pacing analysis
+        moodLexicon.ts        # Mood category lexicon
+        readability.ts        # Flesch-Kincaid readability scoring
+        metadata.ts           # Narrative metadata extraction
+        entities.ts           # Book & ReadingProgress entity factories
+        index.ts              # Barrel re-export
+      offline/
+        speakerTracker.ts     # Offline speaker tracking
+    export/
+      exportPipeline.ts       # Book export (plain text / PDF layout)
+    ml/
+      chapterDetector.ts      # ML-based chapter boundary detection
     processing/
       bookAsyncProcessor.ts   # Chunked async processing for large books
       pdfJobs.ts              # Resumable processing job tracking
       pdfWorker.ts            # Multi-format extraction + OCR
+      documentIngestion.ts    # Document ingestion pipeline
+      jobQueue.ts             # Processing job queue
+      textStatistics.ts       # Text statistics & metrics API
+    rendering/
+      renderBridge.ts         # Core render bridge (stream → React state)
+      cinematicStreamAdapter.ts # Cinematic stream adapter
     runtime/
       appwrite.ts             # Appwrite client wiring
       bookManager.ts          # Local-first library manager
+      cinematifierDb.ts       # IndexedDB persistence (Dexie)
+      cinematifiedCache.ts    # Cinematified chapter caching
+      feedbackStore.ts        # Reader feedback persistence
       freeApis.ts             # Free metadata enrichment APIs
       quotableApi.ts          # Quote APIs with offline fallback
-      readerApis.ts           # Reader lexical + story discovery APIs
+      readerApis.ts           # Story discovery APIs
       readerBackend.ts        # Reader telemetry + cinematic depth analytics
       renderer.ts             # Runtime cue and scene planning
-    audioSynth.ts             # Procedural ambient audio (Web Audio API)
-    cinematifier.ts           # Engine facade export
-    cinematifierDb.ts         # IndexedDB persistence (Dexie)
-    crypto.ts                 # AES-GCM key encryption (SubtleCrypto)
-    embeddings.ts             # Semantic embeddings (all-MiniLM-L6-v2)
-    rateLimiter.ts            # Client-side rate limiting
-    textStatistics.ts         # Text statistics & metrics API
+    cinematifier.ts           # Engine facade (re-exports engine/cinematifier/)
+    constants.ts              # Shared constants
+    errors.ts                 # Error class hierarchy
+    lru-cache.ts              # LRU cache utility
+    typescript-utils.ts       # TypeScript utility types
   hooks/
     useChapterProcessing.ts   # Per-chapter processing + cancellation
     useFileProcessing.ts      # Upload/extract/segment/process orchestration
+    useDocumentParser.ts      # Document parsing hook
+    useProcessingPipeline.ts  # Processing pipeline hook
     useReaderAnalytics.ts     # Reader telemetry snapshot lifecycle
-    useReaderDiscovery.ts     # Word lens + story discovery integration
+    useReaderDiscovery.ts     # Story discovery integration
+    useReaderFeedback.ts      # Reader feedback hook
+    useReaderState.ts         # Consolidated reader state hook
+    useBookHydration.ts       # Book hydration from IndexedDB
+    useReadingProgress.ts     # Reading progress tracking
+    useRenderBridge.ts        # Render bridge hook
+    usePacingEngine.ts        # Pacing engine hook
+    index.ts                  # Hooks barrel export
   store/
-    cinematifierStore.ts     # Zustand state with encrypted persistence
+    cinematifierStore.ts      # Unified Zustand store (ESM devtools, persist)
+    bookStore.ts              # Book state slice
+    readerStore.ts            # Reader preferences slice
+    processingStore.ts        # Processing state slice
+    moodStore.ts              # Real-time mood store
+    index.ts                  # Store barrel export
   types/
-    cinematifier.ts          # TypeScript type definitions
+    book.ts, chapter.ts, cinematic.ts, cinematifier.ts,
+    emotion.ts, processing.ts, reader.ts, rendering.ts, index.ts
   test/
-    setup.ts                 # Vitest setup
-  main.tsx                   # Entry point
-  index.css                  # Global CSS reset & variables
-  styles.css                 # App-level styles
-  cinematifier.css           # Reader-specific styles
+    setup.ts                  # Vitest setup
+  main.tsx                    # App entry point
+  styles.css                  # Global CSS reset & app styles
+  cinematifier.css            # CSS entry: imports all css/ modules
 ```
 
 ## License

@@ -8,7 +8,7 @@
 import { useEffect, useRef } from 'react';
 import { useBookStore, useReaderStore } from '../store';
 import { saveReadingProgress, loadReadingProgress } from '../lib/runtime/cinematifierDb';
-import { createReadingProgress } from '../lib/cinematifier';
+import { createReadingProgress } from '../lib/engine/cinematifier';
 
 export function useReadingProgress() {
     const book = useBookStore(s => s.book);

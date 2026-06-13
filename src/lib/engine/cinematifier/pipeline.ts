@@ -42,6 +42,74 @@ import {
     deriveSceneTitle,
 } from './sceneDetection';
 
+// Import analytics stage classes for instanceof checks
+// Note: These classes are defined in this file, so we can't import them.
+// We'll check stage names instead of using instanceof.
+
+// ─── LRU Cache for Expensive Operations ───────────────────────────────────
+
+/**
+ * Simple LRU (Least Recently Used) cache with size limit.
+ * Optimizes expensive text analysis operations by caching results.
+ */
+class LRUCache<K, V> {
+    private capacity: number;
+    private cache: Map<K, V>;
+    private accessOrder: K[];
+
+    constructor(capacity: number = 100) {
+        this.capacity = capacity;
+        this.cache = new Map<K, V>();
+        this.accessOrder = new Array<K>();
+    }
+
+    get(key: K): V | undefined {
+        const value = this.cache.get(key);
+        if (value !== undefined) {
+            // Move to end (most recently used)
+            this.accessOrder = this.accessOrder.filter(k => k !== key);
+            this.accessOrder.push(key);
+            return value;
+        }
+        return undefined;
+    }
+
+    set(key: K, value: V): void {
+        if (this.cache.has(key)) {
+            // Update existing
+            this.accessOrder = this.accessOrder.filter(k => k !== key);
+        } else if (this.cache.size >= this.capacity) {
+            // Remove least recently used
+            const lruKey = this.accessOrder.shift();
+            if (lruKey !== undefined) {
+                this.cache.delete(lruKey);
+            }
+        }
+        // Add to end (most recently used)
+        this.cache.set(key, value);
+        this.accessOrder.push(key);
+    }
+
+    has(key: K): boolean {
+        return this.cache.has(key);
+    }
+
+    clear(): void {
+        this.cache.clear();
+        this.accessOrder = [];
+    }
+
+    size(): number {
+        return this.cache.size;
+    }
+}
+
+// Create cache instances for expensive analysis operations
+const readabilityCache = new LRUCache<string, ReadabilityMetrics>(50);
+const sentimentCache = new LRUCache<string, SentimentFlowResult>(50);
+const pacingCache = new LRUCache<string, PacingMetrics>(50);
+const textStatsCache = new LRUCache<string, TextStatistics>(50);
+
 // ─── Pipeline Context ──────────────────────────────────────
 
 /** Mutable context passed between pipeline stages */
@@ -158,7 +226,16 @@ export class ReadabilityAnalysisStage implements PipelineStage {
     execute(context: PipelineContext): void {
         checkCancelled(context);
         context.onProgress?.(0.6, 'Analyzing readability...');
-        context.readability = analyzeReadability(context.text);
+
+        // Use cache for expensive readability analysis
+        const cached = readabilityCache.get(context.text);
+        if (cached !== undefined) {
+            context.readability = cached;
+        } else {
+            const result = analyzeReadability(context.text);
+            readabilityCache.set(context.text, result);
+            context.readability = result;
+        }
     }
 }
 
@@ -169,7 +246,16 @@ export class SentimentEnrichmentStage implements PipelineStage {
     execute(context: PipelineContext): void {
         checkCancelled(context);
         context.onProgress?.(0.7, 'Analyzing sentiment...');
-        context.sentiment = analyzeSentimentFlow(context.text);
+
+        // Use cache for expensive sentiment analysis
+        const cached = sentimentCache.get(context.text);
+        if (cached !== undefined) {
+            context.sentiment = cached;
+        } else {
+            const result = analyzeSentimentFlow(context.text);
+            sentimentCache.set(context.text, result);
+            context.sentiment = result;
+        }
 
         // Enrich blocks that lack emotion tags with sentiment-derived emotions
         if (context.blocks.length > 0 && context.sentiment.flow.length > 0) {
@@ -195,7 +281,24 @@ export class PacingAnalysisStage implements PipelineStage {
     execute(context: PipelineContext): void {
         checkCancelled(context);
         context.onProgress?.(0.8, 'Analyzing pacing...');
-        context.pacing = analyzePacing(context.blocks);
+
+        // Use cache for expensive pacing analysis
+        // Create a string representation of blocks for caching
+        const blocksKey = JSON.stringify(context.blocks.map(b => ({
+            id: b.id,
+            type: b.type,
+            content: b.content.substring(0, 100), // Truncate for reasonable key size
+            speaker: b.speaker
+        })));
+
+        const cached = pacingCache.get(blocksKey);
+        if (cached !== undefined) {
+            context.pacing = cached;
+        } else {
+            const result = analyzePacing(context.blocks);
+            pacingCache.set(blocksKey, result);
+            context.pacing = result;
+        }
     }
 }
 
@@ -206,7 +309,16 @@ export class TextStatisticsStage implements PipelineStage {
     execute(context: PipelineContext): void {
         checkCancelled(context);
         context.onProgress?.(0.85, 'Computing text statistics...');
-        context.textStats = computeTextStatistics(context.text);
+
+        // Use cache for expensive text statistics
+        const cached = textStatsCache.get(context.text);
+        if (cached !== undefined) {
+            context.textStats = cached;
+        } else {
+            const result = computeTextStatistics(context.text);
+            textStatsCache.set(context.text, result);
+            context.textStats = result;
+        }
     }
 }
 
@@ -217,17 +329,38 @@ export class NarrativeAnalysisStage implements PipelineStage {
     execute(context: PipelineContext): void {
         checkCancelled(context);
         context.onProgress?.(0.9, 'Analyzing narrative mode...');
+
+        // Use cache for expensive narrative analysis
+        const narrativeKey = `narrative:${context.text}`;
+        const cachedNarrative = readabilityCache.get(narrativeKey); // Reusing readabilityCache for simplicity
+        if (cachedNarrative !== undefined) {
+            // Extract povCharacter and narrativeMode from cached result
+            context.povCharacter = (cachedNarrative as any).povCharacter;
+            context.narrativeMode = (cachedNarrative as any).narrativeMode;
+            return;
+        }
+
         const paragraphs = context.text
             .split(/\n\n+/)
             .map(p => p.trim())
             .filter(Boolean);
 
-        context.povCharacter = detectPOVShift(paragraphs);
+        const povCharacter = detectPOVShift(paragraphs);
 
         // Determine dominant narrative mode from all paragraphs
         const modes = paragraphs.map(p => detectNarrativeMode(p));
         const nonNormal = modes.filter(m => m !== 'normal');
-        context.narrativeMode = nonNormal.length > 0 ? nonNormal[0] : 'normal';
+        const narrativeMode = nonNormal.length > 0 ? nonNormal[0] : 'normal';
+
+        // Cache the results
+        const result = { 
+            povCharacter: povCharacter,
+            narrativeMode: narrativeMode 
+        } as any;
+        readabilityCache.set(narrativeKey, result);
+
+        context.povCharacter = povCharacter;
+        context.narrativeMode = narrativeMode;
     }
 }
 
@@ -295,7 +428,7 @@ export class CinematificationPipeline {
     async execute(
         text: string,
         options: {
-            onProgress?: (percent: number, message: string) => void;
+            onProgress?: (percent: number, message: string, stage?: string, stageProgress?: { stage: string; progress: number; }[]) => void;
             onChunk?: (blocks: CinematicBlock[], isDone: boolean) => void;
             signal?: AbortSignal;
         } = {},
@@ -317,7 +450,65 @@ export class CinematificationPipeline {
             stageTrace: [],
         };
 
-        for (const stage of this.stages) {
+        // Execute stages sequentially, but run independent analytics stages in parallel
+        for (let i = 0; i < this.stages.length; i++) {
+            const stage = this.stages[i];
+
+            // Check if this is an analytics stage that can be run in parallel
+            // We check stage names instead of instanceof since classes are defined in this file
+            const isAnalyticsStage = stage.name === 'Readability Analysis' ||
+                                 stage.name === 'Sentiment Enrichment' ||
+                                 stage.name === 'Pacing Analysis' ||
+                                 stage.name === 'Text Statistics' ||
+                                 stage.name === 'Narrative Analysis';
+
+            // For the enriched offline pipeline, run analytics stages in parallel after cinematification
+            if (isAnalyticsStage &&
+                i > 0 &&
+                (this.stages[i-1] as any).name === 'Offline Cinematification') {
+
+                // Collect all consecutive analytics stages
+                const analyticsStages: PipelineStage[] = [];
+                let j = i;
+                while (j < this.stages.length) {
+                    const stageName = this.stages[j].name;
+                    if (stageName === 'Readability Analysis' ||
+                        stageName === 'Sentiment Enrichment' ||
+                        stageName === 'Pacing Analysis' ||
+                        stageName === 'Text Statistics' ||
+                        stageName === 'Narrative Analysis') {
+                        analyticsStages.push(this.stages[j]);
+                        j++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // Execute all analytics stages in parallel
+                await Promise.all(
+                    analyticsStages.map(async (analyticsStage) => {
+                        checkCancelled(context);
+                        const startedAtMs = performance.now();
+                        try {
+                            await analyticsStage.execute(context);
+                        } finally {
+                            const finishedAtMs = performance.now();
+                            context.stageTrace.push({
+                                stageName: analyticsStage.name,
+                                startedAtMs,
+                                finishedAtMs,
+                                durationMs: Math.max(0, Math.round(finishedAtMs - startedAtMs)),
+                            });
+                        }
+                    })
+                );
+
+                // Skip the stages we just processed in parallel
+                i += analyticsStages.length - 1;
+                continue;
+            }
+
+            // Execute stage normally
             checkCancelled(context);
             const startedAtMs = performance.now();
             try {

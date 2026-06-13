@@ -9,7 +9,7 @@ import {
     cinematifyOffline,
     runFullSystemPipeline,
     extractOverallMetadata,
-} from '../lib/cinematifier';
+} from '../lib/engine/cinematifier';
 import type { Book, CharacterAppearance } from '../types/cinematifier';
 
 const CINEMATIFY_PROGRESS_START = 68;

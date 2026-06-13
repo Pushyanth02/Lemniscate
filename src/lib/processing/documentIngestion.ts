@@ -717,11 +717,11 @@ export async function ingestDocument(
 
         let narrative: NarrativeDocument;
         try {
-            narrative = processText(segment.content, textOptions);
+            narrative = await processText(segment.content, textOptions);
         } catch (err) {
             warnings.push(`Chapter "${segment.title}" text processing failed: ${err instanceof Error ? err.message : String(err)}`);
             // Minimal fallback narrative
-            narrative = processText(segment.content, { ...textOptions, detectSpeakers: false });
+            narrative = await processText(segment.content, { ...textOptions, detectSpeakers: false });
         }
 
         chapters.push({
@@ -736,7 +736,7 @@ export async function ingestDocument(
     }
 
     // Generate full-document narrative for book-level analysis
-    const fullNarrative = processText(normalizedText, textOptions);
+    const fullNarrative = await processText(normalizedText, textOptions);
 
     // Detect title
     const title = extractTitle(normalizedText);

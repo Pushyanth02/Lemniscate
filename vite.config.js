@@ -2,9 +2,6 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyPlugin = any;
-
 export default defineConfig({
     resolve: {
         alias: {
@@ -20,7 +17,7 @@ export default defineConfig({
         },
     },
     plugins: [
-        react() as AnyPlugin,
+        react(),
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.ico'],
@@ -66,7 +63,7 @@ export default defineConfig({
                     },
                 ],
             },
-        }) as AnyPlugin,
+        }),
     ],
     test: {
         environment: 'jsdom',
@@ -77,34 +74,39 @@ export default defineConfig({
     },
     build: {
         target: 'esnext',
-        minify: 'oxc' as 'esbuild',
+        minify: 'oxc',
         sourcemap: 'hidden',
         chunkSizeWarningLimit: 800,
         rollupOptions: {
             output: {
                 manualChunks: id => {
                     // PDF processing — only load when user drops a file
-                    if (id.includes('pdfjs-dist')) return 'pdfjs';
+                    if (id.includes('pdfjs-dist'))
+                        return 'pdfjs';
                     // ZIP extraction for EPUB/DOCX/PPTX — lazy loaded
-                    if (id.includes('fflate')) return 'fflate';
+                    if (id.includes('fflate'))
+                        return 'fflate';
                     // OCR — lazy loaded only for scanned PDFs
-                    if (id.includes('tesseract.js')) return 'tesseract';
+                    if (id.includes('tesseract.js'))
+                        return 'tesseract';
                     // Animation library — lazy chunk
-                    if (id.includes('framer-motion')) return 'motion';
+                    if (id.includes('framer-motion'))
+                        return 'motion';
                     // Icons — tree-shaken but grouped
-                    if (id.includes('lucide-react')) return 'lucide';
+                    if (id.includes('lucide-react'))
+                        return 'lucide';
                     // IndexedDB — dexie
-                    if (id.includes('dexie')) return 'dexie';
+                    if (id.includes('dexie'))
+                        return 'dexie';
                     // Zustand
-                    if (id.includes('zustand')) return 'store';
+                    if (id.includes('zustand'))
+                        return 'store';
                     // Analytics — deferred from critical path
                     if (id.includes('@vercel/analytics') || id.includes('@vercel/speed-insights'))
                         return 'analytics';
                     // React core — always needed
-                    if (
-                        id.includes('node_modules/react/') ||
-                        id.includes('node_modules/react-dom/')
-                    ) {
+                    if (id.includes('node_modules/react/') ||
+                        id.includes('node_modules/react-dom/')) {
                         return 'react';
                     }
                 },

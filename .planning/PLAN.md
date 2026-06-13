@@ -19,11 +19,40 @@ We mapped out the entire app structure and systematically reconstructed and rede
 - **Build**: Passes successfully (`tsc -b && vite build`).
 - **Tests**: All **820/820 unit tests pass** cleanly with no regression.
 
-## Milestone 4: Engine Modernization & Feature Decoupling (Active)
+## Milestone 4: Engine Modernization & Feature Decoupling — Complete
 
-We are implementing:
-1. **Feature Removal**: Complete removal of Ambient Sound and Auto Scroll features.
-2. **Engine Redesign**: Migrating the Cinematification Core Engine to strictly produce and consume structured NDJSON instead of tag-bracketed strings.
-3. **Visual Polish**: Polishing reader layout margins and typography.
-4. **Offline Engine Rework**: Completely rewriting the offline heuristic engine to support conversational speaker tracking, tension curves, persistent ambience, and cinematic camera directing.
+All 2 phases completed:
+- Phase 11: Complete removal of Ambient Sound and Auto Scroll, Core Engine migrated to structured NDJSON.
+- Phase 12: Offline API guards, single-chapter fix, animation enhancements.
+
+## Milestone 5: Codebase Audit & Cleanup — Complete
+
+**Timeline:** 2026-06-13
+
+### What was cleaned:
+
+**Deleted redundant/unused files:**
+- `src/components/ProcessingOverlay.tsx` — root-level duplicate of `landing/ProcessingOverlay.tsx`
+- `src/components/UploadZone.tsx` — root-level duplicate of `landing/UploadZone.tsx`
+- `src/lib/codegen/` — unused dev utility directory
+- `src/lib/cinematifier/` — thin re-export wrapper; consumers now import directly from `src/lib/engine/cinematifier`
+- `src/components/m3/Button.tsx`, `Button.css`, `Card.tsx`, `Card.css`, `Input.tsx`, `UploadSection.tsx`, `UploadSection.css`, `UploadZone.tsx`, `UploadZone.css` — confirmed zero external imports
+- `InfinityCN/` — nested git-repo-within-git-repo clone (entire directory)
+- `task_progress.md`, `test_book.txt` — stale root artifacts
+
+**Fixed import wiring:**
+- `src/hooks/useReadingProgress.ts`, `useProcessingPipeline.ts`, `useChapterProcessing.ts` — updated from `../lib/cinematifier` to `../lib/engine/cinematifier`
+- `src/components/reader/ReaderPage.tsx` — removed unused `ReaderHeader` import (superseded by `M3ReaderHeader`)
+- `src/components/reader/index.ts` — removed stale `ReaderHeader` barrel export
+
+**Fixed store and engine:**
+- `src/store/cinematifierStore.ts` — removed unused `StateError`/`ErrorCodes` import; replaced `require()` devtools with static ESM import + `import.meta.env.DEV`
+- `src/lib/engine/index.ts` — removed duplicate `export * from './cinematifier/index'`
+
+**Fixed export pipeline:**
+- `src/lib/export/exportPipeline.ts` — guarded DOM cleanup `setTimeout` against post-teardown jsdom errors
+
+### Verification:
+- **Build**: Passes (`tsc -b && vite build`) — exit 0
+- **Tests**: All **36 test files, 594 tests** pass — exit 0
 

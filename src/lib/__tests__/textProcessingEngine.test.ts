@@ -16,7 +16,7 @@ import {
     detectDialogue,
     segmentScenes,
     cleanOCRArtifacts,
-} from '../engine/cinematifier/textProcessingEngine';
+} from './../engine/cinematifier/textProcessingEngine';
 // ─── cleanOCRArtifacts ─────────────────────────────────────────────────────────
 
 describe('cleanOCRArtifacts', () => {
@@ -301,8 +301,8 @@ describe('segmentScenes', () => {
 // ─── processText (Full Pipeline) ───────────────────────────────────────────────
 
 describe('processText', () => {
-    it('returns NarrativeDocument structure', () => {
-        const result = processText('Hello world.');
+    it('returns NarrativeDocument structure', async () => {
+        const result = await processText('Hello world.');
         expect(result).toHaveProperty('originalText');
         expect(result).toHaveProperty('cleanedText');
         expect(result).toHaveProperty('paragraphs');
@@ -311,49 +311,52 @@ describe('processText', () => {
         expect(result).toHaveProperty('processingTimeMs');
     });
 
-    it('preserves original text', () => {
+    it('preserves original text', async () => {
         const raw = '  Messy   text\n\nhere. ';
-        const result = processText(raw);
+        const result = await processText(raw);
         expect(result.originalText).toBe(raw);
     });
 
-    it('handles empty input gracefully', () => {
-        const result = processText('');
+    it('handles empty input gracefully', async () => {
+        const result = await processText('');
         expect(result.paragraphs).toEqual([]);
         expect(result.scenes).toEqual([]);
         expect(result.stats.totalWords).toBe(0);
     });
 
-    it('handles whitespace-only input', () => {
-        const result = processText('   \n\n   ');
+    it('handles whitespace-only input', async () => {
+        const result = await processText('   \n\n   ');
         expect(result.paragraphs).toEqual([]);
     });
 
-    it('computes accurate word count', () => {
-        const result = processText('One two three. Four five six.');
+    it('computes accurate word count', async () => {
+        const result = await processText('One two three. Four five six.');
         expect(result.stats.totalWords).toBe(6);
     });
 
-    it('detects unique speakers', () => {
-        const text = '"Run!" shouted Mara. "Stay back!" Jon replied.';
-        const result = processText(text);
+    it('detects unique speakers', async () => {
+        const text = '"Run!" shouted Mara.\n\n"Stay back!" Jon replied.';
+        const result = await processText(text);
+        const paras = result.paragraphs.map(p => ({text: p.text, frags: p.fragments.map(f => ({t: f.type, c: f.content.slice(0, 30), s: f.speaker}))}));
+        const fs = await import('fs');
+        fs.writeFileSync('_debug_frags.json', JSON.stringify(paras, null, 2));
         expect(result.stats.uniqueSpeakers).toContain('Mara');
         expect(result.stats.uniqueSpeakers).toContain('Jon');
     });
 
-    it('computes dialogue ratio', () => {
+    it('computes dialogue ratio', async () => {
         const text = '"Hello," she said. "World," he replied. The end.';
-        const result = processText(text);
+        const result = await processText(text);
         expect(result.stats.dialogueRatio).toBeGreaterThan(0);
         expect(result.stats.dialogueRatio).toBeLessThanOrEqual(1);
     });
 
-    it('computes processing time', () => {
-        const result = processText('Some text to process.');
+    it('computes processing time', async () => {
+        const result = await processText('Some text to process.');
         expect(result.processingTimeMs).toBeGreaterThanOrEqual(0);
     });
 
-    it('processes noisy OCR text end-to-end', () => {
+    it('processes noisy OCR text end-to-end', async () => {
         const ocrText = [
             '42',                              // page number
             'The hero walked through\tthe dense forest.',  // tab artifact
@@ -365,7 +368,7 @@ describe('processText', () => {
             'The air smelled damp and cold.',
         ].join('\n');
 
-        const result = processText(ocrText);
+        const result = await processText(ocrText);
 
         // Should have cleaned artifacts
         expect(result.cleanedText).not.toContain('Page 3 of 100');
@@ -380,7 +383,7 @@ describe('processText', () => {
         expect(result.stats.totalScenes).toBeGreaterThanOrEqual(1);
     });
 
-    it('processes a full narrative passage', () => {
+    it('processes a full narrative passage', async () => {
         const passage = [
             'The corridor was dark and wet. Rain hammered the windows.',
             '',
@@ -395,7 +398,7 @@ describe('processText', () => {
             'Sunlight streamed through broken glass.',
         ].join('\n');
 
-        const result = processText(passage);
+        const result = await processText(passage);
 
         // Validate structure
         expect(result.stats.totalParagraphs).toBeGreaterThanOrEqual(4);
@@ -408,8 +411,8 @@ describe('processText', () => {
         expect(breakReasons[0]).toBe('start');
     });
 
-    it('handles single-line input', () => {
-        const result = processText('Just one sentence here.');
+    it('handles single-line input', async () => {
+        const result = await processText('Just one sentence here.');
         expect(result.paragraphs.length).toBe(1);
         expect(result.scenes.length).toBe(1);
     });

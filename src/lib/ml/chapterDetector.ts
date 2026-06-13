@@ -7,30 +7,34 @@
  */
 
 import type { ChapterSegment } from '../../types/cinematifier';
-import { pipeline, PipelineType } from '@xenova/transformers';
 
 // Configuration for the chapter detection model
 const CHAPTER_DETECTION_MODEL = 'Xenova/bert-base-chapter-detection';
 const MODEL_CONFIDENCE_THRESHOLD = 0.7;
 const ENABLE_ML_DETECTION = true; // Toggle for feature flag
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyPipeline = any;
+
 // Global model instance to avoid reloading
-let chapterDetectionPipeline: ReturnType<typeof pipeline> | null = null;
+let chapterDetectionPipeline: AnyPipeline | null = null;
 
 /**
  * Initialize the chapter detection model lazily
  */
-async function initializeChapterDetectionModel(): Promise<
-  ReturnType<typeof pipeline> | null
-> {
+async function initializeChapterDetectionModel(): Promise<AnyPipeline | null> {
   if (!ENABLE_ML_DETECTION) return null;
 
   if (chapterDetectionPipeline) return chapterDetectionPipeline;
 
   try {
     console.info('[ChapterDetector] Loading ML model for chapter detection...');
+    // Dynamically import @xenova/transformers to avoid build errors when not installed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { pipeline, PipelineType } = await import('@xenova/transformers' as any).catch(() => ({ pipeline: null, PipelineType: null }));
+    if (!pipeline) return null;
     chapterDetectionPipeline = await pipeline(
-      'text-classification' as PipelineType,
+      'text-classification' as typeof PipelineType,
       CHAPTER_DETECTION_MODEL,
       {
         // Quantization for smaller model size and faster inference
@@ -248,7 +252,7 @@ export async function segmentChaptersWithML(
 ): Promise<ChapterSegment[]> {
   if (!ENABLE_ML_DETECTION) {
     // Fallback to rule-based - import dynamically to avoid circular deps
-    const { segmentChapters } = await import('./chapterSegmentation');
+    const { segmentChapters } = await import('../engine/cinematifier/chapterSegmentation');
     return segmentChapters(text);
   }
 
@@ -260,7 +264,7 @@ export async function segmentChaptersWithML(
       console.info(
         '[ChapterDetector] No ML boundaries detected, using rule-based fallback'
       );
-      const { segmentChapters } = await import('./chapterSegmentation');
+      const { segmentChapters } = await import('../engine/cinematifier/chapterSegmentation');
       return segmentChapters(text);
     }
 
@@ -328,7 +332,7 @@ export async function segmentChaptersWithML(
   } catch (error) {
     console.error('[ChapterDetector] ML segmentation failed, falling back:', error);
     // Fallback to rule-based
-    const { segmentChapters } = await import('./chapterSegmentation');
+    const { segmentChapters } = await import('../engine/cinematifier/chapterSegmentation');
     return segmentChapters(text);
   }
 }
@@ -342,7 +346,7 @@ export async function segmentChaptersHybrid(
   text: string
 ): Promise<ChapterSegment[]> {
   // Get rule-based results first
-  const { segmentChapters } = await import('./chapterSegmentation');
+  const { segmentChapters } = await import('../engine/cinematifier/chapterSegmentation');
   const ruleBasedSegments = segmentChapters(text);
 
   // If ML is disabled or not available, return rule-based
@@ -389,6 +393,6 @@ export async function segmentChaptersHybrid(
 export const segmentChapters = ENABLE_ML_DETECTION
   ? segmentChaptersHybrid
   : async (text: string) => {
-      const { segmentChapters } = await import('./chapterSegmentation');
+      const { segmentChapters } = await import('../engine/cinematifier/chapterSegmentation');
       return segmentChapters(text);
     };

@@ -1,29 +1,49 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-05-03
+**Analysis Date:** 2026-06-13
 
-## Tech Debt
+## Resolved Concerns (Phase 13 Audit)
 
-**Core Components Handling Heavy Lifting:**
-- Issue: Substantial single-file complexity for system pipelines.
-- Files: `src/lib/cinematifier/requestPipeline.ts` (33k chars), `src/lib/rendering/renderBridge.ts` (31k chars), `src/lib/engine/streamController.ts`
-- Impact: Difficulty tracing end-to-end execution paths, prone to module entanglement.
-- Fix approach: Evaluate breaking generic stream processing into smaller isolated node execution files.
+**~~Duplicate root-level components~~** ✅ Resolved
+- `src/components/ProcessingOverlay.tsx` and `UploadZone.tsx` were identical copies of the canonical `landing/` versions. Both deleted.
 
-## Performance Bottlenecks
+**~~Unused lib/cinematifier wrapper~~** ✅ Resolved
+- `src/lib/cinematifier/index.ts` was a one-line re-export. Deleted; all consumers now import directly from `src/lib/engine/cinematifier`.
 
-**On-Device Models:**
-- Problem: AI operations parsing text streams (`@xenova/transformers`, `tesseract.js`) create CPU boundaries.
-- Cause: `pdfWorker.ts` offloads some, but heavy React rendering overhead via `requestPipeline` might still drop frames if WebWorkers are not fully isolating processing cycles.
-- Improvement path: Review Web Worker boundaries ensuring 0% Main Thread processing for chunk inference.
+**~~require() devtools in ESM codebase~~** ✅ Resolved
+- Replaced with static `import { devtools } from 'zustand/middleware'` + `import.meta.env.DEV` guard.
 
-## Security Considerations
+**~~Orphan m3 components~~** ✅ Resolved
+- Button, Card, Input, UploadSection, UploadZone from `src/components/m3/` had zero imports. All deleted. Only `M3ReaderHeader` remains (actively used in ReaderPage).
 
-**Offline vs Appwrite:**
-- Files: `src/lib/runtime/appwrite.ts`
-- Current mitigation: Initial ping logic validation.
-- Recommendations: Ensure database credentials do not bypass user-level scoping in open Appwrite bucket operations.
+**~~Nested InfinityCN/ git clone~~** ✅ Resolved
+- The `InfinityCN/` subfolder was a full repository clone nested inside itself. Deleted entirely.
+
+**~~Dead ReaderHeader import in ReaderPage~~** ✅ Resolved
+- `ReaderPage.tsx` imported both `ReaderHeader` and `M3ReaderHeader` but only used the latter. Dead import removed.
 
 ---
 
-*Concerns audit: 2026-05-03*
+## Active Tech Debt
+
+**Core Pipeline File Complexity:**
+- `src/lib/rendering/renderBridge.ts` (~31k chars) and `src/lib/engine/cinematifier/corePipeline.ts` are large single-file modules.
+- Impact: Harder to trace execution paths, risk of entanglement on future changes.
+- Recommended: Evaluate splitting into smaller stage-isolated files if further work is planned in these areas.
+
+## Performance Considerations
+
+**On-Device ML Models:**
+- `@xenova/transformers` (embeddings) and `tesseract.js` (OCR) are CPU-heavy. `pdfWorker.ts` offloads PDF parsing to a worker.
+- Current state: Main thread processing risk remains if chunk inference doesn't stay fully in Web Workers.
+- Watch for: Frame drops during large book processing on low-end devices.
+
+## Security
+
+**Appwrite Scoping:**
+- `src/lib/runtime/appwrite.ts` uses an initial ping check for connectivity.
+- Recommendation: Confirm all Appwrite bucket operations are user-scoped and don't expose cross-user data paths.
+
+---
+
+*Concerns audit: 2026-06-13*

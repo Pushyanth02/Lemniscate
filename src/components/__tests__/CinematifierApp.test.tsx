@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import React, { Suspense } from 'react';
+import { vi } from 'vitest';
 
 // Mock Dexie with a proper class constructor for inheritance
 vi.mock('dexie', () => {
     class MockDexie {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        constructor(_dbName: string) {}
+        constructor() {}
         version() {
             return {
                 stores: () => ({
@@ -18,7 +19,7 @@ vi.mock('dexie', () => {
 });
 
 // Mock cinematifierDb to avoid database operations in tests
-vi.mock('../../lib/cinematifierDb', () => ({
+vi.mock('../../lib/runtime/cinematifierDb', () => ({
     saveBook: vi.fn().mockResolvedValue(undefined),
     loadLatestBook: vi.fn().mockResolvedValue(null),
     saveReadingProgress: vi.fn().mockResolvedValue(undefined),
@@ -73,7 +74,7 @@ describe('ErrorBoundary', () => {
 describe('Suspense fallback', () => {
     it('shows fallback while lazy component loads', async () => {
         // Create a component that suspends
-        let resolve: (mod: { default: React.FC }) => void;
+        let resolve: ((value: { default: React.FC } | PromiseLike<{ default: React.FC }>) => void) | undefined;
         const LazyTest = React.lazy(
             () =>
                 new Promise<{ default: React.FC }>(r => {

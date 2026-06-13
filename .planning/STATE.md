@@ -1,18 +1,18 @@
 # Project State: InfinityCN
 
-## Full App Reconstruction & Redesign
+## Codebase Audit & Cleanup
 
-**Current Focus:** Milestone 4: Engine Modernization & Feature Decoupling (Phase 11).
+**Current Focus:** Milestone 5: Codebase Audit & Cleanup (Phase 13) — Completed.
 
 ---
 
 ## Health Overview
 
-- **Architecture:** Pipeline-first client system remains healthy. All monolithic files refactored, type safety strict, and modules fully isolated.
-- **Rules Compliance:** Stage order and modular boundaries preserved.
+- **Architecture:** Pipeline-first client system is clean and healthy. All legacy/duplicate files removed, import wiring corrected, and module boundaries tightened.
+- **Rules Compliance:** Stage order and modular boundaries preserved. No legacy `--cine-*` tokens or `require()` patterns remain.
 - **Reader Backend:** Telemetry and depth metrics integrated.
 - **Discovery Integrations:** Multi-source APIs wired with timeout/fallback behavior.
-- **Code Quality:** Lint clean and targeted tests passing for all new modules. All 820 unit tests pass.
+- **Code Quality:** Lint clean. All 36 test files and 594 tests pass (exit 0).
 
 ## Milestone Progress: 2.0.0 (Full App Reconstruction & Redesign)
 
@@ -32,14 +32,22 @@
 
 ## Milestone Progress: 4.0.0 (Engine Modernization & Feature Decoupling)
 
-- **Status:** In Progress
+- **Status:** Completed
 - **Timeline:** 2026-05-26
 - **Phases:**
     - [x] Phase 11: Remove Ambient Sound/Auto Scroll & Redesign Core Engine to use Structured JSON
     - [x] Phase 12: Offline APIs, Single Chapter Support, & Animation Enhancements
 
+## Milestone Progress: 5.0.0 (Codebase Audit & Cleanup)
+
+- **Status:** Completed
+- **Timeline:** 2026-06-13
+- **Phases:**
+    - [x] Phase 13: Full Audit, Legacy Removal, Import Wiring, and Documentation Update
+
 ## Recent Decisions
 
+- **[2026-06-13]** Completed Phase 13 (Codebase Audit & Cleanup): Removed 2 root-level duplicate components (`ProcessingOverlay.tsx`, `UploadZone.tsx`), 9 unused m3 components, 2 unused lib directories (`codegen/`, `cinematifier/` wrapper), and the nested `InfinityCN/` git clone. Fixed 3 hook import paths (`../lib/cinematifier` → `../lib/engine/cinematifier`), removed dead `ReaderHeader` import from `ReaderPage.tsx`, cleaned up unused store imports, replaced fragile `require()` devtools with ESM-safe `import.meta.env.DEV` pattern, removed engine index double-export, and fixed `exportPipeline.ts` DOM cleanup guard. All 594 tests pass, build exits clean.
 - **[2026-05-26]** Completed Phase 12: Implemented robust `navigator.onLine` checks for offline API support in `freeApis.ts`, `quotableApi.ts`, and `readerApis.ts`. Fixed single-chapter misdetection caused by duplicate/recap headings, and smoothed cinematic color transitions with extended duration and opacity pulsing in `mood-themes.css`.
 - **[2026-05-26]** Completed Phase 11: Planned and executed complete removal of Ambient Sound and Auto Scroll features, removed metadata markers (emotion/camera tags) from text display, refactored the Core Engine to produce and consume structured JSON/NDJSON blocks, and updated visual styling.
 - **[2026-05-22]** Completed Phase 10: Deleted legacy files (`CinematifierApp.tsx`, `CinematicReader.tsx`), redesigned `ErrorBoundary` fallback UI and `Scrubber` progress bar styling to align with Velvet Noir token system, updated and validated structure/architecture documentation, and verified successful build + unit test run (all 820 tests passed).
@@ -53,10 +61,11 @@
 
 - [x] Validate edge-case source classification for mixed manga/manhwa/manhua tags.
 - [x] Complete broad UX verification sweep for mobile + filtered discovery workflows.
+- [x] Remove legacy/duplicate files and fix all import wiring (Phase 13, 2026-06-13).
 
 ---
 
-_State snapshot: 2026-05-22_
+_State snapshot: 2026-06-13_
 
 ---
 

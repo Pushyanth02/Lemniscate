@@ -90,7 +90,12 @@ describe('Text Export', () => {
         expect(result.filename).toMatch(/\.txt$/);
         expect(result.processingTimeMs).toBeGreaterThanOrEqual(0);
 
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).toContain('THE TEST NOVEL');
         expect(text).toContain('Test Author');
         expect(text).toContain('Chapter 1: Dawn');
@@ -101,7 +106,12 @@ describe('Text Export', () => {
         const book = createBook();
         const result = await exportBook(book, { mode: 'cinematized', format: 'txt' });
 
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).toContain('[Elena]');
         expect(text).toContain('[BEAT]');
         expect(text).toContain('morning sun');
@@ -114,7 +124,12 @@ describe('Text Export', () => {
             chapterIndices: [1], // Only chapter 2
         });
 
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).toContain('Chapter 2: Journey');
         expect(text).not.toContain('Chapter 1: Dawn');
         expect(text).not.toContain('Chapter 3: Arrival');
@@ -127,7 +142,12 @@ describe('Text Export', () => {
             includeTitlePage: false,
         });
 
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).not.toContain('THE TEST NOVEL');
     });
 
@@ -138,7 +158,12 @@ describe('Text Export', () => {
             includeChapterHeaders: false,
         });
 
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).not.toContain('─── Chapter 1');
     });
 
@@ -292,7 +317,12 @@ describe('Edge Cases', () => {
         });
 
         const result = await exportBook(book, { mode: 'cinematized', format: 'txt' });
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).toBeTruthy();
     });
 
@@ -303,14 +333,24 @@ describe('Edge Cases', () => {
         });
 
         const result = await exportBook(book, { mode: 'original', format: 'txt' });
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).toContain('morning sun');
     });
 
     it('handles book with no author', async () => {
         const book = createBook({ author: undefined });
         const result = await exportBook(book, { mode: 'original', format: 'txt' });
-        const text = await result.blob.text();
+        const text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(result.blob);
+        });
         expect(text).not.toContain('by undefined');
     });
 

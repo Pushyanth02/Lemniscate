@@ -62,8 +62,8 @@ export const LandingPage: React.FC = () => {
                 minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'var(--surface)',
-                color: 'var(--on-surface)',
+                background: 'var(--md-sys-color-background, var(--surface))',
+                color: 'var(--md-sys-color-on-surface, var(--on-surface))',
             }}
         >
             <div className="cin-app-home">
@@ -80,7 +80,7 @@ export const LandingPage: React.FC = () => {
                     <div className="cin-header-brand">
                         <Film
                             size={28}
-                            color="var(--primary)"
+                            color="var(--md-sys-color-primary, var(--primary))"
                             strokeWidth={1.5}
                             aria-hidden="true"
                         />

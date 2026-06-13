@@ -9,7 +9,12 @@
  *
  * All computation is pure math — no AI or external dependencies.
  * Designed to run as a pipeline stage enriching cinematification metadata.
+ *
+ * Results are cached in an LRU cache keyed by the text content
+ * to avoid redundant computation for repeated or overlapping passages.
  */
+
+import { getGlobalCache } from '../../lru-cache';
 
 // ─── Syllable Counter ──────────────────────────────────────
 
@@ -102,14 +107,42 @@ export function getDifficultyLabel(fleschScore: number): ReadabilityLevel {
     return 'very_difficult';
 }
 
+// ─── Cache Instance ─────────────────────────────────────────
+const _readabilityCache = getGlobalCache<ReadabilityMetrics>('readability', {
+    maxSize: 300,
+    ttlMs: 10 * 60 * 1000, // 10 minutes
+});
+
 /**
  * Compute comprehensive readability metrics for a text passage.
  *
  * Uses the Flesch-Kincaid formulas:
  *   Reading Ease = 206.835 − 1.015 × (words/sentences) − 84.6 × (syllables/words)
  *   Grade Level  = 0.39 × (words/sentences) + 11.8 × (syllables/words) − 15.59
+ *
+ * Results are cached to avoid re-analyzing the same text.
+ * Clear the cache with `clearReadabilityCache()`.
  */
 export function analyzeReadability(text: string): ReadabilityMetrics {
+    const normalized = text.trim();
+    if (!normalized) {
+        return {
+            fleschReadingEase: 100,
+            fleschKincaidGrade: 0,
+            avgWordsPerSentence: 0,
+            avgSyllablesPerWord: 0,
+            vocabularyDiversity: 0,
+            wordCount: 0,
+            sentenceCount: 0,
+            complexWordPercentage: 0,
+            difficultyLabel: 'very_easy',
+        };
+    }
+
+    // Check cache first
+    const cached = _readabilityCache.get(normalized);
+    if (cached) return cached;
+
     const sentences = splitSentences(text);
     const words = splitWords(text);
 
@@ -151,7 +184,7 @@ export function analyzeReadability(text: string): ReadabilityMetrics {
     // Complex word percentage
     const complexWordPercentage = Math.round((complexWords / wordCount) * 1000) / 10;
 
-    return {
+    const result: ReadabilityMetrics = {
         fleschReadingEase,
         fleschKincaidGrade: Math.max(0, fleschKincaidGrade),
         avgWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
@@ -162,4 +195,25 @@ export function analyzeReadability(text: string): ReadabilityMetrics {
         complexWordPercentage,
         difficultyLabel: getDifficultyLabel(fleschReadingEase),
     };
+
+    // Store in cache
+    _readabilityCache.set(normalized, result);
+
+    return result;
+}
+
+// ─── Cache Clear Helper ─────────────────────────────────────
+
+/**
+ * Clears the readability analysis LRU cache.
+ */
+export function clearReadabilityCache(): void {
+    _readabilityCache.clear();
+}
+
+/**
+ * Returns readability cache performance statistics.
+ */
+export function getReadabilityCacheStats() {
+    return _readabilityCache.stats();
 }

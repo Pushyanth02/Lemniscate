@@ -11,7 +11,7 @@ import { useBookStore, useProcessingStore } from '../store';
 import {
     runFullSystemPipeline,
     extractOverallMetadata,
-} from '../lib/cinematifier';
+} from '../lib/engine/cinematifier';
 import { CinematicStreamAdapter } from '../lib/rendering/cinematicStreamAdapter';
 import { useRenderBridge } from './useRenderBridge';
 import { saveBook, getCachedChapter, cacheChapter } from '../lib/runtime';
