@@ -168,12 +168,8 @@
 /* ═══════════════════════════════════════════════════════════
    DYSLEXIA FRIENDLY MODE
    ═══════════════════════════════════════════════════════════ */
+/* Dyslexia mode styling moved to responsive.css for consolidation (Req 2.7, 9.5) */
 
-.cine-reader--dyslexia {
-    --font-body: 'Lexend', sans-serif;
-    --font-headline: 'Lexend', sans-serif;
-    letter-spacing: 0.02em;
-}
 /* ─── Emotion Heatmap ──────────────────────────────────── */
 
 .cine-emotion-heatmap {

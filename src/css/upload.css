@@ -43,11 +43,16 @@
     text-align: center;
 }
 
-.upload-zone:hover,
-.upload-zone--active {
+.upload-zone:hover {
     border-color: rgba(255, 179, 177, 0.35);
     background: var(--surface-container);
     box-shadow: 0 0 40px rgba(255, 179, 177, 0.08);
+}
+
+.upload-zone--active {
+    border-color: var(--primary) !important;
+    background: var(--glow-primary) !important;
+    box-shadow: 0 0 40px var(--glow-primary-lg) !important;
 }
 
 .upload-zone--processing {

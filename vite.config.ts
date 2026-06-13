@@ -1,11 +1,24 @@
+/* eslint-disable no-undef */
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
+import { execSync } from 'child_process';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyPlugin = any;
 
+let gitCommit = '';
+try {
+    gitCommit = execSync('git rev-parse --short HEAD').toString().trim();
+} catch {
+    gitCommit = ''; // Fallback for unknown commits/CI environments (Req 12.4)
+}
+
 export default defineConfig({
+    define: {
+        'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(gitCommit),
+    },
     resolve: {
         alias: {
             '@app': path.resolve(__dirname, './src/app'),

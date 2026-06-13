@@ -182,7 +182,7 @@
         background var(--transition-fast);
 }
 .cin-icon-btn:hover {
-    color: #920028;
+    color: var(--md-sys-color-primary-variant);
     background: var(--surface-container-high);
 }
 .cin-icon-btn:focus-visible {
@@ -313,13 +313,24 @@
     flex-direction: column;
     gap: 4px;
     padding: var(--spacing-5) var(--spacing-4);
-    background: var(--surface-container-low);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--ghost-border);
     border-radius: var(--radius-md);
-    transition: background var(--transition-normal);
+    transition: background var(--transition-normal), border-color 150ms linear, transform 150ms linear;
 }
 
-.cin-feature-tile:hover {
-    background: var(--surface-container);
+.cin-feature-tile:hover,
+.cin-feature-tile:focus-within {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='light'] .cin-feature-tile:hover,
+[data-theme='light'] .cin-feature-tile:focus-within {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.15);
 }
 
 .cin-feature-icon {

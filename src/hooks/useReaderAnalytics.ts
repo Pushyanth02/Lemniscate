@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Book, ReaderMode, ReadingProgress } from '../types/cinematifier';
 import {
     getReaderAnalyticsSummary,

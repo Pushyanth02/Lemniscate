@@ -363,6 +363,21 @@
     .proc-steps {
         gap: var(--spacing-2);
     }
+
+    /* Settings overlay full screen overlay (Req 8.3) */
+    .cine-settings-overlay {
+        position: fixed !important;
+        top: 48px !important;
+        right: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: calc(100vh - 48px) !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        z-index: 250 !important;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -370,6 +385,10 @@
    ═══════════════════════════════════════════════════════════ */
 
 @media (max-width: 480px) {
+    :root {
+        --md-sys-type-display-large-font-size: clamp(32px, 8vw, 57px);
+    }
+
     .cin-features {
         grid-template-columns: 1fr;
     }
@@ -385,6 +404,68 @@
         padding: var(--spacing-8) var(--spacing-6);
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE SPACING & LAYOUT OVERRIDES (Req 8.4)
+   ═══════════════════════════════════════════════════════════ */
+
+.cin-hero {
+    gap: clamp(var(--spacing-6), 6vw, var(--spacing-16)) !important;
+    padding: clamp(var(--spacing-6), 8vw, var(--spacing-16)) clamp(var(--spacing-4), 4vw, var(--spacing-8)) !important;
+}
+
+.cin-features {
+    gap: clamp(var(--spacing-2), 3vw, var(--spacing-6)) !important;
+}
+
+.cine-content-inner {
+    padding: clamp(var(--spacing-8), 10vh, var(--spacing-20)) clamp(var(--spacing-4), 5vw, var(--spacing-8)) var(--spacing-24) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DYSLEXIA ACCESSIBILITY MODE (Req 2.4, 2.7, 9.5)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Assign Lexend to all prose and UI text in dyslexia mode */
+.cine-reader--dyslexia {
+    --font-body: var(--font-dyslexia) !important;
+    --font-headline: var(--font-dyslexia) !important;
+    --font-label: var(--font-dyslexia) !important;
+}
+
+/* Apply specific dyslexia readability enhancements */
+.cine-reader--dyslexia .original-paragraph,
+.cine-reader--dyslexia .cine-block,
+.cine-reader--dyslexia .cine-action,
+.cine-reader--dyslexia p,
+.cine-reader--dyslexia span,
+.cine-reader--dyslexia h1,
+.cine-reader--dyslexia h2,
+.cine-reader--dyslexia h3,
+.cine-reader--dyslexia h4,
+.cine-reader--dyslexia button,
+.cine-reader--dyslexia label,
+.cine-reader--dyslexia select,
+.cine-reader--dyslexia input {
+    font-family: var(--font-dyslexia) !important;
+    letter-spacing: 0.05em !important;
+    word-spacing: 0.15em !important;
+}
+
+/* Smooth transition when toggling dyslexia/accessibility spacing */
+.original-paragraph,
+.cine-block,
+.cine-action,
+.cine-content-inner,
+p,
+span,
+h1,
+h2,
+h3,
+h4 {
+    transition: letter-spacing 200ms ease, word-spacing 200ms ease, font-family 200ms ease;
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    REDUCED MOTION

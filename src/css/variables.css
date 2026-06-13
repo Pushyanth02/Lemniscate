@@ -41,13 +41,13 @@
     --md-sys-color-primary-container: #ffdad8;
     --md-sys-color-on-primary-container: #5b000e;
 
-    --md-sys-color-secondary: #ffb780;
+    --md-sys-color-secondary: #ffb780; /* Reserved: success and dialogue-indicator states only (Req 3.5) */
     --md-sys-color-secondary-variant: #763c00;
     --md-sys-color-on-secondary: #4e2600;
     --md-sys-color-secondary-container: #ffdcc4;
     --md-sys-color-on-secondary-container: #2f1400;
 
-    --md-sys-color-tertiary: #98cdf2;
+    --md-sys-color-tertiary: #98cdf2; /* Reserved: informational and link states only (Req 3.6) */
     --md-sys-color-tertiary-variant: #6297ba;
     --md-sys-color-on-tertiary: #00344c;
     --md-sys-color-tertiary-container: #c7e7ff;
@@ -232,12 +232,17 @@
     --md-sys-type-label-small-line-height: 16px;
     --md-sys-type-label-small-letter-spacing: 0.5px;
 
-    /* Export CSS variables for backward compatibility */
-    --font-headline: var(--md-sys-type-display-large-font-family, 'Manrope', sans-serif);
-    --font-body: var(--md-sys-type-body-large-font-family, 'Newsreader', serif);
-    --font-label: var(--md-sys-type-label-large-font-family, 'Inter', sans-serif);
+    /* Core design system fonts with direct stacks to resolve circular dependency (Req 2) */
+    --font-headline: 'Manrope', sans-serif;
+    --font-body: 'Newsreader', serif;
+    --font-label: 'Inter', sans-serif;
     --font-serif-reader: 'Newsreader', serif;
     --font-dyslexia: 'Lexend', sans-serif;
+
+    /* Backward compatibility aliases (Req 1.4)
+       Maps old/renamed tokens to new tokens to prevent stylesheet regression. */
+    --surface-light: var(--md-sys-color-surface);
+    --on-surface-light: var(--md-sys-color-on-surface);
 
     /* ── Border Radius (M3) ── */
     --radius-xs: 4px;
@@ -303,13 +308,13 @@
     --md-sys-color-primary-container: #ffdad8;
     --md-sys-color-on-primary-container: #410007;
 
-    --md-sys-color-secondary: #8b5000;
+    --md-sys-color-secondary: #8b5000; /* Reserved: success and dialogue-indicator states only (Req 3.5) */
     --md-sys-color-secondary-variant: #6d3700;
     --md-sys-color-on-secondary: #ffffff;
     --md-sys-color-secondary-container: #ffdbc1;
     --md-sys-color-on-secondary-container: #2f1400;
 
-    --md-sys-color-tertiary: #00668b;
+    --md-sys-color-tertiary: #00668b; /* Reserved: informational and link states only (Req 3.6) */
     --md-sys-color-tertiary-variant: #004e6d;
     --md-sys-color-on-tertiary: #ffffff;
     --md-sys-color-tertiary-container: #c7e7ff;

@@ -1,22 +1,7 @@
 ---
 name: "VS Code Playground Coordinator"
 model: "claude-opus-4-8"
-version: "1.0.0"
-speed: "fast"
-tools:
-  - type: "agent_toolset_20260401"
-  - type: "workspace_edit"
-  - type: "terminal_execution"
-mcp_servers:
-  - name: "local-filesystem-mcp"
-    uri: "http://localhost:3000"
-subagents:
-  - role: "Explorer"
-    model: "claude-3-5-haiku"
-    purpose: "Read-only workspace mapping, text searches, and dependency routing."
-  - role: "Refiner"
-    model: "claude-3-7-sonnet"
-    purpose: "Heavy code generation, continuous writing, and implementation tasks."
+description: "Master Coordinator Agent running inside the VS Code Agents Playground"
 ---
 
 # VS Code Agents Playground Configuration
@@ -46,7 +31,7 @@ To preserve your context window, you should act as a manager. Delegate specific 
 
 ## Workspace Boundaries & Governance
 *   **Allowed Folders:** `src/`, `tests/`, `scripts/`
-*   **Strictly Prohibited:** Never modify or read files in `.env`, `node_modules/`, `.git/`, or globally-ignored configuration folders.
+*   **Strictly Prohibited:** Never modify or read files in `.env`, `.env.*`, `node_modules/`, `.git/`, `.vercel/`, `.kiro/`, `graphify-out/cache/`, `dist/`, `build/`, `package-lock.json`, or globally-ignored configuration folders.
 *   **Terminal Usage:** You are permitted to run tests (`npm test`, `pytest`) and builds (`npm run build`). You are explicitly restricted from launching persistent background processes or multi-container operations unless approved via manual user gate.
 
 ---

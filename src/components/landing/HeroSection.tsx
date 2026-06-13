@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Sparkles, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
 import type { Book } from '../../types';
 
 interface HeroSectionProps {
@@ -25,12 +26,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 AI-Powered Narrative Engine
             </div>
 
-            {/* Main headline */}
-            <h1 className="cin-hero-title">
+            {/* Main headline (Req 5.2) */}
+            <motion.h1 
+                className="cin-hero-title"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            >
                 Transform Novels
                 <br />
                 <em>into Cinema</em>
-            </h1>
+            </motion.h1>
 
             <p className="cin-hero-subtitle">
                 Upload any novel PDF and watch it transform into a breathtaking

@@ -423,3 +423,63 @@
 .cine-mt-1 {
     margin-top: 1rem;
 }
+
+/* ── Settings Accordion (Req 7.1, 7.2) ── */
+.cine-settings-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4) var(--spacing-6);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.cine-settings-section-card {
+    background: var(--surface-container-low);
+    border: 1px solid var(--ghost-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+
+.cine-settings-section-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.cine-section-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-4) var(--spacing-5);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--on-surface);
+    font-family: var(--font-headline);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background var(--transition-fast);
+}
+
+.cine-section-trigger:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.cine-section-trigger-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.cine-section-trigger-icon {
+    color: var(--primary);
+}
+
+.cine-section-content {
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
+    border-top: 1px solid var(--ghost-border);
+    background: rgba(0, 0, 0, 0.12);
+}
+

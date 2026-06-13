@@ -88,3 +88,9 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--outline);
 }
+
+/* Focus outlines for accessibility (Req 9.3) */
+:focus-visible {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 2px !important;
+}

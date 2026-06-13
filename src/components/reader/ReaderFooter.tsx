@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * ReaderFooter.tsx — Chapter Navigation Footer
  */
@@ -17,13 +18,17 @@ export const ReaderFooter: React.FC<ReaderFooterProps> = ({
     book,
     currentChapterIndex,
     setCurrentChapter,
-    readingProgress,
 }) => {
     const canGoPrev = currentChapterIndex > 0;
     const canGoNext = currentChapterIndex < book.chapters.length - 1;
 
-    const progressPercent =
-        ((readingProgress?.readChapters.length || 0) / book.chapters.length) * 100;
+    const progressPercent = Math.round(
+        ((currentChapterIndex + 1) / book.chapters.length) * 100
+    );
+
+    const totalRemainingMinutes = book.chapters
+        .slice(currentChapterIndex)
+        .reduce((sum, c) => sum + (c.estimatedReadTime || 0), 0);
 
     return (
         <footer className="cine-footer" aria-label="Chapter navigation">
@@ -38,15 +43,29 @@ export const ReaderFooter: React.FC<ReaderFooterProps> = ({
             </button>
 
             <div className="cine-footer-progress-wrap">
-                <div className="cine-footer-progress-row">
-                    <span className="typography-label">
+                <div className="cine-footer-progress-row" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '16px' }}>
+                    <span 
+                        style={{
+                            color: 'var(--on-surface-variant)',
+                            fontFamily: 'var(--font-label)',
+                            fontSize: 'var(--md-sys-type-label-medium-font-size, 12px)',
+                            fontWeight: 'var(--md-sys-type-label-medium-font-weight, 500)' as React.CSSProperties['fontWeight'],
+                            letterSpacing: 'var(--md-sys-type-label-medium-letter-spacing, 0.5px)',
+                        }}
+                    >
+                        {progressPercent}% completed · {totalRemainingMinutes} min remaining
+                    </span>
+                    <span 
+                        style={{
+                            color: 'var(--on-surface-variant)',
+                            fontFamily: 'var(--font-label)',
+                            fontSize: 'var(--md-sys-type-label-medium-font-size, 12px)',
+                            fontWeight: 'var(--md-sys-type-label-medium-font-weight, 500)' as React.CSSProperties['fontWeight'],
+                            letterSpacing: 'var(--md-sys-type-label-medium-letter-spacing, 0.5px)',
+                        }}
+                    >
                         {currentChapterIndex + 1} / {book.chapters.length}
                     </span>
-                    {readingProgress && readingProgress.readChapters.length > 0 && (
-                        <span className="typography-label cine-footer-read-count">
-                            {readingProgress.readChapters.length} read
-                        </span>
-                    )}
                 </div>
                 <Scrubber progress={progressPercent} />
             </div>

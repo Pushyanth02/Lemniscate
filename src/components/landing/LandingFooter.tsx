@@ -6,7 +6,7 @@ import React from 'react';
 
 export const LandingFooter: React.FC = () => {
     return (
-        <footer className="cin-footer" role="contentinfo">
+        <footer className="cin-footer" role="contentinfo" aria-label="Site footer">
             <span>InfinityCN · Cinematifier</span>
             <span aria-hidden="true">·</span>
             <span>Stories deserve a stage</span>

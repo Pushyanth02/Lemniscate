@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import {
   X,
@@ -28,6 +29,7 @@ interface M3ReaderHeaderProps {
   onToggleSettings: () => void;
   onClose: () => void;
   isHidden?: boolean;
+  isScrolled?: boolean;
 }
 
 export const M3ReaderHeader: React.FC<M3ReaderHeaderProps> = ({
@@ -42,6 +44,7 @@ export const M3ReaderHeader: React.FC<M3ReaderHeaderProps> = ({
   onToggleSettings,
   onClose,
   isHidden = false,
+  isScrolled = false,
 }) => {
   const handleDownload = () => {
     const text = book.chapters
@@ -57,7 +60,7 @@ export const M3ReaderHeader: React.FC<M3ReaderHeaderProps> = ({
   };
 
   return (
-    <header className={`m3-reader-header ${isHidden ? 'm3-reader-header--hidden' : ''}`}>
+    <header className={`m3-reader-header ${isHidden ? 'm3-reader-header--hidden' : ''} ${isScrolled ? 'm3-reader-header--scrolled' : ''}`}>
       <div className="m3-reader-header-left">
         <div className="m3-reader-header-book-info">
           <h1 className="m3-reader-header-book-title">{book.title}</h1>

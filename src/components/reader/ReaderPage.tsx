@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useEffect, useState, lazy, Suspense } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Film, Sparkles } from 'lucide-react';
 import type { ReaderMode } from '../../types/cinematifier';
 
@@ -83,6 +83,22 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
     const [isChapterSidebarOpen, setIsChapterSidebarOpen] = useState(true);
     const [isInsightsSidebarOpen, setIsInsightsSidebarOpen] = useState(true);
 
+    // Handle responsive sidebar defaults (Req 8.2)
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) {
+                setIsChapterSidebarOpen(false);
+                setIsInsightsSidebarOpen(false);
+            } else {
+                setIsChapterSidebarOpen(true);
+                setIsInsightsSidebarOpen(true);
+            }
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // Cross-chunk tracking states
     const [activeEmotion, setActiveEmotion] = useState<string>('');
     const currentMood = useMoodStore(s => s.currentMood);
@@ -96,6 +112,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
     const previousModeRef = useRef<ReaderMode>(readerMode);
     const lastScrollYRef = useRef(0);
     const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
 
     // Custom hooks for reading progress
     const { readingProgress, bookmarks, isBookmarked, toggleBookmark } = useReadingProgress();
@@ -219,6 +236,9 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
             const currentScrollY = node.scrollTop;
             modeScrollRatioRef.current[readerMode] = computeScrollRatio(node);
             
+            // Track scrolled state for header collapse (Req 6.4)
+            setIsScrolled(currentScrollY > 80);
+            
             // Auto-hide header logic
             if (currentScrollY > 100) {
                 if (currentScrollY > lastScrollYRef.current + 10) {
@@ -308,7 +328,32 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
                 onToggleSettings={() => setShowSettings(!showSettings)}
                 onClose={onClose}
                 isHidden={isHeaderHidden}
+                isScrolled={isScrolled}
             />
+
+            {/* Floating sidebar toggle buttons (Req 8.2) */}
+            {!isChapterSidebarOpen && (
+                <button
+                    type="button"
+                    className="cine-sidebar-toggle cine-sidebar-toggle--left"
+                    onClick={() => setIsChapterSidebarOpen(true)}
+                    aria-label="Open chapter navigation"
+                    title="Open chapter navigation"
+                >
+                    📁
+                </button>
+            )}
+            {!isInsightsSidebarOpen && (
+                <button
+                    type="button"
+                    className="cine-sidebar-toggle cine-sidebar-toggle--right"
+                    onClick={() => setIsInsightsSidebarOpen(true)}
+                    aria-label="Open insights"
+                    title="Open insights"
+                >
+                    📊
+                </button>
+            )}
 
             {/* Settings Panel */}
             <AnimatePresence>
@@ -340,8 +385,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
                     isOpen={isChapterSidebarOpen}
                     onClose={() => setIsChapterSidebarOpen(false)}
                 />
-                
-                {/* Scrollable Content */}
+                               {/* Scrollable Content */}
                 <main
                     className="cine-content"
                     ref={contentRef}
@@ -352,89 +396,99 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ onClose }) => {
                         } as React.CSSProperties
                     }
                 >
-                    <div className="cine-content-inner">
-                        {/* Chapter Title */}
-                        <div className="cine-chapter-header">
-                            <span className="cine-chapter-number">
-                                Chapter {currentChapter.number}
-                            </span>
-                            <h2 className="cine-chapter-title">{currentChapter.title}</h2>
-                            <div className="cine-chapter-meta">
-                                <span>{currentChapter.wordCount.toLocaleString()} words</span>
-                                <span>·</span>
-                                <span>{currentChapter.estimatedReadTime} min read</span>
-                            </div>
-                        </div>
-
-                        {/* Emotion Heatmap */}
-                        {currentChapter.cinematifiedBlocks.length > 0 && (
-                            <EmotionHeatmap blocks={currentChapter.cinematifiedBlocks} />
-                        )}
-                        {isProcessingChapter &&
-                            readerMode === 'cinematified' &&
-                            currentChapter.cinematifiedBlocks.length === 0 && (
-                                <div className="cine-processing">
-                                    <Sparkles size={24} className="cine-processing-icon" />
-                                    <p>Cinematifying chapter…</p>
-                                    <button
-                                        className="cine-btn cine-btn--secondary cine-mt-1"
-                                        onClick={cancelProcessing}
-                                    >
-                                        Cancel
-                                    </button>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={currentChapterIndex}
+                            className="cine-content-inner"
+                            initial={{ opacity: 0, x: 40 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -40 }}
+                            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                        >
+                            {/* Chapter Title */}
+                            <div className="cine-chapter-header">
+                                <span className="cine-chapter-number">
+                                    Chapter {currentChapter.number}
+                                </span>
+                                <h2 className="cine-chapter-title">{currentChapter.title}</h2>
+                                <div className="cine-chapter-meta">
+                                    <span>{currentChapter.wordCount.toLocaleString()} words</span>
+                                    <span>·</span>
+                                    <span>{currentChapter.estimatedReadTime} min read</span>
                                 </div>
-                            )}
-
-                        {readerMode === 'original' ? (
-                            <div className="cine-blocks-wrapper">
-                                <OriginalTextView
-                                    text={
-                                        currentChapter.originalModeText ??
-                                        currentChapter.originalText
-                                    }
-                                    scenes={currentChapter.originalModeScenes}
-                                    containerRef={contentRef}
-                                />
                             </div>
-                        ) : blocksToRender && blocksToRender.length > 0 ? (
-                            <div className="cine-blocks-wrapper">
-                                <CinematicRenderer
-                                    blocks={blocksToRender}
-                                    immersionLevel={immersionLevel}
-                                    containerRef={contentRef}
-                                />
-                                {isProcessingChapter && (
-                                    <div className="cine-processing cine-processing-inline">
-                                        <Sparkles size={16} className="cine-processing-icon" />
-                                        <p>Generating…</p>
+
+                            {/* Emotion Heatmap */}
+                            {currentChapter.cinematifiedBlocks.length > 0 && (
+                                <EmotionHeatmap blocks={currentChapter.cinematifiedBlocks} />
+                            )}
+                            {isProcessingChapter &&
+                                readerMode === 'cinematified' &&
+                                currentChapter.cinematifiedBlocks.length === 0 && (
+                                    <div className="cine-processing">
+                                        <Sparkles size={24} className="cine-processing-icon" />
+                                        <p>Cinematifying chapter…</p>
+                                        <button
+                                            className="cine-btn cine-btn--secondary cine-mt-1"
+                                            onClick={cancelProcessing}
+                                        >
+                                            Cancel
+                                        </button>
                                     </div>
                                 )}
-                            </div>
-                        ) : !isProcessingChapter ? (
-                            <div className="cine-blocks-wrapper">
-                                <div className="cine-empty-state">
-                                    <Film size={48} />
-                                    <p>
-                                        {currentChapter.status === 'error'
-                                            ? 'Chapter processing failed'
-                                            : 'Chapter not yet cinematified'}
-                                    </p>
-                                    {currentChapter.errorMessage && (
-                                        <p className="cine-error-message">
-                                            {currentChapter.errorMessage}
-                                        </p>
-                                    )}
-                                    <button
-                                        className="cine-btn cine-btn--primary"
-                                        onClick={processCurrentChapter}
-                                    >
-                                        <Sparkles size={16} />
-                                        Process Now
-                                    </button>
+
+                            {readerMode === 'original' ? (
+                                <div className="cine-blocks-wrapper">
+                                    <OriginalTextView
+                                        text={
+                                            currentChapter.originalModeText ??
+                                            currentChapter.originalText
+                                        }
+                                        scenes={currentChapter.originalModeScenes}
+                                        containerRef={contentRef}
+                                    />
                                 </div>
-                            </div>
-                        ) : null}
-                    </div>
+                            ) : blocksToRender && blocksToRender.length > 0 ? (
+                                <div className="cine-blocks-wrapper">
+                                    <CinematicRenderer
+                                        blocks={blocksToRender}
+                                        immersionLevel={immersionLevel}
+                                        darkMode={darkMode}
+                                        containerRef={contentRef}
+                                    />
+                                    {isProcessingChapter && (
+                                        <div className="cine-processing cine-processing-inline">
+                                            <Sparkles size={16} className="cine-processing-icon" />
+                                            <p>Generating…</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : !isProcessingChapter ? (
+                                <div className="cine-blocks-wrapper">
+                                    <div className="cine-empty-state">
+                                        <Film size={48} />
+                                        <p>
+                                            {currentChapter.status === 'error'
+                                                ? 'Chapter processing failed'
+                                                : 'Chapter not yet cinematified'}
+                                        </p>
+                                        {currentChapter.errorMessage && (
+                                            <p className="cine-error-message">
+                                                {currentChapter.errorMessage}
+                                            </p>
+                                        )}
+                                        <button
+                                            className="cine-btn cine-btn--primary"
+                                            onClick={processCurrentChapter}
+                                        >
+                                            <Sparkles size={16} />
+                                            Process Now
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : null}
+                        </motion.div>
+                    </AnimatePresence>
                 </main>
 
                 <ReaderCharactersPanel

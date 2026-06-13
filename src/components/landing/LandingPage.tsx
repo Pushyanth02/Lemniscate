@@ -72,7 +72,7 @@ export const LandingPage: React.FC = () => {
                 <div className="cin-hero-glow cin-hero-glow--2" aria-hidden="true" />
 
                 {/* ── Header ── */}
-                <header className="cin-header" role="banner">
+                <header className="cin-header" role="banner" aria-label="Site header">
                     <a href="#main-content" className="skip-to-content">
                         Skip to main content
                     </a>
@@ -124,7 +124,7 @@ export const LandingPage: React.FC = () => {
                 </header>
 
                 {/* ── Hero & Upload Section ── */}
-                <main id="main-content" role="main" className="cin-hero">
+                <main id="main-content" role="main" className="cin-hero" aria-label="Main content">
                     <HeroSection
                         book={book}
                         onContinue={handleContinueReading}

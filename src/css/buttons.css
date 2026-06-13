@@ -59,6 +59,7 @@
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: var(--shadow-cinema);
     transition:
         opacity var(--transition-fast),
         transform var(--transition-fast),

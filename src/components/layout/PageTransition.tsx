@@ -3,37 +3,39 @@
  */
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 interface PageTransitionProps {
     children: React.ReactNode;
     routeKey: string;
 }
 
-const variants = {
-    initial: {
-        opacity: 0,
-        x: 16,
-    },
-    animate: {
-        opacity: 1,
-        x: 0,
-        transition: {
-            duration: 0.3,
-            ease: [0.4, 0, 0.2, 1] as const, // Standard Ease-in-out
-        },
-    },
-    exit: {
-        opacity: 0,
-        x: -16,
-        transition: {
-            duration: 0.3,
-            ease: [0.4, 0, 0.2, 1] as const, // Standard Ease-in-out
-        },
-    },
-};
-
 export const PageTransition: React.FC<PageTransitionProps> = ({ children, routeKey }) => {
+    const shouldReduceMotion = useReducedMotion();
+
+    const variants = {
+        initial: {
+            opacity: shouldReduceMotion ? 1 : 0,
+            x: shouldReduceMotion ? 0 : 16,
+        },
+        animate: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                duration: shouldReduceMotion ? 0 : 0.3,
+                ease: [0.4, 0, 0.2, 1] as const, // Standard Ease-in-out
+            },
+        },
+        exit: {
+            opacity: shouldReduceMotion ? 1 : 0,
+            x: shouldReduceMotion ? 0 : -16,
+            transition: {
+                duration: shouldReduceMotion ? 0 : 0.3,
+                ease: [0.4, 0, 0.2, 1] as const, // Standard Ease-in-out
+            },
+        },
+    };
+
     return (
         <motion.div
             key={routeKey}

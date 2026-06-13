@@ -2,18 +2,28 @@
 
 /* Base header */
 .m3-reader-header {
-  position: relative;
+  position: sticky;
+  top: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-6, 24px) var(--spacing-8, 32px);
-  background-color: var(--md-sys-color-surface-container-low, var(--surface-container-low));
-  border-bottom: 1px solid var(--md-sys-color-outline-variant, var(--outline-variant));
-  z-index: 10;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--ghost-border);
+  z-index: 1000;
   transition: background-color var(--transition-normal), border-color var(--transition-normal),
-    transform var(--transition-normal);
+    transform var(--transition-normal), padding 200ms cubic-bezier(0.4, 0, 0.2, 1), height 200ms cubic-bezier(0.4, 0, 0.2, 1);
   height: 64px; /* M3 standard header height */
   gap: var(--spacing-8, 32px);
+}
+
+.m3-reader-header--scrolled {
+  height: 48px !important;
+  padding-top: var(--spacing-2, 8px) !important;
+  padding-bottom: var(--spacing-2, 8px) !important;
+  box-shadow: var(--ambient-shadow);
 }
 
 /* Hidden header for auto-hide functionality */

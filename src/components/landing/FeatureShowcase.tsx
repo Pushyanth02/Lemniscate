@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const FEATURES = [
     {
@@ -27,19 +28,53 @@ const FEATURES = [
     },
 ];
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.08,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.4,
+            ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
+        },
+    },
+};
+
 export const FeatureShowcase: React.FC = () => {
     return (
-        <section className="cin-features" aria-label="Key features">
+        <motion.section 
+            className="cin-features" 
+            aria-label="Key features"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
             {FEATURES.map(f => (
-                <div key={f.label} className="cin-feature-tile">
+                <motion.div 
+                    key={f.label} 
+                    className="cin-feature-tile"
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.15, ease: "linear" }}
+                >
                     <span className="cin-feature-icon" aria-hidden="true">
                         {f.icon}
                     </span>
                     <span className="cin-feature-label">{f.label}</span>
                     <span className="cin-feature-desc">{f.desc}</span>
-                </div>
+                </motion.div>
             ))}
-        </section>
+        </motion.section>
     );
 };
 

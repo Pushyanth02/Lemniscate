@@ -16,44 +16,46 @@ export const CinematicBlockView = React.memo(function CinematicBlockView({
     block,
     index,
     immersionLevel,
+    customDelay,
 }: {
     block: CinematicBlock;
     index: number;
     immersionLevel: 'minimal' | 'balanced' | 'cinematic';
+    customDelay?: number;
 }) {
     const isMinimal = immersionLevel === 'minimal';
     const durationMult = immersionLevel === 'cinematic' ? 1.5 : 1;
-    const baseDelay = isMinimal ? 0 : Math.min(index * 0.03, 0.5);
+    const baseDelay = isMinimal ? 0 : (customDelay !== undefined ? customDelay : Math.min(index * 0.03, 0.5));
 
     // Subscribe to real-time mood store to adapt block-level animations
     const currentMood = useMoodStore(s => s.currentMood);
 
     // Mood-specific animation parameters
     let moodDurationMult = 1;
-    let transitionEase = [0.16, 1, 0.3, 1]; // standard easeOutExpo
+    let transitionEase = [0.4, 0, 0.2, 1]; // standard M3 ease
     let initialY = block.type === 'sfx' ? 0 : 30;
     let initialX = 0;
 
     if (currentMood === 'action') {
         moodDurationMult = 0.55;
-        transitionEase = [0.25, 1, 0.5, 1]; // quick easeOutQuad
+        transitionEase = [0.4, 0, 0.2, 1]; // standard M3 ease
         initialY = 15;
         initialX = index % 2 === 0 ? -12 : 12; // slight horizontal dynamic stagger
     } else if (currentMood === 'suspense') {
         moodDurationMult = 1.8;
-        transitionEase = [0.4, 0, 0.6, 1]; // slow/lingering
+        transitionEase = [0.4, 0, 0.2, 1]; // standard M3 ease
         initialY = 45;
     } else if (currentMood === 'romantic') {
         moodDurationMult = 1.35;
-        transitionEase = [0.33, 1, 0.68, 1]; // smooth/elegant cubic
+        transitionEase = [0.4, 0, 0.2, 1]; // standard M3 ease
         initialY = 20;
     } else if (currentMood === 'dark') {
         moodDurationMult = 1.6;
-        transitionEase = [0.5, 0, 0.75, 1]; // heavy / dragging
+        transitionEase = [0.4, 0, 0.2, 1]; // standard M3 ease
         initialY = 50;
     } else if (currentMood === 'peaceful') {
         moodDurationMult = 0.95;
-        transitionEase = [0.25, 0.46, 0.45, 0.94]; // gentle / light
+        transitionEase = [0.4, 0, 0.2, 1]; // standard M3 ease
         initialY = 20;
     }
 
@@ -83,7 +85,7 @@ export const CinematicBlockView = React.memo(function CinematicBlockView({
             transition: isMinimal
                 ? { duration: 0 }
                 : {
-                      duration: (block.type === 'beat' ? 0.8 : 0.6) * durationMult * moodDurationMult,
+                      duration: 0.3 * durationMult * moodDurationMult,
                       delay: baseDelay,
                       ease: transitionEase as [number, number, number, number],
                   },

@@ -32,6 +32,12 @@ dotnet/**/bin/
 
 .vercel
 
+# Local Claude agent settings
+.claude/settings.local.json
+
+# Graphify cache
+graphify-out/cache/
+
 # Temp files
 tmpclaude-*
 *_tmp.txt
@@ -42,3 +48,4 @@ docker-compose.override.yml
 
 # Windows NUL device artifact
 nul
+

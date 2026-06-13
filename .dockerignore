@@ -1,9 +1,7 @@
 # Dependency directories
 node_modules/
-jspm_packages/
-web_modules/
 
-# Build and distribution directories
+# Build outputs
 dist/
 dist-ssr/
 build/
@@ -40,12 +38,16 @@ lerna-debug.log*
 coverage/
 .nyc_output/
 
-# Deployment & Vercel
-.vercel/
-.vercelignore
+# Local configuration & metadata
+.kiro/
+.planning/
+.claude/
+CLAUDE.md
 
 # Large generated / project metadata assets
-graphify-out/
+graphify-out/cache/
+graphify-out/graph.html
+graphify-out/graph.json
 package-lock.json
 pnpm-lock.yaml
 yarn.lock

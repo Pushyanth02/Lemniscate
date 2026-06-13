@@ -9,7 +9,7 @@
         "allowImportingTsExtensions": true,
         "resolveJsonModule": true,
         "verbatimModuleSyntax": true,
-        "types": ["vite/client", "vitest/globals"],
+        "types": ["vite/client", "vitest/globals", "node"],
         "skipLibCheck": true,
         "noEmit": true,
         "jsx": "react-jsx",
@@ -34,6 +34,5 @@
             "@types/*": ["./src/types/*"]
         }
     },
-    "include": ["src"],
-    "references": [{ "path": "./tsconfig.node.json" }]
+    "include": ["src"]
 }

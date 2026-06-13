@@ -305,7 +305,9 @@
     max-height: calc(100vh - 110px);
     overflow-y: auto;
     z-index: 150;
-    background: var(--surface-container-low);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 0 0 0 var(--radius-xl);
     box-shadow: var(--shadow-md);
     padding: var(--spacing-6);
@@ -314,6 +316,17 @@
     gap: var(--spacing-5);
     border-left: 1px solid var(--ghost-border);
     border-bottom: 1px solid var(--ghost-border);
+    transition: background-color var(--transition-normal), border-color 150ms linear;
+}
+
+.cine-settings-overlay:hover,
+.cine-settings-overlay:focus-within {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='light'] .cine-settings-overlay:hover,
+[data-theme='light'] .cine-settings-overlay:focus-within {
+    border-color: rgba(0, 0, 0, 0.15);
 }
 
 .cine-settings-section {
@@ -510,4 +523,48 @@
 
 .scrubber-track:hover .scrubber-playhead {
     transform: translateY(-50%) scale(1);
+}
+
+/* Floating sidebar toggle buttons (Req 8.2) */
+.cine-sidebar-toggle--left,
+.cine-sidebar-toggle--right {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--ghost-border);
+    color: var(--on-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all var(--transition-fast);
+}
+
+.cine-sidebar-toggle--left {
+    left: var(--spacing-4);
+}
+
+.cine-sidebar-toggle--right {
+    right: var(--spacing-4);
+}
+
+.cine-sidebar-toggle--left:hover,
+.cine-sidebar-toggle--right:hover {
+    background: var(--surface-container-high);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Hide on narrow viewports where sidebars are disabled */
+@media (max-width: 768px) {
+    .cine-sidebar-toggle--left,
+    .cine-sidebar-toggle--right {
+        display: none !important;
+    }
 }

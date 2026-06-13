@@ -27,12 +27,16 @@ export default tseslint.config(
       ...js.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': 'warn',
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-empty': 'off',
+      'no-useless-escape': 'off',
     },
   },
   {
     // Test files configuration
-    files: ['**/*.test.{ts,tsx}', '**/*.{spec,test}.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}', '**/*.{spec,test}.{ts,tsx}', 'src/test/setup.ts'],
     languageOptions: {
       globals: {
         ...globals.browser,

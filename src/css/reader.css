@@ -255,14 +255,28 @@
 .cine-chapter-nav-sidebar {
     width: 280px;
     flex-shrink: 0;
-    background: var(--surface-container-low);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition:
         width var(--transition-slow),
-        opacity var(--transition-slow);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+        opacity var(--transition-slow),
+        border-color 150ms linear,
+        background-color var(--transition-normal);
+    border-right: 1px solid var(--ghost-border);
+}
+
+.cine-chapter-nav-sidebar:hover,
+.cine-chapter-nav-sidebar:focus-within {
+    border-right-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='light'] .cine-chapter-nav-sidebar:hover,
+[data-theme='light'] .cine-chapter-nav-sidebar:focus-within {
+    border-right-color: rgba(0, 0, 0, 0.15);
 }
 
 .cine-chapter-nav-sidebar.is-closed {
@@ -593,15 +607,29 @@
 .cine-insights-sidebar {
     width: 280px;
     flex-shrink: 0;
-    background: var(--surface-container-low);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition:
         width var(--transition-slow),
-        opacity var(--transition-slow);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
+        opacity var(--transition-slow),
+        border-color 150ms linear,
+        background-color var(--transition-normal);
+    border-left: 1px solid var(--ghost-border);
     padding: 0 !important;
+}
+
+.cine-insights-sidebar:hover,
+.cine-insights-sidebar:focus-within {
+    border-left-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='light'] .cine-insights-sidebar:hover,
+[data-theme='light'] .cine-insights-sidebar:focus-within {
+    border-left-color: rgba(0, 0, 0, 0.15);
 }
 
 .cine-insights-header-wrapper {
@@ -1337,4 +1365,16 @@
     opacity: 0.2;
     line-height: 1;
     pointer-events: none;
+}
+
+/* Fallback for browsers not supporting backdrop-filter (Req 4.5) */
+@supports not (backdrop-filter: blur(1px)) {
+    .cine-chapter-nav-sidebar,
+    .cine-insights-sidebar,
+    .cine-settings-overlay,
+    .cin-feature-tile,
+    .cine-header,
+    .cine-footer {
+        background-color: var(--surface-container) !important;
+    }
 }

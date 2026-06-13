@@ -22,6 +22,7 @@ import { usePacingEngine } from '../../hooks/usePacingEngine';
 interface CinematicRendererProps {
     blocks: CinematicBlock[];
     immersionLevel: ImmersionLevel;
+    darkMode?: boolean;
     /** Scroll container ref for virtualization */
     containerRef?: React.RefObject<HTMLElement | null>;
 }
@@ -62,8 +63,22 @@ const SceneDivider = React.memo(function SceneDivider() {
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export const CinematicRenderer: React.FC<CinematicRendererProps> = React.memo(
-    function CinematicRenderer({ blocks, immersionLevel, containerRef }) {
+    function CinematicRenderer({ blocks, immersionLevel, darkMode, containerRef }) {
         const pacingStyles = usePacingEngine(blocks, immersionLevel);
+
+        // Precalculate sequential delays for Theater Mode (Req 6.6)
+        const delays = useMemo(() => {
+            if (!darkMode) return [];
+            let accumulatedDelayMs = 0;
+            return blocks.map(block => {
+                const currentDelay = accumulatedDelayMs;
+                const wordCount = block.content.trim().split(/\s+/).filter(Boolean).length;
+                // quarter reading-speed pacing: (wordCount / 250) * 60 * 1000 / 4, capped at 4000ms
+                const pacingDelayMs = Math.min(4000, (wordCount / 250) * 15000);
+                accumulatedDelayMs += pacingDelayMs;
+                return currentDelay / 1000;
+            });
+        }, [blocks, darkMode]);
 
         // Build virtual items with pacing styles baked in
         const virtualItems: VirtualItem[] = useMemo(() => {
@@ -113,6 +128,7 @@ export const CinematicRenderer: React.FC<CinematicRendererProps> = React.memo(
                                 block={block}
                                 index={i}
                                 immersionLevel={immersionLevel}
+                                customDelay={darkMode ? delays[i] : undefined}
                             />
                         </div>
                     ),
@@ -121,7 +137,7 @@ export const CinematicRenderer: React.FC<CinematicRendererProps> = React.memo(
             }
 
             return items;
-        }, [blocks, pacingStyles, immersionLevel]);
+        }, [blocks, pacingStyles, immersionLevel, darkMode, delays]);
 
         // Use virtualized rendering if container ref is provided
         if (containerRef) {
