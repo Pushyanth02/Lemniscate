@@ -219,17 +219,18 @@ export function detectOriginalModeScenes(text: string): Scene[] {
             Boolean(currentLocation) &&
             detectedLocation !== currentLocation;
         const hasTimeShift = ORIGINAL_MODE_TIME_SHIFT_PATTERN.test(paragraph);
-        const hasStrongBreak =
+        const hasPrevStrongBreak =
             i > 0 && units[i - 1].breakNewlines >= ORIGINAL_MODE_STRONG_BREAK_NEWLINES;
+        const hasCurrentStrongBreak = breakNewlines >= ORIGINAL_MODE_STRONG_BREAK_NEWLINES && i < units.length - 1;
 
         const shouldStartNewScene =
-            currentScene.length > 0 && (hasTimeShift || hasLocationShift || hasStrongBreak);
+            currentScene.length > 0 && (hasTimeShift || hasLocationShift || hasPrevStrongBreak);
 
         let reason: SceneBreakReason = 'threshold_reached';
         if (shouldStartNewScene) {
             if (hasTimeShift) reason = 'time_shift';
             else if (hasLocationShift) reason = 'location_shift';
-            else if (hasStrongBreak) reason = 'narrative_transition';
+            else if (hasPrevStrongBreak) reason = 'narrative_transition';
 
             scenes.push({ paragraphs: currentScene, reason });
             currentScene = [];
@@ -241,7 +242,9 @@ export function detectOriginalModeScenes(text: string): Scene[] {
             currentLocation = detectedLocation;
         }
 
-        if (breakNewlines >= ORIGINAL_MODE_STRONG_BREAK_NEWLINES && i < units.length - 1) {
+        // Only split on strong break if we didn't just split on a scene-change above.
+        // This avoids creating single-paragraph scenes when both triggers fire simultaneously.
+        if (hasCurrentStrongBreak && !shouldStartNewScene) {
             scenes.push({ paragraphs: currentScene, reason: 'narrative_transition' as SceneBreakReason });
             currentScene = [];
             currentLocation = undefined;

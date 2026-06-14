@@ -142,9 +142,12 @@ export interface CinematifierState
  * Controls which slice of state survives localStorage serialization.
  * Only persisted fields will be rehydrated on page load.
  */
+const STORAGE_VERSION = 1;
+
 const persistConfig = {
     name: 'cinematifier-storage',
     storage: createJSONStorage(() => localStorage),
+    version: STORAGE_VERSION,
     partialize: (state: CinematifierState) => ({
         // Book & reading state
         book: state.book,
@@ -158,6 +161,17 @@ const persistConfig = {
         dyslexiaFont: state.dyslexiaFont,
         darkMode: state.darkMode,
     }),
+    // Migration: when storage version increments, persisted data from older
+    // versions is discarded and the store starts fresh with defaults.
+    migrate: (persistedState: unknown, persistedVersion: number) => {
+        if (persistedVersion !== STORAGE_VERSION) {
+            console.warn(
+                `[cinematifierStore] Storage version mismatch (found ${persistedVersion}, expected ${STORAGE_VERSION}). Resetting persisted state.`,
+            );
+            return undefined as unknown as CinematifierState;
+        }
+        return persistedState as CinematifierState;
+    },
     // Merge strategy: on rehydrate, incoming persisted values take precedence
     // over store defaults but don't overwrite runtime-only state.
     merge: (persisted: unknown, current: CinematifierState) => ({

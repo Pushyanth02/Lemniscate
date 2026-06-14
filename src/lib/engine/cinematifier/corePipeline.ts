@@ -367,6 +367,8 @@ function buildCinematicBlocksForScene(
 
             const cleanContent = isDialogue ? fragment.text.replace(/^["“]|["”]$/g, '').trim() : fragment.text.trim();
 
+            const isFirstAction = idx === 0 && blocks.filter(b => b.type === 'action').length === 0 && !isDialogue;
+
             const block: CinematicBlock = {
                 id: generateBlockId(),
                 type: blockType,
@@ -375,15 +377,9 @@ function buildCinematicBlocksForScene(
                 tensionScore: isTension ? 80 : (isReflection ? 20 : analysis.tensionScore),
                 emotion: isTension ? 'suspense' : (isReflection ? 'neutral' : undefined),
                 ...(speaker && { speaker }),
+                ...(isFirstAction && cameraCue && { cameraCue }),
+                ...(isFirstAction && ambienceLabel && { ambience: ambienceLabel }),
             };
-
-            // Attach camera direction to first action block
-            if (idx === 0 && blocks.filter(b => b.type === 'action').length === 0 && !isDialogue && cameraCue) {
-            }
-
-            // Attach ambience to first action block
-            if (idx === 0 && blocks.filter(b => b.type === 'action').length === 0 && !isDialogue && ambienceLabel) {
-            }
 
             blocks.push(block);
         }

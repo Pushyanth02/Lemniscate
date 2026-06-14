@@ -75,13 +75,12 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
     const [expandedSection, setExpandedSection] = useState<string | null>('preferences');
 
     // AI Providers Local State (Req 7.3 - 7.5)
-    const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
-        const saved = localStorage.getItem('cine-api-keys');
-        return saved ? JSON.parse(saved) : { openai: '', anthropic: '', gemini: '', ollama: '' };
+    // Keys are held in component state only — never persisted to storage.
+    // The app uses an offline heuristic pipeline; these keys are not sent to any API.
+    const [apiKeys, setApiKeys] = useState<Record<string, string>>({
+        openai: '', anthropic: '', gemini: '', ollama: '',
     });
-    const [selectedProvider, setSelectedProvider] = useState<string>(() => {
-        return localStorage.getItem('cine-selected-provider') || 'openai';
-    });
+    const [selectedProvider, setSelectedProvider] = useState<string>('openai');
     const [validationStatus, setValidationStatus] = useState<Record<string, 'success' | 'error' | 'none'>>({});
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isValidating, setIsValidating] = useState<Record<string, boolean>>({});
@@ -89,13 +88,11 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
     const handleKeyChange = (val: string) => {
         const updated = { ...apiKeys, [selectedProvider]: val };
         setApiKeys(updated);
-        localStorage.setItem('cine-api-keys', JSON.stringify(updated));
         setValidationStatus(prev => ({ ...prev, [selectedProvider]: 'none' }));
     };
 
     const handleSelectProvider = (id: string) => {
         setSelectedProvider(id);
-        localStorage.setItem('cine-selected-provider', id);
     };
 
     const testConnection = async () => {
@@ -189,7 +186,7 @@ export const ReaderSettingsPanel: React.FC<ReaderSettingsPanelProps> = ({
                                             value={apiKeys[selectedProvider] || ''}
                                             onChange={handleKeyChange}
                                             placeholder={selectedProvider === 'ollama' ? 'http://localhost:11434' : 'Enter API credentials...'}
-                                            helpText={selectedProvider === 'ollama' ? 'Connection url for local Ollama server.' : 'Stored locally and encrypted.'}
+                                            helpText={selectedProvider === 'ollama' ? 'Connection URL for local Ollama server.' : 'For testing provider connectivity. Not persisted.'}
                                         />
 
                                         <div className="cine-test-action-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>

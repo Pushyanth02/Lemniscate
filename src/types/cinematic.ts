@@ -126,6 +126,8 @@ export interface CinematicBlock {
     timing?: 'slow' | 'normal' | 'quick' | 'rapid';
     emotion?: EmotionCategory;
     tensionScore?: number; // 0-100
+    cameraCue?: string; // e.g. "HANDHELD CLOSE", "WIDE ESTABLISHING"
+    ambience?: string; // e.g. "eerie silence", "thunderous"
     entities?: {
         characters: string[]; // character names found in this block
         locations: string[]; // location names found in this block

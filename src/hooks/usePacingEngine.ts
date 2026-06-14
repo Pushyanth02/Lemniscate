@@ -13,7 +13,7 @@
  *   - Immersion-aware: minimal disables pacing, cinematic amplifies it
  */
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { CinematicBlock, ImmersionLevel } from '../types/cinematifier';
 
 // ─── Public Types ──────────────────────────────────────────────────────────────
@@ -183,8 +183,23 @@ export function usePacingEngine(
     blocks: CinematicBlock[],
     immersionLevel: ImmersionLevel,
 ): PacingStyle[] {
-    return useMemo(
-        () => computeAllPacingStyles(blocks, immersionLevel),
-        [blocks, immersionLevel],
-    );
+    // Track previous inputs to avoid recomputation when Zustand produces a new
+    // array reference with identical content.
+    const prevInputsRef = useRef<{ blocks: CinematicBlock[]; immersion: ImmersionLevel } | null>(null);
+    const prevResultRef = useRef<PacingStyle[]>([]);
+
+    return useMemo(() => {
+        const prev = prevInputsRef.current;
+        if (
+            prev &&
+            prev.blocks === blocks &&
+            prev.immersion === immersionLevel
+        ) {
+            return prevResultRef.current;
+        }
+        prevInputsRef.current = { blocks, immersion: immersionLevel };
+        const result = computeAllPacingStyles(blocks, immersionLevel);
+        prevResultRef.current = result;
+        return result;
+    }, [blocks, immersionLevel]);
 }

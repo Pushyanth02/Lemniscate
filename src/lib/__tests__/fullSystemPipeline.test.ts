@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { runFullSystemPipeline, clearFullSystemPipelineCache } from '../cinematifier';
+import { runFullSystemPipeline, clearFullSystemPipelineCache } from '../engine/cinematifier';
 
 function canonicalWithoutWhitespace(text: string): string {
     return text.replace(/\s+/g, '').trim();

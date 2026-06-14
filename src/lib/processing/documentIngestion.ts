@@ -26,7 +26,7 @@ import {
     segmentChapters,
     extractTitle,
     processText,
-} from '../cinematifier';
+} from '../engine/cinematifier';
 import type {
     NarrativeDocument,
     TextProcessingOptions,

@@ -14,7 +14,7 @@
  * to avoid redundant computation for repeated or overlapping passages.
  */
 
-import { getGlobalCache } from '../../lru-cache';
+import { getGlobalCache } from './cache';
 
 // ─── Syllable Counter ──────────────────────────────────────
 

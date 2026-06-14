@@ -20,7 +20,7 @@ import {
     detectSceneBreaks,
     deriveSceneTitle,
     segmentChapters,
-} from '../cinematifier';
+} from '../engine/cinematifier';
 import { computeTextStatistics } from '../processing/textStatistics';
 
 // ─── Helpers ───────────────────────────────────────────────

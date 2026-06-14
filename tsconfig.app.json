@@ -22,16 +22,7 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "paths": {
-            "@/*": ["./src/*"],
-            "@app/*": ["./src/app/*"],
-            "@features/*": ["./src/features/*"],
-            "@shared/*": ["./src/shared/*"],
-            "@assets/*": ["./src/assets/*"],
-            "@lib/*": ["./src/lib/*"],
-            "@components/*": ["./src/components/*"],
-            "@store/*": ["./src/store/*"],
-            "@hooks/*": ["./src/hooks/*"],
-            "@types/*": ["./src/types/*"]
+            "@/*": ["./src/*"]
         }
     },
     "include": ["src"]

@@ -109,6 +109,7 @@ const readabilityCache = new LRUCache<string, ReadabilityMetrics>(50);
 const sentimentCache = new LRUCache<string, SentimentFlowResult>(50);
 const pacingCache = new LRUCache<string, PacingMetrics>(50);
 const textStatsCache = new LRUCache<string, TextStatistics>(50);
+const narrativeCache = new LRUCache<string, { povCharacter: string; narrativeMode: 'normal' | 'flashback' | 'dream' | 'memory' }>(50);
 
 // ─── Pipeline Context ──────────────────────────────────────
 
@@ -330,13 +331,12 @@ export class NarrativeAnalysisStage implements PipelineStage {
         checkCancelled(context);
         context.onProgress?.(0.9, 'Analyzing narrative mode...');
 
-        // Use cache for expensive narrative analysis
+        // Use dedicated cache for narrative analysis
         const narrativeKey = `narrative:${context.text}`;
-        const cachedNarrative = readabilityCache.get(narrativeKey); // Reusing readabilityCache for simplicity
+        const cachedNarrative = narrativeCache.get(narrativeKey);
         if (cachedNarrative !== undefined) {
-            // Extract povCharacter and narrativeMode from cached result
-            context.povCharacter = (cachedNarrative as any).povCharacter;
-            context.narrativeMode = (cachedNarrative as any).narrativeMode;
+            context.povCharacter = cachedNarrative.povCharacter;
+            context.narrativeMode = cachedNarrative.narrativeMode;
             return;
         }
 
@@ -353,11 +353,7 @@ export class NarrativeAnalysisStage implements PipelineStage {
         const narrativeMode = nonNormal.length > 0 ? nonNormal[0] : 'normal';
 
         // Cache the results
-        const result = { 
-            povCharacter: povCharacter,
-            narrativeMode: narrativeMode 
-        } as any;
-        readabilityCache.set(narrativeKey, result);
+        narrativeCache.set(narrativeKey, { povCharacter, narrativeMode });
 
         context.povCharacter = povCharacter;
         context.narrativeMode = narrativeMode;

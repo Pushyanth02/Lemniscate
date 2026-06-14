@@ -27,7 +27,7 @@ import {
     createBookFromSegments,
     createReadingProgress,
     extractOverallMetadata,
-} from '../cinematifier';
+} from '../engine/cinematifier';
 import { rebuildParagraphs } from '../engine/cinematifier/textProcessing';
 import { TensionTracker, SpeakerAttributor, MockDirector, AmbienceEngine } from '../engine/cinematifier/offlineEngine';
 import type { ChapterSegment } from '../../types/cinematifier';

@@ -13,16 +13,46 @@ const CHAPTER_DETECTION_MODEL = 'Xenova/bert-base-chapter-detection';
 const MODEL_CONFIDENCE_THRESHOLD = 0.7;
 const ENABLE_ML_DETECTION = true; // Toggle for feature flag
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyPipeline = any;
+// ─── Typed ML Model Interfaces ──────────────────────────────────────────────
+
+/** Expected output from a single model prediction */
+interface ModelPrediction {
+    label: string;
+    score: number;
+    start?: number;
+    end?: number;
+}
+
+/** Validated and typed model output */
+interface ClassifiedChunk {
+    predictions: ModelPrediction[];
+}
+
+function isValidPrediction(value: unknown): value is ModelPrediction {
+    if (!value || typeof value !== 'object') return false;
+    const p = value as Record<string, unknown>;
+    return (
+        typeof p.label === 'string' &&
+        typeof p.score === 'number' &&
+        (p.start === undefined || typeof p.start === 'number') &&
+        (p.end === undefined || typeof p.end === 'number')
+    );
+}
+
+function validateModelOutput(result: unknown): ClassifiedChunk {
+    if (!Array.isArray(result)) return { predictions: [] };
+    const predictions = result.filter(isValidPrediction);
+    return { predictions };
+}
 
 // Global model instance to avoid reloading
-let chapterDetectionPipeline: AnyPipeline | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any — pipeline type from @xenova/transformers is not publicly typed
+let chapterDetectionPipeline: ((text: string) => Promise<unknown>) | null = null;
 
 /**
  * Initialize the chapter detection model lazily
  */
-async function initializeChapterDetectionModel(): Promise<AnyPipeline | null> {
+async function initializeChapterDetectionModel(): ReturnType<typeof initializeChapterDetectionModel> {
   if (!ENABLE_ML_DETECTION) return null;
 
   if (chapterDetectionPipeline) return chapterDetectionPipeline;
@@ -89,29 +119,29 @@ export async function detectChapterBoundariesML(
         // Use the model to classify if this chunk contains a chapter boundary
         const result = await model(chunk);
 
-        // Process results - assuming model returns boundary predictions
-        if (Array.isArray(result)) {
-          for (const prediction of result) {
-            if (
-              prediction.label.includes('CHAPTER') ||
-              prediction.label.includes('BOUNDARY') ||
-              prediction.label.includes('TITLE')
-            ) {
-              if (prediction.score >= MODEL_CONFIDENCE_THRESHOLD) {
-                // Approximate position in original text
-                const position =
-                  runningPosition +
-                  Math.round((prediction.start ?? 0) * (chunk.length / 100));
+        // Validate and type the model output
+        const classified = validateModelOutput(result);
 
-                boundaries.push({
-                  position: Math.max(0, position),
-                  confidence: prediction.score,
-                  suggestedTitle:
-                    prediction.label.includes('TITLE')
-                      ? extractTitleFromContext(chunk, prediction)
-                      : undefined,
-                });
-              }
+        for (const prediction of classified.predictions) {
+          if (
+            prediction.label.includes('CHAPTER') ||
+            prediction.label.includes('BOUNDARY') ||
+            prediction.label.includes('TITLE')
+          ) {
+            if (prediction.score >= MODEL_CONFIDENCE_THRESHOLD) {
+              // Approximate position in original text
+              const position =
+                runningPosition +
+                Math.round((prediction.start ?? 0) * (chunk.length / 100));
+
+              boundaries.push({
+                position: Math.max(0, position),
+                confidence: prediction.score,
+                suggestedTitle:
+                  prediction.label.includes('TITLE')
+                    ? extractTitleFromContext(chunk, prediction)
+                    : undefined,
+              });
             }
           }
         }
@@ -161,7 +191,7 @@ function splitTextIntoChunks(
  */
 function extractTitleFromContext(
   text: string,
-  prediction: any
+  prediction: ModelPrediction
 ): string | undefined {
   // Simple heuristic: look for title-like text near the prediction
   const contextStart = Math.max(0, (prediction.start ?? 0) - 100);

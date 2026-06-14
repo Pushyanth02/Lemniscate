@@ -11,7 +11,7 @@
  */
 
 import type { EmotionCategory } from '../../../types/cinematifier';
-import { getGlobalCache } from '../../lru-cache';
+import { getGlobalCache } from './cache';
 
 // ─── Compact Sentiment Lexicon ──────────────────────────────
 // A curated and expanded subset of AFINN-111 and narrative/emotion words.

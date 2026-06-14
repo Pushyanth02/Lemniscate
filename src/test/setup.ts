@@ -46,6 +46,23 @@ Object.defineProperty(window, 'matchMedia', {
     disconnect = vi.fn();
 };
 
+// Mock Supabase client to avoid URL validation errors in test environment
+// (supabase.ts calls createClient at module scope, which throws without VITE_SUPABASE_URL)
+vi.mock('@supabase/supabase-js', () => ({
+    createClient: () => ({
+        auth: {
+            getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+            onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+            signInWithPassword: vi.fn(),
+            signUp: vi.fn(),
+            signInWithOAuth: vi.fn(),
+            signOut: vi.fn(),
+        },
+        from: vi.fn(),
+        rpc: vi.fn(),
+    }),
+}));
+
 // Mock framer-motion to bypass animation delays in the JSDOM test suite
 import React from 'react';
 import { vi } from 'vitest';

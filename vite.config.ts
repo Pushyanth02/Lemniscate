@@ -2,7 +2,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import path from 'path';
 import { execSync } from 'child_process';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,17 +19,7 @@ export default defineConfig({
         'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(gitCommit),
     },
     resolve: {
-        alias: {
-            '@app': path.resolve(__dirname, './src/app'),
-            '@features': path.resolve(__dirname, './src/features'),
-            '@shared': path.resolve(__dirname, './src/shared'),
-            '@assets': path.resolve(__dirname, './src/assets'),
-            '@lib': path.resolve(__dirname, './src/lib'),
-            '@components': path.resolve(__dirname, './src/components'),
-            '@store': path.resolve(__dirname, './src/store'),
-            '@hooks': path.resolve(__dirname, './src/hooks'),
-            '@types': path.resolve(__dirname, './src/types'),
-        },
+        alias: {},
     },
     plugins: [
         react() as AnyPlugin,

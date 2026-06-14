@@ -2,7 +2,7 @@
  * AppRouter.tsx — Lightweight hash-based client-side router
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useBookStore } from '../../store';
 
 export type RoutePath = '/' | '/reader';
@@ -16,7 +16,7 @@ const RouterContext = createContext<RouterContextType | undefined>(undefined);
 
 export const AppRouter: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const book = useBookStore(s => s.book);
-    
+
     // Parse current hash path
     const getPathFromHash = useCallback((): RoutePath => {
         const hash = window.location.hash;
@@ -28,19 +28,30 @@ export const AppRouter: React.FC<{ children?: React.ReactNode }> = ({ children }
 
     const [currentPath, setCurrentPath] = useState<RoutePath>(getPathFromHash);
 
+    // Guard flag to prevent re-entrant hash changes
+    const isNavigatingRef = useRef(false);
+
     const navigate = useCallback((path: RoutePath) => {
+        if (isNavigatingRef.current) return;
+        isNavigatingRef.current = true;
         window.location.hash = `#${path}`;
+        // Release the guard after the hashchange event has been processed
+        setTimeout(() => { isNavigatingRef.current = false; }, 0);
     }, []);
 
     // Listen to hashchange event
     useEffect(() => {
         const handleHashChange = () => {
+            if (isNavigatingRef.current) return;
+
             const nextPath = getPathFromHash();
             setCurrentPath(nextPath);
-            
+
             // Redirect to home if they attempted to go to reader without a book
             if (window.location.hash === '#/reader' && !book) {
+                isNavigatingRef.current = true;
                 window.location.hash = '#/';
+                setTimeout(() => { isNavigatingRef.current = false; }, 0);
             }
         };
 

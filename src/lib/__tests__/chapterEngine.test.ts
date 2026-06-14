@@ -3,7 +3,7 @@ import {
     createChapterPipeline,
     createPreprocessedChapterPipeline,
     runChapterEngine,
-} from '../cinematifier';
+} from '../engine/cinematifier';
 
 describe('chapterEngine', () => {
     it('builds offline pipeline with strict stage ordering', () => {

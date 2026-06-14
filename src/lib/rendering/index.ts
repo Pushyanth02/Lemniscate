@@ -12,6 +12,8 @@ export {
     streamToRenderer,
 } from './renderBridge';
 
+export { CinematicStreamAdapter } from './cinematicStreamAdapter';
+
 export type {
     ReaderRenderMode,
     SceneRenderStatus,

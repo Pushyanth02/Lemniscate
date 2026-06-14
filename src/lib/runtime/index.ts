@@ -1,7 +1,5 @@
 export * from './quotableApi';
 export * from './cinematifierDb';
-export * from './appwrite';
-export * from './bookManager';
 export * from './renderer';
 export * from './freeApis';
 export * from './readerBackend';

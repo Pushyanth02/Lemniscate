@@ -1,4 +1,4 @@
-import { reconstructParagraphs } from '../cinematifier';
+import { reconstructParagraphs } from '../engine/cinematifier';
 import { getJob, savePartialCompletion, updateProgress } from './pdfJobs';
 
 const DEFAULT_CHUNK_SIZE = 4000;
