@@ -1,23 +1,25 @@
 /**
  * LandingPage.tsx — Unified landing/home view for Cinematifier
  *
- * Coordinates Hero, Upload, features, footer, settings modal, and theme triggers.
+ * Coordinates Hero, Upload, features, footer, settings modal, theme triggers,
+ * auth modal, and cloud library sync.
  */
 
-import React, { useCallback } from 'react';
-import { Film, Moon, Sun, BookOpen } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { Film, Moon, Sun, BookOpen, LogIn, LogOut, User, Loader2 } from 'lucide-react';
 import { useCinematifierStore } from '../../store/cinematifierStore';
 import { useShallow } from 'zustand/shallow';
 import { useBookHydration, useFileProcessing } from '../../hooks';
 import { useAppRouter } from '../layout/AppRouter';
+import { useAuthStore } from '../../store/authStore';
+import { useLibraryStore } from '../../store/libraryStore';
+import { AuthModal } from '../ui/AuthModal';
 
 import HeroSection from './HeroSection';
 import UploadSection from './UploadSection';
 import FeatureShowcase from './FeatureShowcase';
 import LandingFooter from './LandingFooter';
 import ProcessingOverlay from './ProcessingOverlay';
-
-
 
 export const LandingPage: React.FC = () => {
     const {
@@ -42,18 +44,34 @@ export const LandingPage: React.FC = () => {
         }))
     );
 
+    const { user, signOut, loading: authLoading } = useAuthStore();
+    const { saveBook, syncing } = useLibraryStore();
+    const [showAuth, setShowAuth] = useState(false);
     const { navigate } = useAppRouter();
 
-
     useBookHydration();
-    const processFile = useFileProcessing(useCallback(() => navigate('/reader'), [navigate]));
+
+    // After a book finishes processing, navigate to reader and sync to cloud if signed in
+    const handleProcessingDone = useCallback(async (processedBook: typeof book) => {
+        navigate('/reader');
+        if (user && processedBook) {
+            await saveBook(processedBook, user.id);
+        }
+    }, [navigate, user, saveBook]);
+
+    const processFile = useFileProcessing(
+        useCallback(() => {
+            // Get current book from store after processing
+            const currentBook = useCinematifierStore.getState().book;
+            handleProcessingDone(currentBook);
+        }, [handleProcessingDone])
+    );
 
     const handleContinueReading = useCallback(() => {
         if (book) navigate('/reader');
     }, [book, navigate]);
 
     const handleNewBook = useCallback(() => reset(), [reset]);
-
     const handleClearError = useCallback(() => setError(null), [setError]);
 
     return (
@@ -67,7 +85,6 @@ export const LandingPage: React.FC = () => {
             }}
         >
             <div className="cin-app-home">
-                {/* Ambient background glows */}
                 <div className="cin-hero-glow cin-hero-glow--1" aria-hidden="true" />
                 <div className="cin-hero-glow cin-hero-glow--2" aria-hidden="true" />
 
@@ -101,24 +118,88 @@ export const LandingPage: React.FC = () => {
                     )}
 
                     <div className="cin-header-actions">
-                        <span className="cin-ai-badge">
-                            <span className="cin-ai-badge-dot" aria-hidden="true" />
-                            Offline Mode
-                        </span>
+                        {/* Cloud sync indicator */}
+                        {syncing && (
+                            <span
+                                className="cin-ai-badge"
+                                title="Syncing to cloud…"
+                                aria-live="polite"
+                                aria-label="Syncing library"
+                            >
+                                <Loader2 size={12} className="spinning" aria-hidden="true" />
+                                Syncing
+                            </span>
+                        )}
+
+                        {!syncing && (
+                            <span className="cin-ai-badge">
+                                <span className="cin-ai-badge-dot" aria-hidden="true" />
+                                {user ? 'Cloud Sync' : 'Offline Mode'}
+                            </span>
+                        )}
+
+                        {/* Auth button */}
+                        {user ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span
+                                    title={user.email}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: '50%',
+                                        background: 'var(--primary)',
+                                        color: 'var(--on-primary)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        fontFamily: 'var(--font-headline)',
+                                        flexShrink: 0,
+                                    }}
+                                    aria-label={`Signed in as ${user.email}`}
+                                >
+                                    {user.user_metadata?.full_name?.charAt(0)?.toUpperCase()
+                                        ?? user.email?.charAt(0)?.toUpperCase()
+                                        ?? <User size={14} />}
+                                </span>
+                                <button
+                                    type="button"
+                                    className="cin-icon-btn"
+                                    onClick={signOut}
+                                    disabled={authLoading}
+                                    title="Sign out"
+                                    aria-label="Sign out"
+                                >
+                                    {authLoading
+                                        ? <Loader2 size={16} className="spinning" aria-hidden="true" />
+                                        : <LogOut size={16} strokeWidth={1.5} />
+                                    }
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                className="cin-btn-ghost cin-btn-ghost--sm"
+                                onClick={() => setShowAuth(true)}
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+                            >
+                                <LogIn size={15} aria-hidden="true" />
+                                Sign In
+                            </button>
+                        )}
+
                         <button
                             type="button"
                             className="cin-icon-btn"
                             onClick={toggleDarkMode}
                             title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                            aria-label={
-                                darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'
-                            }
+                            aria-label={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                         >
-                            {darkMode ? (
-                                <Sun size={18} strokeWidth={1.5} />
-                            ) : (
-                                <Moon size={18} strokeWidth={1.5} />
-                            )}
+                            {darkMode
+                                ? <Sun size={18} strokeWidth={1.5} />
+                                : <Moon size={18} strokeWidth={1.5} />
+                            }
                         </button>
                     </div>
                 </header>
@@ -140,19 +221,19 @@ export const LandingPage: React.FC = () => {
                     />
                 </main>
 
-                {/* ── Feature Strip ── */}
                 <FeatureShowcase />
-
-                {/* ── Footer ── */}
                 <LandingFooter />
             </div>
 
-            {/* ── Processing Overlay ── */}
             {isProcessing && processingProgress && (
                 <ProcessingOverlay progress={processingProgress} />
             )}
 
-
+            {/* Auth modal */}
+            <AuthModal
+                open={showAuth}
+                onClose={() => setShowAuth(false)}
+            />
         </div>
     );
 };

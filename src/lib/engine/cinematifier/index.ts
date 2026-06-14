@@ -43,6 +43,14 @@ export {
 } from './sceneDetection';
 export type { Scene } from './sceneDetection';
 
+// ─── Scene Metadata ─────────────────────────────────────────
+export {
+    buildSceneMetadata,
+    buildAllSceneMetadata,
+    detectBreakReason,
+    detectNarrativeModeWithConfidence,
+} from './sceneMetadata';
+
 // ─── Offline Heuristic Engine ────────────────────────────────────────
 export { cinematifyOffline } from './offlineEngine';
 

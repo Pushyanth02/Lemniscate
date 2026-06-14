@@ -92,12 +92,14 @@ The app integrates the following free APIs and algorithms that require **no API 
 
 ## Core Engine Enhancements
 
-- Scene-to-scene transition tagging (`[TRANSITION: ...]`) with tension-aware selection
-- Camera cue generation (`[CAMERA: ...]`) based on tension, dialogue ratio, and readability
-- Ambient sound bed hinting (`[AMBIENCE: ...]`) inferred from scene context
-- Expanded scene analysis metrics: dialogue ratio and emotional charge
-- Paragraph reconstruction supports sentence-cluster, dialogue-pivot, and scene-cue strategies with canonical-content fallback checks
-- Reader analytics exposes cinematic depth metrics (scene count, cue count, average tension, dominant mood)
+- **Structured Block Output** — Refactored engine to produce and consume structured NDJSON/JSON blocks representing action, dialogue, inner thought, SFX, beat, transition, and title card elements.
+- **Tension-Aware Transitions** — Scene-to-scene transition selection (`CUT TO`, `DISSOLVE TO`, `SMASH CUT`, `FADE TO BLACK`) computed dynamically via tension delta analysis.
+- **Dynamic Camera Cues** — Automatically infers camera framing rules (`HANDHELD CLOSE`, `OVER THE SHOULDER`, `PUSH IN`, `WIDE ESTABLISHING`, `MEDIUM TRACKING`) based on tension, dialogue density, and readability.
+- **Offline API Fallbacks** — Complete integration of offline fallback engines and `navigator.onLine` checks for metadata lookup, quotes, and AI-generation.
+- **Visual Reading Immersion** — Removed legacy Ambient Sound and Auto Scroll playback behaviors to focus strictly on readable pacing and layout-driven flow.
+- **Extended Scene Analytics** — Dialogue ratio, emotional charge, and sentence complexity metrics are captured per-scene.
+- **Smart Reconstruction** — Paragraph reconstruction supporting sentence-cluster, dialogue-pivot, and scene-cue strategies with canonical-content fallback checks.
+- **Reader Depth Analytics** — Exposes live scene count, cue counts, average tension, and dominant mood derived directly from the chapter render plan.
 
 
 ## Repository Documentation Map
@@ -238,22 +240,25 @@ src/
   lib/
     engine/
       cinematifier/
-        chapterEngine.ts      # Canonical stage-ordered chapter pipeline
-        fullSystemPipeline.ts # Full text → cinematic orchestration
-        corePipeline.ts       # Core pipeline stage runner
-        pipeline.ts           # Stage definitions and execution engine
-        textProcessing.ts     # Text cleaning + paragraph reconstruction
-        paragraphBreakers.ts  # Paragraph-breaker API strategies
-        sceneDetection.ts     # Scene break detection
-        offlineEngine.ts      # Offline heuristic cinematification
-        entityExtractor.ts    # Character entity extraction
-        sentimentTracker.ts   # Sentiment + emotion tracking
-        pacingAnalyzer.ts     # Tension arc + pacing analysis
-        moodLexicon.ts        # Mood category lexicon
-        readability.ts        # Flesch-Kincaid readability scoring
-        metadata.ts           # Narrative metadata extraction
-        entities.ts           # Book & ReadingProgress entity factories
-        index.ts              # Barrel re-export
+        chapterEngine.ts       # Canonical stage-ordered chapter pipeline
+        chapterSegmentation.ts # Heuristic and ML-based chapter boundary segmenter
+        fullSystemPipeline.ts  # Full text → cinematic orchestration
+        corePipeline.ts        # Core pipeline stage runner
+        pipeline.ts            # Stage definitions and execution engine
+        textProcessing.ts      # Text cleaning + paragraph reconstruction
+        textProcessingEngine.ts # Core text normalizer and reconstruction manager
+        paragraphBreakers.ts   # Paragraph-breaker API strategies
+        sceneDetection.ts      # Scene break detection
+        offlineEngine.ts       # Offline heuristic cinematification
+        entityExtractor.ts     # Character entity extraction
+        sentimentTracker.ts    # Sentiment + emotion tracking
+        pacingAnalyzer.ts      # Tension arc + pacing analysis
+        moodLexicon.ts         # Mood category lexicon
+        readability.ts         # Flesch-Kincaid readability scoring
+        regexPatterns.ts       # Common regex patterns for engine parsing
+        metadata.ts            # Narrative metadata extraction
+        entities.ts            # Book & ReadingProgress entity factories
+        index.ts               # Barrel re-export
       offline/
         speakerTracker.ts     # Offline speaker tracking
     export/

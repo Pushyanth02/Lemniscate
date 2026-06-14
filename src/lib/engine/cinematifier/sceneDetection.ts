@@ -37,9 +37,12 @@ export {
     TIME_PATTERN,
 };
 
+import type { SceneBreakReason } from '../../../types/cinematic';
+
 export interface Scene {
     id: string;
     text: string;
+    breakReason?: SceneBreakReason;
 }
 
 const EMOTIONAL_RESET_THRESHOLD = 0.55;
@@ -95,8 +98,37 @@ function shouldStartNewScene(
     return score >= SCENE_BREAK_THRESHOLD;
 }
 
-function segmentParagraphsUniversal(paragraphs: string[]): string[][] {
-    const scenes: string[][] = [];
+interface SceneWithBreak {
+    paragraphs: string[];
+    breakReason: SceneBreakReason;
+}
+
+function detectSignalBreakReason(previous: string, current: string): SceneBreakReason {
+    const timeShift = TIME_SHIFT_PATTERN.test(current);
+    if (timeShift) return 'time_shift';
+
+    const previousLocation = extractLocationHint(previous);
+    const currentLocation = extractLocationHint(current);
+    const locationChanged =
+        Boolean(previousLocation) &&
+        Boolean(currentLocation) &&
+        previousLocation !== currentLocation;
+    if (locationChanged) return 'location_shift';
+
+    const narrativeTransition = NARRATIVE_TRANSITION_PATTERN.test(current);
+    if (narrativeTransition) return 'narrative_transition';
+
+    const modeTransition = detectNarrativeMode(previous) !== detectNarrativeMode(current);
+    if (modeTransition) return 'mode_transition';
+
+    const emotionalReset = hasEmotionalReset(previous, current);
+    if (emotionalReset) return 'emotional_reset';
+
+    return 'threshold_reached';
+}
+
+function segmentParagraphsUniversal(paragraphs: string[]): SceneWithBreak[] {
+    const scenes: SceneWithBreak[] = [];
     let currentScene: string[] = [];
 
     for (const paragraph of paragraphs) {
@@ -106,7 +138,7 @@ function segmentParagraphsUniversal(paragraphs: string[]): string[][] {
         const isStructuralDivider = CUSTOM_SCENE_BREAK_PATTERNS.some(re => re.test(p));
         if (isStructuralDivider) {
             if (currentScene.length) {
-                scenes.push(currentScene);
+                scenes.push({ paragraphs: currentScene, breakReason: 'structural_divider' });
                 currentScene = [];
             }
             continue;
@@ -116,14 +148,18 @@ function segmentParagraphsUniversal(paragraphs: string[]): string[][] {
             currentScene.length > 0 &&
             shouldStartNewScene(currentScene[currentScene.length - 1], p, currentScene.length)
         ) {
-            scenes.push(currentScene);
+            const reason = detectSignalBreakReason(currentScene[currentScene.length - 1], p);
+            scenes.push({ paragraphs: currentScene, breakReason: reason });
             currentScene = [];
         }
 
         currentScene.push(p);
     }
 
-    if (currentScene.length) scenes.push(currentScene);
+    if (currentScene.length) {
+        const isFirst = scenes.length === 0;
+        scenes.push({ paragraphs: currentScene, breakReason: isFirst ? 'start' : 'threshold_reached' });
+    }
     return scenes;
 }
 
@@ -161,7 +197,7 @@ export function detectOriginalModeScenes(text: string): Scene[] {
     const units = splitParagraphsWithBreakStrength(text);
     if (units.length === 0) return [];
 
-    const scenes: string[][] = [];
+    const scenes: Array<{ paragraphs: string[]; reason: SceneBreakReason }> = [];
     let currentScene: string[] = [];
     let currentLocation: string | undefined;
 
@@ -170,7 +206,7 @@ export function detectOriginalModeScenes(text: string): Scene[] {
 
         if (ORIGINAL_MODE_SCENE_DIVIDER_PATTERN.test(paragraph)) {
             if (currentScene.length > 0) {
-                scenes.push(currentScene);
+                scenes.push({ paragraphs: currentScene, reason: 'structural_divider' });
                 currentScene = [];
                 currentLocation = undefined;
             }
@@ -189,8 +225,13 @@ export function detectOriginalModeScenes(text: string): Scene[] {
         const shouldStartNewScene =
             currentScene.length > 0 && (hasTimeShift || hasLocationShift || hasStrongBreak);
 
+        let reason: SceneBreakReason = 'threshold_reached';
         if (shouldStartNewScene) {
-            scenes.push(currentScene);
+            if (hasTimeShift) reason = 'time_shift';
+            else if (hasLocationShift) reason = 'location_shift';
+            else if (hasStrongBreak) reason = 'narrative_transition';
+
+            scenes.push({ paragraphs: currentScene, reason });
             currentScene = [];
             currentLocation = undefined;
         }
@@ -201,28 +242,31 @@ export function detectOriginalModeScenes(text: string): Scene[] {
         }
 
         if (breakNewlines >= ORIGINAL_MODE_STRONG_BREAK_NEWLINES && i < units.length - 1) {
-            scenes.push(currentScene);
+            scenes.push({ paragraphs: currentScene, reason: 'narrative_transition' as SceneBreakReason });
             currentScene = [];
             currentLocation = undefined;
         }
     }
 
     if (currentScene.length > 0) {
-        scenes.push(currentScene);
+        const isFirst = scenes.length === 0;
+        scenes.push({ paragraphs: currentScene, reason: isFirst ? 'start' : 'threshold_reached' });
     }
 
-    return scenes.map((sceneParagraphs, index) => ({
+    return scenes.map((scene, index) => ({
         id: `scene-${index + 1}`,
-        text: sceneParagraphs.join('\n\n'),
+        text: scene.paragraphs.join('\n\n'),
+        breakReason: scene.reason,
     }));
 }
 
 /**
  * Detect scene breaks in paragraphs using heuristic patterns.
  * Used as fallback when AI scene segmentation is unavailable.
+ * @deprecated Returns paragraph groups only; use segmentScenesUniversal for Scene[] with break reasons.
  */
 export function detectSceneBreaks(paragraphs: string[]): string[][] {
-    return segmentParagraphsUniversal(paragraphs);
+    return segmentParagraphsUniversal(paragraphs).map(s => s.paragraphs);
 }
 
 /**
@@ -236,9 +280,10 @@ export function segmentScenesUniversal(text: string): Scene[] {
         .filter(Boolean);
 
     const groupedScenes = segmentParagraphsUniversal(paragraphs);
-    return groupedScenes.map((sceneParagraphs, index) => ({
+    return groupedScenes.map((group, index) => ({
         id: `scene-${index + 1}`,
-        text: sceneParagraphs.join('\n\n'),
+        text: group.paragraphs.join('\n\n'),
+        breakReason: group.breakReason,
     }));
 }
 

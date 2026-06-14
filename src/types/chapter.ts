@@ -3,7 +3,7 @@
  */
 
 import type { CharacterAppearance, ExtractedEntities } from './book';
-import type { CinematicBlock, OriginalModeScene } from './cinematic';
+import type { CinematicBlock, OriginalModeScene, SceneMetadata } from './cinematic';
 import type { RenderPlan, PipelineStageTrace } from './rendering';
 
 export type ChapterStatus = 'pending' | 'processing' | 'ready' | 'error';
@@ -31,4 +31,5 @@ export interface Chapter {
     stageTrace?: PipelineStageTrace[];
     narrativeMode?: 'normal' | 'flashback' | 'dream' | 'memory';
     povCharacter?: string;
+    sceneMetadata?: SceneMetadata[];
 }

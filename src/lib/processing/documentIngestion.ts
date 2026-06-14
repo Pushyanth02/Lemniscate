@@ -30,6 +30,9 @@ import {
 import type {
     NarrativeDocument,
     TextProcessingOptions,
+    ProcessedParagraph,
+    DetectedScene,
+    DocumentStats,
 } from '../engine/cinematifier/textProcessingEngine';
 import type { ChapterSegment } from '../../types/cinematifier';
 
@@ -735,8 +738,72 @@ export async function ingestDocument(
         totalWords += narrative.stats.totalWords;
     }
 
-    // Generate full-document narrative for book-level analysis
-    const fullNarrative = await processText(normalizedText, textOptions);
+    // Construct full-document narrative by merging processed chapter narratives to avoid redundant processing
+    const mergedParagraphs: ProcessedParagraph[] = [];
+    const mergedScenes: DetectedScene[] = [];
+    let paragraphOffset = 0;
+
+    for (let cIdx = 0; cIdx < chapters.length; cIdx++) {
+        const ch = chapters[cIdx];
+
+        // Adjust paragraph indices to build a continuous sequence
+        const adjustedParas = ch.narrative.paragraphs.map(p => ({
+            ...p,
+            index: p.index + paragraphOffset,
+        }));
+        mergedParagraphs.push(...adjustedParas);
+
+        // Adjust scene IDs and paragraphs to be aligned with the merged list
+        const adjustedScenes = ch.narrative.scenes.map((s, sIdx) => ({
+            ...s,
+            id: `scene-${mergedScenes.length + sIdx + 1}`,
+            paragraphs: s.paragraphs.map(p => ({
+                ...p,
+                index: p.index + paragraphOffset,
+            })),
+        }));
+        mergedScenes.push(...adjustedScenes);
+
+        paragraphOffset += ch.narrative.paragraphs.length;
+    }
+
+    const dialogueFragments = mergedParagraphs.flatMap(p => p.fragments).filter(f => f.type === 'dialogue').length;
+    const narrationFragments = mergedParagraphs.flatMap(p => p.fragments).filter(f => f.type === 'narration').length;
+    const actionBeatFragments = mergedParagraphs.flatMap(p => p.fragments).filter(f => f.type === 'action_beat').length;
+    const totalFragments = Math.max(1, dialogueFragments + narrationFragments + actionBeatFragments);
+
+    const speakerSet = new Set<string>();
+    for (const p of mergedParagraphs) {
+        for (const f of p.fragments) {
+            if (f.speaker) speakerSet.add(f.speaker);
+        }
+    }
+
+    const stats: DocumentStats = {
+        totalWords,
+        totalParagraphs: mergedParagraphs.length,
+        totalScenes: mergedScenes.length,
+        dialogueFragments,
+        narrationFragments,
+        actionBeatFragments,
+        uniqueSpeakers: [...speakerSet].sort(),
+        averageWordsPerParagraph: mergedParagraphs.length > 0
+            ? Math.round(totalWords / mergedParagraphs.length)
+            : 0,
+        averageWordsPerScene: mergedScenes.length > 0
+            ? Math.round(totalWords / mergedScenes.length)
+            : 0,
+        dialogueRatio: Math.round((dialogueFragments / totalFragments) * 1000) / 1000,
+    };
+
+    const fullNarrative: NarrativeDocument = {
+        originalText: rawText,
+        cleanedText: normalizedText,
+        paragraphs: mergedParagraphs,
+        scenes: mergedScenes,
+        stats,
+        processingTimeMs: Math.round(performance.now() - (stageStartedAt.get('processing_text') ?? 0)),
+    };
 
     // Detect title
     const title = extractTitle(normalizedText);

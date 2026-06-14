@@ -182,8 +182,13 @@ export const VirtualizedContent: React.FC<VirtualizedContentProps> = React.memo(
             const container = containerRef.current;
             if (!container || !shouldVirtualize) return;
 
+            let frameId: number | null = null;
             const onScroll = () => {
-                setScrollTop(container.scrollTop);
+                if (frameId !== null) return;
+                frameId = requestAnimationFrame(() => {
+                    setScrollTop(container.scrollTop);
+                    frameId = null;
+                });
             };
 
             const onResize = () => {
@@ -200,6 +205,9 @@ export const VirtualizedContent: React.FC<VirtualizedContentProps> = React.memo(
             return () => {
                 container.removeEventListener('scroll', onScroll);
                 window.removeEventListener('resize', onResize);
+                if (frameId !== null) {
+                    cancelAnimationFrame(frameId);
+                }
             };
         }, [containerRef, shouldVirtualize]);
 

@@ -4,6 +4,7 @@
 
 import React, { useEffect, Suspense, lazy } from 'react';
 import { useReaderStore } from '../../store';
+import { useAuthStore } from '../../store/authStore';
 import { AppRouter, useAppRouter } from './AppRouter';
 import { PageTransition } from './PageTransition';
 import { AnimatePresence } from 'framer-motion';
@@ -49,6 +50,13 @@ const RouterViews: React.FC = () => {
 
 export const AppShell: React.FC = () => {
     const darkMode = useReaderStore(s => s.darkMode);
+    const initAuth = useAuthStore(s => s.initAuth);
+
+    // Initialise Supabase auth listener once on mount
+    useEffect(() => {
+        const unsubscribe = initAuth();
+        return unsubscribe;
+    }, [initAuth]);
 
     // Sync theme with variables.css structure (data-theme="light" or default dark mode)
     useEffect(() => {

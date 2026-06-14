@@ -1,8 +1,10 @@
-import type { CinematicBlock, CinematificationResult } from '../../../types/cinematifier';
+import type { CinematicBlock, CinematificationResult, SceneMetadata } from '../../../types/cinematic';
 import type { Scene } from './sceneDetection';
-import { detectOriginalModeScenes } from './sceneDetection';
+import { detectOriginalModeScenes, deriveSceneTitle } from './sceneDetection';
 import { rebuildParagraphs, structureDialogue } from './textProcessing';
 import { runChapterEngine } from './chapterEngine';
+import { buildAllSceneMetadata } from './sceneMetadata';
+import { extractEntities } from './entityExtractor';
 
 export interface FullSystemPipelineOptions {
     onProgress?: (percent: number, message: string) => void;
@@ -22,6 +24,7 @@ export interface FullSystemPipelineResult {
     originalMode: OriginalModeResult;
     cinematizedMode: CinematificationResult;
     cacheHit: boolean;
+    sceneMetadata: SceneMetadata[];
 }
 
 function canonicalWithoutWhitespace(text: string): string {
@@ -180,6 +183,26 @@ export async function runFullSystemPipeline(
         blocks: sanitizeCinematicBlocks(cinematizedResult.blocks),
     };
 
+    // Build per-scene metadata using detected scenes and extracted entities
+    options.onProgress?.(0.95, 'Generating scene metadata...');
+    const paragraphs = originalModeText
+        .split(/\n\n+/)
+        .map(p => p.trim())
+        .filter(Boolean);
+    const entities = extractEntities(paragraphs);
+    const characterNames = entities.characters.map(c => c.name);
+    const locationNames = entities.locations.map(l => l.name);
+    const sceneTitles = originalScenes.map((_, i) => deriveSceneTitle(
+        originalScenes[i].text.split(/\n\n+/).map(p => p.trim()).filter(Boolean),
+        i + 1,
+    ));
+    const sceneMetadata = buildAllSceneMetadata(
+        originalScenes,
+        sceneTitles,
+        characterNames,
+        locationNames,
+    );
+
     const result: FullSystemPipelineResult = {
         rebuiltText,
         dialogueText,
@@ -189,6 +212,7 @@ export async function runFullSystemPipeline(
         },
         cinematizedMode,
         cacheHit: false,
+        sceneMetadata,
     };
 
     return result;

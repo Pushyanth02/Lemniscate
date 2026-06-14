@@ -1,3 +1,23 @@
+# InfinityCN Cinematification Engine v2.0 Plan — Phase 14 Complete
+
+## Phase 14: Enhanced Scene Metadata & Narrative Analysis
+
+**Status:** Completed (2026-06-14)
+
+### What was implemented:
+1. **SceneMetadata types** — Added `SceneMetadata`, `NarrativeMode`, `SceneBreakReason` to `cinematic.ts`; added `sceneMetadata` field to `Chapter` in `chapter.ts`.
+2. **sceneMetadata.ts** — New module with `buildSceneMetadata`, `buildAllSceneMetadata`, `detectBreakReason`, `detectNarrativeModeWithConfidence`. Generates per-scene metadata including narrative mode with confidence scoring, POV character, sentiment, tension profile, characters, locations, ambience, SFX count, beat count, and break reason.
+3. **Enhanced sceneDetection.ts** — `Scene` interface now includes `breakReason`. `segmentParagraphsUniversal` returns `SceneWithBreak[]` with per-scene break reasons. `segmentScenesUniversal` and `detectOriginalModeScenes` both attach break reasons. First scene always gets `'start'`.
+4. **Wired into corePipeline** — `runCorePipeline` now generates `SceneMetadata` for each scene via `buildSceneMetadata`, extracting character names from blocks and location names from text.
+5. **Wired into fullSystemPipeline** — `runFullSystemPipeline` now generates `sceneMetadata[]` using `extractEntities` + `buildAllSceneMetadata`, included in `FullSystemPipelineResult`.
+6. **Exported** — `detectSfxLabel` and `detectAmbienceLabel` from `corePipeline.ts`; all new functions from `sceneMetadata.ts` via barrel export.
+
+### Verification:
+- **Build**: Passes (`tsc --noEmit` + `vite build`) — exit 0
+- **Tests**: All **36 test files, 594 tests** pass — exit 0
+
+---
+
 # InfinityCN Full App Reconstruction Plan — Complete
 
 All 10 phases of the full application reconstruction and redesign have been successfully implemented, integrated, and verified.

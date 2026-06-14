@@ -4,6 +4,42 @@
 
 import type { EmotionCategory } from './emotion';
 
+// ─── Scene Narrative Mode ──────────────────────────────────
+export type NarrativeMode = 'normal' | 'flashback' | 'dream' | 'memory';
+
+// ─── Reason a Scene Boundary was Detected ─────────────────
+export type SceneBreakReason =
+    | 'start'
+    | 'time_shift'
+    | 'location_shift'
+    | 'narrative_transition'
+    | 'emotional_reset'
+    | 'structural_divider'
+    | 'pov_change'
+    | 'mode_transition'
+    | 'threshold_reached';
+
+// ─── Per-Scene Metadata ────────────────────────────────────
+export interface SceneMetadata {
+    id: string;
+    title: string;
+    index: number;
+    wordCount: number;
+    paragraphCount: number;
+    narrativeMode: NarrativeMode;
+    narrativeModeConfidence: number; // 0–1
+    povCharacter?: string;
+    sentimentScore: number; // –1 to 1
+    breakReason: SceneBreakReason;
+    tensionProfile: number[]; // per-paragraph tension (0–100)
+    dominantEmotion: EmotionCategory;
+    characters: string[];
+    locations: string[];
+    ambience: string;
+    sfxCount: number;
+    beatCount: number;
+}
+
 export type TransitionType =
     | 'FADE IN'
     | 'FADE OUT'

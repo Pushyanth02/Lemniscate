@@ -1,5 +1,36 @@
 # Roadmap: InfinityCN
 
+## Milestone 6: Cinematification Engine v2.0 (v6.0.0)
+
+**Goal:** Implement advanced cinematification features: enhanced metadata, character/location tracking, storage architecture, sync system, and ambience engine.
+
+- [ ] **Phase 14: Enhanced Scene Metadata & Narrative Analysis**
+    - Per-scene metadata (mode, POV, sentiment, tension profile, break reason)
+    - Narrative mode detection with confidence scoring (normal/flashback/dream/memory)
+    - POV character tracking across scenes
+    - Scene emotion/tension profiling with per-block scoring
+- [ ] **Phase 15: Character & Location Tracking**
+    - Character registry with lifecycle (first/last appearance, scene presence, emotional arc)
+    - Location registry with hierarchy and atmosphere tags
+    - Character relationship inference
+    - Dialogue percentage and appearance statistics
+- [ ] **Phase 16: Storage Architecture (JSON + SQLite)**
+    - JSON storage adapter for human-readable export
+    - SQLite schema with normalized tables (documents, scenes, characters, locations, blocks)
+    - Full-text search on scenes and blocks
+    - Document versioning and incremental savepoints
+- [ ] **Phase 17: Synchronization & Offset Mapping**
+    - Character-level offset mapping between raw and processed text
+    - Paragraph/sentence alignment tracking
+    - Change propagation for local edits
+    - Minimal reprocessing on update
+- [ ] **Phase 18: Ambience Engine, SFX & Performance**
+    - Ambience detection and environmental soundscape generation
+    - SFX detection with intensity scoring
+    - Speaker attribution with scene tracking
+    - LRU caching for expensive operations (sentiment, readability, pacing)
+    - Performance profiling and benchmarking suite
+
 ## Milestone 1: Architecture Baseline (v1.0.0)
 
 **Goal:** Lock in modular pipeline-first system boundaries.
@@ -48,9 +79,19 @@
     - Fixed single-chapter misdetection caused by duplicate/recap headings.
     - Smoothed cinematic color transitions with extended duration and opacity pulsing in `mood-themes.css`.
 
+## Milestone 5: Codebase Audit & Cleanup (v5.0.0)
+
+**Goal:** Clean up legacy code, remove redundant/duplicate components, fix broken import paths, and perform a full project health sweep.
+
+- [x] **Phase 13: Full Audit, Legacy Removal, Import Wiring, and Documentation Update**
+    - Removed duplicate root-level components (`ProcessingOverlay.tsx`, `UploadZone.tsx`) in favor of modular `landing/` versions.
+    - Removed unused M3 design-system components and deleted nested clone repositories.
+    - Fixed broken import paths referencing `../lib/cinematifier` and aligned them to `../lib/engine/cinematifier`.
+    - Sanitized store imports, refactored devtools `require()` to ESM static import matching environment checks, and updated the export pipeline lifecycle.
+
 ---
 
-_Roadmap updated: 2026-05-26_
+_Roadmap updated: 2026-06-13_
 
 ---
 

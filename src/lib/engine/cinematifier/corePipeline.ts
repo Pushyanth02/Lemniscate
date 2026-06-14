@@ -2,7 +2,8 @@ import { analyzeReadability } from './readability';
 import { detectSceneBreaks, deriveSceneTitle } from './sceneDetection';
 import { analyzeSentiment } from './sentimentTracker';
 import { normalizeQuotes, normalizeUnicode, reconstructParagraphs } from './textProcessing';
-import type { CinematicBlock } from '../../../types/cinematifier';
+import { buildSceneMetadata } from './sceneMetadata';
+import type { CinematicBlock, SceneMetadata } from '../../../types/cinematic';
 
 function generateBlockId(): string {
     return Math.random().toString(36).substring(2, 11);
@@ -41,6 +42,7 @@ export interface CorePipelineSceneResult {
     analysis: SceneAnalysis;
     cinematizedText: string;
     validation: OutputValidation;
+    metadata?: SceneMetadata;
 }
 
 export interface CorePipelineResult {
@@ -241,7 +243,7 @@ function scoreTension(sceneText: string, shortLineCount: number): number {
     return Math.round(clamp(score, 0, 100));
 }
 
-function detectSfxLabel(text: string): string | null {
+export function detectSfxLabel(text: string): string | null {
     for (const candidate of SFX_CANDIDATES) {
         if (candidate.pattern.test(text)) {
             return candidate.label;
@@ -250,7 +252,7 @@ function detectSfxLabel(text: string): string | null {
     return null;
 }
 
-function detectAmbienceLabel(text: string): string | null {
+export function detectAmbienceLabel(text: string): string | null {
     for (const candidate of AMBIENCE_CANDIDATES) {
         if (candidate.pattern.test(text)) {
             return candidate.label;
@@ -627,7 +629,7 @@ export function runCorePipeline(text: string): CorePipelineResult & { blocks: Ci
     let previousAnalysis: SceneAnalysis | null = null;
     const allBlocks: CinematicBlock[] = [];
 
-    const sceneResults = scenes.map(scene => {
+    const sceneResults = scenes.map((scene, sceneIndex) => {
         const analysis = analyzeScene(scene.text);
         const transitionCue = selectTransitionCue(previousAnalysis, analysis);
         const baseCinematizedText = cinematizeScene(scene.text);
@@ -645,6 +647,18 @@ export function runCorePipeline(text: string): CorePipelineResult & { blocks: Ci
 
         const cinematizedText = JSON.stringify(sceneBlocks, null, 2);
 
+        // Build per-scene metadata
+        const characters = extractCharacterNamesFromBlocks(sceneBlocks);
+        const locations = extractLocationNamesFromText(scene.text);
+        const metadata = buildSceneMetadata(
+            { id: scene.id, text: scene.text },
+            sceneIndex,
+            scene.title,
+            sceneIndex === 0 ? 'start' : (transitionCue ? 'narrative_transition' : 'threshold_reached'),
+            characters,
+            locations,
+        );
+
         return {
             scene,
             analysis,
@@ -658,6 +672,7 @@ export function runCorePipeline(text: string): CorePipelineResult & { blocks: Ci
                 shortLinesPresent: analysis.shortLineCount > 0,
                 issues: [],
             },
+            metadata,
         };
     });
 
@@ -678,4 +693,26 @@ export function runCorePipeline(text: string): CorePipelineResult & { blocks: Ci
             issues: [],
         },
     };
+}
+
+// ─── Helpers for scene metadata ──────────────────────────────
+
+function extractCharacterNamesFromBlocks(blocks: CinematicBlock[]): string[] {
+    const names = new Set<string>();
+    for (const block of blocks) {
+        if (block.type === 'dialogue' && block.speaker) {
+            names.add(block.speaker);
+        }
+    }
+    return Array.from(names);
+}
+
+function extractLocationNamesFromText(text: string): string[] {
+    const locationRe = /\b(?:at|in|on|near|beside|outside|inside)\s+(?:the\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/g;
+    const locations = new Set<string>();
+    let match: RegExpExecArray | null;
+    while ((match = locationRe.exec(text)) !== null) {
+        locations.add(match[1]);
+    }
+    return Array.from(locations);
 }
