@@ -39,7 +39,7 @@ export interface LibraryState {
 
 export const useLibraryStore = create<LibraryState>()(
     devtools(
-        (set, get) => ({
+        (set, _get) => ({
             cloudBooks: [],
             syncing: false,
             syncError: null,

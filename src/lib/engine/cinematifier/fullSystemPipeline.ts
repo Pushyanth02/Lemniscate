@@ -1,4 +1,5 @@
-import type { CinematicBlock, CinematificationResult, SceneMetadata } from '../../../types/cinematic';
+import type { CinematicBlock, SceneMetadata } from '../../../types/cinematic';
+import type { CinematificationResult } from '../../../types/processing';
 import type { Scene } from './sceneDetection';
 import { detectOriginalModeScenes, deriveSceneTitle } from './sceneDetection';
 import { rebuildParagraphs, structureDialogue } from './textProcessing';

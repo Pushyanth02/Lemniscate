@@ -6,8 +6,8 @@
  * and the reason the scene boundary was created.
  */
 
+import type { EmotionCategory } from '../../../types/emotion';
 import type {
-    EmotionCategory,
     NarrativeMode,
     SceneBreakReason,
     SceneMetadata,
