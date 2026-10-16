@@ -1,0 +1,42 @@
+{
+  "name": "lemniscate",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "bun@1.3.14",
+  "description": "A local-first AI reading room where documents become living, interactive experiences.",
+  "scripts": {
+    "dev": "next dev -p 3000 2>&1 | tee dev.log",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "ci": "bun run lint && bun run typecheck && bun test && bun run build",
+    "build": "NEXT_DIST_DIR=.next-build next build",
+    "clean": "rm -rf .next .next-build out",
+    "check:pdf-worker": "bun tests/check-pdf-worker.ts",
+    "e2e": "bash tests/browser/e2e-journey.sh"
+  },
+  "dependencies": {
+    "@number-flow/react": "^0.6.2",
+    "@phosphor-icons/react": "^2.1.10",
+    "framer-motion": "^12.23.2",
+    "jszip": "^3.10.1",
+    "next": "16.3.8",
+    "pdfjs-dist": "6.3.289",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sonner": "^2.0.8",
+    "zod": "^4.0.2",
+    "zustand": "^5.0.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "26.2.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "fake-indexeddb": "^6.2.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

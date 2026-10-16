@@ -1,0 +1,521 @@
+@import "tailwindcss";
+
+/* ════════════════════════════════════════════════════════════════════
+   LEMNISCATE — "Lamplight & Vellum" design system
+   A private reading room at night: warm near-black walls, one antique
+   gold accent (the reading lamp), and pages of cream paper that float
+   above the dark with long soft shadows. Yellow marginalia marks the
+   passages that mattered. The reader keeps its own lighting scopes
+   (dark / paper / parchment).
+   ════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Display serif: classical title-page face, set like gilt letters on
+     a spine. Body: a grotesque with quiet character. Mono for
+     keystrokes, data and metadata. */
+  --font-display: "Cormorant Garamond", "EB Garamond", Garamond, Georgia, serif;
+  --font-body: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Reader typefaces — researched from faces actually used for long-form
+     book reading: Literata (Google Books), EB Garamond, Spectral, Source
+     Serif 4, Georgia, plus the classic system book stacks. */
+  --font-literata: "Literata", Georgia, "Times New Roman", serif;
+  --font-garamond: "EB Garamond", Garamond, "Adobe Garamond Pro", Georgia, serif;
+  --font-spectral: "Spectral", Georgia, "Times New Roman", serif;
+  --font-sourceserif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-georgia: Georgia, "Times New Roman", serif;
+  --font-bookerly: Bookerly, Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  --font-baskerville: Baskerville, "Baskerville Old Face", "Hoefler Text", Garamond, "Times New Roman", serif;
+  --font-palatino: "Palatino Linotype", Palatino, "Palatino LT STD", "Book Antiqua", "URW Palladio L", Georgia, serif;
+
+  /* ── Ink: warm lamp-lit blacks — the room after dark ── */
+  --color-ink-950: #0d0a06;
+  --color-ink-900: #13100a;
+  --color-ink-875: #181510;
+  --color-ink-850: #1e1a13;
+  --color-ink-800: #241f16;
+  --color-ink-750: #2c261b;
+  --color-ink-700: #342d20;
+  --color-ink-600: #453b2a;
+  --color-ink-500: #584d38;
+
+  /* ── Mist: warm parchment neutrals for text ── */
+  --color-mist-100: #f6f3ea;
+  --color-mist-200: #e9e4d6;
+  --color-mist-300: #cec7b4;
+  --color-mist-400: #ada590;
+  --color-mist-500: #8d8570;
+  --color-mist-600: #6b6452;
+  --color-mist-700: #4d4739;
+
+  /* ── Paper: cream leaf surfaces that float above the dark ── */
+  --color-paper-50: #faf8f2;
+  --color-paper-100: #f5f1e6;
+  --color-paper-200: #ece7d9;
+  --color-paper-300: #ddd6c4;
+  --color-paper-ink: #2b2820;
+  --color-paper-ink-soft: #6e6653;
+  --color-paper-line: #e0dacb;
+
+  /* ── The marginalia yellow: passages that mattered ── */
+  --color-highlight: #fff4c4;
+  --color-highlight-deep: #f4df8f;
+  --color-highlight-ink: #4a3f1d;
+
+  /* ── Gilt: antique gold — the one luminous accent ── */
+  --color-gold-200: #f7e4b2;
+  --color-gold-300: #efd08c;
+  --color-gold-400: #e4b964;
+  --color-gold-500: #d4a853;
+  --color-gold-600: #b2873c;
+  --color-gold-700: #8c682c;
+  --color-gold-800: #5c471e;
+
+  /* ── Companion accents: muted, desaturated members of the same room.
+     Ouro is jade (the seminar table), Ankaa is copper (the writing fire),
+     ok is moss (progress). None louder than the champagne. ── */
+  --color-ouro-300: #a7cdc0;
+  --color-ouro-400: #7db5a4;
+  --color-ouro-500: #569383;
+  --color-ouro-600: #3f7264;
+
+  --color-ankaa-300: #f2c3a0;
+  --color-ankaa-400: #e6a377;
+  --color-ankaa-500: #d5854f;
+  --color-ankaa-600: #b06234;
+
+  --color-ok-400: #93d1a3;
+  --color-ok-500: #6cbb81;
+  --color-warn-400: #e6cc96;
+  --color-danger-400: #e08a72;
+  --color-danger-500: #cc6350;
+
+  /* ── Shadows: warm lamp-cast blacks, one light source, gold glow.
+     The paper shadow is the signature: a long, soft throw that makes a
+     cream page hover above the dark desk. ── */
+  --shadow-lift: 0 14px 36px -16px rgb(8 6 3 / 0.72), 0 2px 8px -2px rgb(8 6 3 / 0.4);
+  --shadow-glow-gold: 0 0 44px -8px rgb(212 168 83 / 0.26);
+  --shadow-card: 0 1px 0 0 rgb(246 243 234 / 0.05) inset, 0 10px 24px -14px rgb(8 6 3 / 0.6);
+  --shadow-float: 0 24px 60px -24px rgb(8 6 3 / 0.85), 0 0 0 1px rgb(246 243 234 / 0.06);
+  --shadow-paper: 0 25px 80px -12px rgb(5 4 2 / 0.55), 0 10px 28px -10px rgb(5 4 2 / 0.42);
+  --shadow-paper-lift: 0 34px 96px -16px rgb(5 4 2 / 0.62), 0 12px 32px -12px rgb(5 4 2 / 0.45);
+
+  /* ── Animations ── */
+  --animate-trace: trace 7s linear infinite;
+  --animate-drift: drift 9s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3.2s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-rise: rise 0.7s cubic-bezier(0.32, 0.72, 0, 1) both;
+  --animate-glow: glow 4s ease-in-out infinite;
+}
+
+/* ═══ App accent system ═══
+   The whole "gilt channel" routes through --acc variables, so a single
+   attribute on the app root retints buttons, badges, progress, focus
+   rings — including opacity modifiers. */
+:root {
+  --acc: #d4a853;
+  --acc-hi: #efd08c;
+  --acc-deep: #b2873c;
+  --acc-ink: #1a1204;
+  --acc-soft: rgb(212 168 83 / 0.12);
+  --acc-soft2: rgb(212 168 83 / 0.26);
+  --acc-line: rgb(140 104 44 / 0.55);
+  --acc-glow: rgb(212 168 83 / 0.35);
+
+  --color-gold-200: var(--acc-hi);
+  --color-gold-300: var(--acc-hi);
+  --color-gold-400: var(--acc);
+  --color-gold-500: var(--acc);
+  --color-gold-600: var(--acc-deep);
+  --color-gold-700: var(--acc-deep);
+  --color-gold-800: var(--acc-deep);
+}
+[data-accent="ouro"] {
+  --acc: #7db5a4;
+  --acc-hi: #a7cdc0;
+  --acc-deep: #3f7264;
+  --acc-ink: #0a1410;
+  --acc-soft: rgb(86 147 131 / 0.14);
+  --acc-soft2: rgb(86 147 131 / 0.3);
+  --acc-line: rgb(63 114 100 / 0.65);
+  --acc-glow: rgb(86 147 131 / 0.4);
+}
+[data-accent="ankaa"] {
+  --acc: #e6a377;
+  --acc-hi: #f5d3b3;
+  --acc-deep: #b06234;
+  --acc-ink: #1c0d05;
+  --acc-soft: rgb(213 133 79 / 0.14);
+  --acc-soft2: rgb(213 133 79 / 0.3);
+  --acc-line: rgb(176 98 52 / 0.65);
+  --acc-glow: rgb(213 133 79 / 0.4);
+}
+[data-accent="ok"] {
+  --acc: #84cb96;
+  --acc-hi: #bcdcc5;
+  --acc-deep: #4a8f5e;
+  --acc-ink: #07160c;
+  --acc-soft: rgb(108 187 129 / 0.14);
+  --acc-soft2: rgb(108 187 129 / 0.3);
+  --acc-line: rgb(74 143 94 / 0.65);
+  --acc-glow: rgb(108 187 129 / 0.35);
+}
+/* The extended register: Rose (dusty blush), Iris (muted lilac),
+   Sand (parchment), Stone (warm ink gray). Same room, more chairs. */
+[data-accent="rose"] {
+  --acc: #d298a0;
+  --acc-hi: #ecc9ce;
+  --acc-deep: #96525e;
+  --acc-ink: #1c0d0f;
+  --acc-soft: rgb(196 131 141 / 0.14);
+  --acc-soft2: rgb(196 131 141 / 0.3);
+  --acc-line: rgb(150 82 94 / 0.65);
+  --acc-glow: rgb(196 131 141 / 0.4);
+}
+[data-accent="iris"] {
+  --acc: #b39ed6;
+  --acc-hi: #d6c8ec;
+  --acc-deep: #70589a;
+  --acc-ink: #140f21;
+  --acc-soft: rgb(164 140 201 / 0.14);
+  --acc-soft2: rgb(164 140 201 / 0.3);
+  --acc-line: rgb(112 88 154 / 0.65);
+  --acc-glow: rgb(164 140 201 / 0.4);
+}
+[data-accent="sand"] {
+  --acc: #d3bd8b;
+  --acc-hi: #ecdfba;
+  --acc-deep: #97835a;
+  --acc-ink: #1a1508;
+  --acc-soft: rgb(205 185 138 / 0.14);
+  --acc-soft2: rgb(205 185 138 / 0.3);
+  --acc-line: rgb(151 131 90 / 0.65);
+  --acc-glow: rgb(205 185 138 / 0.38);
+}
+[data-accent="stone"] {
+  --acc: #b0aca1;
+  --acc-hi: #d2cfc6;
+  --acc-deep: #77736a;
+  --acc-ink: #131210;
+  --acc-soft: rgb(162 158 146 / 0.14);
+  --acc-soft2: rgb(162 158 146 / 0.3);
+  --acc-line: rgb(119 115 106 / 0.65);
+  --acc-glow: rgb(162 158 146 / 0.35);
+}
+
+@keyframes trace {
+  from { stroke-dashoffset: 340; }
+  to { stroke-dashoffset: 0; }
+}
+/* The loading-screen lemniscate: the stroke writes itself on over the
+   first 64% of the cycle, holds a beat, then begins again. Base style
+   is the fully-drawn state, so reduced motion / motion-off (which
+   collapse animations to a single instant) rest at a complete mark. */
+@keyframes write-draw {
+  0%   { stroke-dashoffset: 340; }
+  64%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+/* The nib rides at the writing tip (same offset, one nib-length ahead)
+   and lifts off the page as the loop closes. Rests hidden. */
+@keyframes write-nib {
+  0%   { stroke-dashoffset: 340; opacity: 1; }
+  56%  { opacity: 1; }
+  64%  { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+html {
+  scrollbar-color: #342d20 #13100a;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  @apply bg-ink-900 text-mist-200 font-body antialiased;
+  /* A single quiet wash of champagne, top right — the reading lamp. */
+  background-image:
+    radial-gradient(1100px 520px at 85% -12%, color-mix(in srgb, var(--acc) 6%, transparent), transparent 62%);
+  background-attachment: fixed;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+::selection {
+  background: var(--acc-soft2);
+  color: #f6f3ea;
+}
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--acc) 85%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+[data-ring="strong"]:focus-visible { outline-width: 3px; }
+
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: #2e271e; border-radius: 8px; border: 2px solid #13100a; }
+*::-webkit-scrollbar-thumb:hover { background: #3d3427; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* Physical key caps for shortcuts */
+kbd {
+  @apply font-mono text-[10px] tracking-wide px-1.5 py-0.5 rounded border border-ink-600 bg-ink-800 text-mist-400;
+  box-shadow: 0 1px 0 #0d0a06;
+}
+
+/* ═══ Reader themes (scoped, independent of app theme) ═══ */
+.reader-scope {
+  --r-bg: #14110b;
+  --r-surface: #1a1610;
+  --r-fg: #e9e4d6;
+  --r-muted: #928a77;
+  --r-border: #2e271e;
+  --r-accent: #d4a853;
+  --r-mark: rgb(212 168 83 / 0.22);
+}
+.reader-scope[data-rtheme="light"] {
+  --r-bg: #f3efe4;
+  --r-surface: #faf8f2;
+  --r-fg: #2b2820;
+  --r-muted: #6e6653;
+  --r-border: #e0dacb;
+  --r-accent: #8f6c2a;
+  --r-mark: #fff4c4;
+}
+.reader-scope[data-rtheme="sepia"] {
+  --r-bg: #efe5cd;
+  --r-surface: #f6edd9;
+  --r-fg: #3e3320;
+  --r-muted: #84714e;
+  --r-border: #ddcaa4;
+  --r-accent: #8a5a26;
+  --r-mark: rgb(176 116 40 / 0.28);
+}
+.reader-scope[data-rcontrast="high"][data-rtheme="dark"],
+.reader-scope[data-rcontrast="high"]:not([data-rtheme="light"]):not([data-rtheme="sepia"]) {
+  --r-fg: #f7f4ec;
+  --r-muted: #b5ae9b;
+}
+.reader-scope[data-rcontrast="high"][data-rtheme="light"] { --r-fg: #1a1712; --r-muted: #4d4739; }
+.reader-scope[data-rcontrast="high"][data-rtheme="sepia"] { --r-fg: #241a0b; --r-muted: #5d4e30; }
+
+.reader-prose p {
+  text-wrap: pretty;
+  transition: opacity 0.45s ease;
+}
+.reader-prose p.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-garamond);
+  font-size: 3.3em;
+  line-height: 0.82;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--r-accent);
+  font-style: normal;
+}
+.reader-prose mark {
+  background: var(--r-mark);
+  color: inherit;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--r-accent);
+  cursor: pointer;
+  padding: 0.05em 0;
+}
+.reader-prose mark[data-active="true"] {
+  background: color-mix(in srgb, var(--r-mark) 100%, var(--r-accent) 26%);
+}
+
+/* Typeset legal leaf: the terms are themselves a document, so the first
+   paragraph opens with the same gilt drop cap the reader uses. */
+.legal-dropcap::first-letter {
+  float: left;
+  font-family: var(--font-garamond);
+  font-size: 3.2em;
+  line-height: 0.82;
+  padding: 0.06em 0.12em 0 0;
+  color: #8c682c;
+  font-style: normal;
+}
+
+/* ═══ Shared surface treatments ═══
+   Layered under utilities so `hover:border-*` & friends can override. */
+@layer components {
+  .hairline { border: 1px solid rgb(46 39 30 / 0.7); }
+
+  .panel {
+    @apply bg-ink-850 rounded-xl;
+    border: 1px solid rgb(46 39 30 / 0.75);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(8px);
+  }
+
+  .panel-glass {
+    background: rgb(25 22 17 / 0.82);
+    border: 1px solid rgb(246 243 234 / 0.08);
+    box-shadow: inset 0 1px 0 rgb(246 243 234 / 0.06);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+  }
+
+  /* The signature surface: a cream page floating over the dark room.
+     Pair with text-paper-ink / text-paper-ink-soft inside. */
+  .paper {
+    background: var(--color-paper-50);
+    border: 1px solid var(--color-paper-200);
+    box-shadow: var(--shadow-paper);
+  }
+
+  /* Double-bezel: an outer machined shell that seats an inner core —
+     glass sitting in an aluminium tray. Use with .bezel-core inside. */
+  .bezel {
+    background: linear-gradient(180deg, rgb(31 27 21 / 0.7), rgb(15 14 11 / 0.7));
+    border: 1px solid rgb(246 243 234 / 0.09);
+    box-shadow:
+      inset 0 1px 0 rgb(246 243 234 / 0.07),
+      0 28px 60px -28px rgb(8 6 3 / 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .bezel-core {
+    background: linear-gradient(180deg, rgb(25 22 17 / 0.92), rgb(14 12 9 / 0.92));
+    box-shadow: inset 0 1px 1px rgb(246 243 234 / 0.08), inset 0 -1px 0 rgb(8 6 3 / 0.5);
+  }
+
+  /* A rule like the gilt line stamped under a spine title. */
+  .gold-rule {
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--acc) 55%, transparent), transparent);
+    height: 1px;
+  }
+
+  .skeleton {
+    background: linear-gradient(100deg, #1f1b15 40%, #2e271e 50%, #1f1b15 60%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+    @apply rounded-lg;
+  }
+
+  .cover-noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0.14;
+    mix-blend-mode: overlay;
+    background-image: url("/noise.svg");
+  }
+}
+
+/* Refined range inputs */
+input[type="range"] {
+  @apply appearance-none h-1 rounded-full bg-ink-600 cursor-pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 rounded-full border-2;
+  background: var(--acc);
+  border-color: var(--acc-deep);
+  box-shadow: 0 2px 4px rgb(8 6 3 / 0.45);
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type="range"]::-moz-range-thumb {
+  @apply w-4 h-4 rounded-full border-2;
+  background: var(--acc);
+  border-color: var(--acc-deep);
+  box-shadow: 0 2px 4px rgb(8 6 3 / 0.45);
+}
+
+/* ═══ Motion ═══
+   The house curve: a confident deceleration with a late-settling tail. */
+.press { transition: transform 0.16s cubic-bezier(0.32, 0.72, 0, 1); }
+.press:active { transform: scale(0.965) translateY(1px); }
+
+.hover-lift {
+  transition:
+    transform 0.42s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.42s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.motion-off *, .motion-off *::before, .motion-off *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.06s !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.06s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══ Responsive helpers ═══ */
+/* Prevent horizontal overflow on small screens */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Safe area insets for mobile */
+@supports (padding: max(0px)) {
+  .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  .safe-top { padding-top: max(0px, env(safe-area-inset-top)); }
+}
+
+/* Better tap targets on touch devices — WCAG 2.5.5 recommends ≥44px, and
+   that is what we hold on phones for every real control (buttons, tabs,
+   menu items; min-height is a no-op on inline prose links, so legal text
+   is unaffected). */
+@media (hover: none) and (pointer: coarse) {
+  button, [role="button"], [role="menuitem"], [role="tab"] {
+    min-height: 44px;
+  }
+}
+/* "Larger touch targets" (Settings → Accessibility): the same 44px
+   guarantee on every pointer, plus a 44px minimum width so icon controls
+   qualify by area as well. Opt-in — precise pointers keep the compact
+   toolbar density by default. */
+[data-touch="large"] button,
+[data-touch="large"] [role="button"],
+[data-touch="large"] [role="menuitem"],
+[data-touch="large"] [role="tab"],
+[data-touch="large"] a[class] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* "Underline links" (Settings → Accessibility): every anchor in the room
+   carries a visible underline, so link text is never identified by color
+   or weight alone. Offset and hairline weight keep it from feeling heavy
+   in the serif setting. */
+[data-underline="on"] a {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}

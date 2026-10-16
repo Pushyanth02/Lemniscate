@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 90" width="460" height="90">
+  <defs>
+    <!-- Multi-stop luxury metallic gold gradient -->
+    <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6e2b0" />
+      <stop offset="35%" stop-color="#eecf8f" />
+      <stop offset="70%" stop-color="#d3a651" />
+      <stop offset="100%" stop-color="#9a7333" />
+    </linearGradient>
+
+    <!-- Warm Amber Glow Halo -->
+    <radialGradient id="logoGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d3a651" stop-opacity="0.3" />
+      <stop offset="50%" stop-color="#d3a651" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#0a0a0d" stop-opacity="0" />
+    </radialGradient>
+
+    <style>
+      .brand-title {
+        font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        fill: #f5f1ea;
+      }
+      .brand-tagline {
+        font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        fill: #d3a651;
+        opacity: 0.85;
+      }
+      .trace-anim {
+        stroke-dasharray: 340;
+        stroke-dashoffset: 0;
+        animation: logoTrace 8s linear infinite;
+      }
+      @keyframes logoTrace {
+        0% { stroke-dashoffset: 340; }
+        100% { stroke-dashoffset: 0; }
+      }
+    </style>
+  </defs>
+
+  <!-- Emblem Squircle Badge Container on left -->
+  <g transform="translate(10, 11)">
+    <!-- Base squircle -->
+    <rect width="68" height="68" rx="18" fill="#0e0e12" stroke="#d3a651" stroke-opacity="0.25" stroke-width="1.5" />
+    <!-- Radial aura -->
+    <circle cx="34" cy="34" r="28" fill="url(#logoGlow)" />
+    
+    <!-- Precision gold lemniscate inside badge -->
+    <path
+      d="M 34 34 C 39.5 26 47.5 23 53.5 26.5 C 59.5 30 60 37.5 54 41.5 C 48 45.5 39.5 41.5 34 34 C 28.5 26.5 20 22.5 14 26.5 C 8 30.5 8.5 38 14.5 41.5 C 20.5 45 28.5 42 34 34 Z"
+      fill="none"
+      stroke="url(#logoGold)"
+      stroke-width="3.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="trace-anim"
+    />
+  </g>
+
+  <!-- Typography Lockup -->
+  <g transform="translate(98, 43)">
+    <text x="0" y="0" class="brand-title">LEMNISCATE</text>
+    <text x="2" y="22" class="brand-tagline">LOCAL-FIRST AI READING ROOM</text>
+  </g>
+</svg>

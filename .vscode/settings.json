@@ -1,0 +1,25 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/.next-build": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/.next-build": true,
+    "**/bun.lock": true,
+    "**/dev.log": true
+  },
+  "files.watcherExclude": {
+    "**/.next/**": true,
+    "**/.next-build/**": true,
+    "**/dev.log": true
+  },
+  "git.autofetch": true,
+  "git.branchProtection": ["master", "main"],
+  "css.validate": false
+}

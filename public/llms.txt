@@ -1,0 +1,47 @@
+# Lemniscate
+
+> A local-first AI reading room where documents become living, interactive experiences. Everything you read, annotate, and write stays on your device; AI companions run on free models you connect yourself.
+
+## About
+
+Lemniscate is a client-only web application (no account, no server-side storage). It ingests PDF, EPUB, DOCX, PPTX, Markdown, TXT, and HTML documents directly in the browser, parses them into chapters with an offline NLP engine ("Anchor" / LOA), and offers three AI companions that work either fully offline (extractive, grounded, citation-first) or with a free model key you supply.
+
+- URL: https://lemniscate.app
+- Type: web application, single page, client-rendered
+- Cost: free; bring-your-own-key for live AI (optional)
+- Privacy: all documents and keys stay in the browser (IndexedDB / in-memory); keys are never persisted
+
+## Key features
+
+- Library: local-first document storage (IndexedDB), cover shelf, search
+- Reader: typography controls, eight serif stacks, three reading themes, annotations, bookmarks, in-document search, focus mode, scene view
+- Luma: margin chat companion that answers with citations from the open book; runs offline via the Anchor engine or streams from a connected model
+- Ouro: study-set companion that builds summaries, themes, characters, vocabulary, quizzes, and flashcards (Zod-validated when a model is connected)
+- Ankaa: long-form writing companion with a background job queue that turns prompts into new chapters of your book
+- Insights: reading analytics and activity history
+- Offline engine (LOA / Anchor): TextRank extractive summarization, bigram keyword motifs, character detection with dialogue attribution, cloze quizzes with sourced distractors, passage retrieval, and mojibake-aware ingestion cleaning
+
+## AI providers
+
+Bring one key, get that provider's free models. Keys live in memory only (cleared on refresh), never in storage:
+
+- OpenRouter: aggregated `:free` catalog (Nemotron, DeepSeek, Llama, Qwen, Kimi and other free variants as offered)
+- Google Gemini: free tier from AI Studio (Gemini 3.8 Flash family)
+- xAI Grok: grok models with promotional credits
+- Groq: free tier, ultra-fast inference
+- Mistral: free experiment tier
+- Cerebras: free daily quota (Qwen flagship class)
+
+All providers speak an OpenAI-compatible API from the browser; no server proxy is involved.
+
+## Documentation
+
+- Reading room entry: https://lemniscate.app/ (the application)
+- In-app Settings: provider setup, key entry, model catalogs, per-companion model choice
+- In-app Insights: reading analytics and history
+
+## Policies
+
+- No accounts, no tracking, no server-side user data
+- Documents are processed entirely on-device
+- AI requests go directly from the browser to the provider you choose

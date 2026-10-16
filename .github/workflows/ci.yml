@@ -1,0 +1,67 @@
+# CI for Lemniscate — lint, typecheck, unit tests (bun:test), production
+# static-export build, and an export-output gate.
+#
+# The app is a client-only static export (next.config.ts: output "export"),
+# so the build must actually emit HTML or deployment is broken — hence the
+# explicit artifact verification step at the end.
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          # Pinned to the minor the project is developed and verified with
+          # (bun 1.3.x). Bump deliberately, alongside a local verification run.
+          bun-version: "1.3.14"
+
+      - name: Install dependencies (frozen lockfile)
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Unit tests (bun:test)
+        run: bun test
+
+      - name: Production static-export build
+        run: bun run build
+
+      # With output:"export", `next build` writes the export to `out/` by
+      # default — but when a custom distDir is set (our build script sets
+      # NEXT_DIST_DIR=.next-build), Next.js uses that distDir itself as the
+      # export directory (next@16: build/index.js `hasCustomExportOutput`
+      # reassigns configOutDir = config.distDir). So the primary expected
+      # location is .next-build/index.html; `out/index.html` is kept as a
+      # fallback in case the build ever runs without the distDir override.
+      - name: Verify static export output
+        run: |
+          set -e
+          for p in .next-build/index.html out/index.html .next-build/out/index.html; do
+            if [ -f "$p" ]; then
+              echo "Static export verified: $p exists."
+              ls -la "$(dirname "$p")" | head -n 15
+              exit 0
+            fi
+          done
+          echo "::error::Static export produced no output (expected .next-build/index.html or out/index.html)."
+          exit 1
+
+      - name: PDF worker version alignment
+        run: bun run check:pdf-worker

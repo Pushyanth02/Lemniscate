@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & discussions
+    url: https://github.com/Pushyanth02/Lemniscate/discussions
+    about: Ask questions and discuss Lemniscate in Discussions — the issue tracker is for bugs and tracked work only.

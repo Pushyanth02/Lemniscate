@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev",
+      "detail": "bun run dev — Next.js on :3000 (logs to dev.log)",
+      "type": "shell",
+      "command": "bun run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "detail": "bun run lint — ESLint",
+      "type": "shell",
+      "command": "bun run lint",
+      "problemMatcher": []
+    },
+    {
+      "label": "typecheck",
+      "detail": "bun run typecheck — tsc --noEmit",
+      "type": "shell",
+      "command": "bun run typecheck",
+      "problemMatcher": []
+    },
+    {
+      "label": "test",
+      "detail": "bun test — bun:test suite",
+      "type": "shell",
+      "command": "bun test",
+      "problemMatcher": []
+    },
+    {
+      "label": "build",
+      "detail": "bun run build — production static export (emits .next-build/)",
+      "type": "shell",
+      "command": "bun run build",
+      "problemMatcher": []
+    },
+    {
+      "label": "e2e",
+      "detail": "bun run e2e — 26-step browser journey against the dev server (:3000)",
+      "type": "shell",
+      "command": "BASE=http://localhost:3000 bun run e2e",
+      "problemMatcher": []
+    }
+  ]
+}
