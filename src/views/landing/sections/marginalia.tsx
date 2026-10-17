@@ -56,14 +56,14 @@ export function Marginalia({
 
       {marksQ.loading && !marksQ.data ? (
         /* first load: the wall is being fetched from the shelf */
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-44 rounded-xl" />
           ))}
         </div>
       ) : marks.length > 0 ? (
         /* the real thing: this visitor's marks, newest first */
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {marks.map((m, i) => {
             const doc = docs?.find((d) => d.id === m.documentId);
             const body = (
@@ -121,7 +121,7 @@ export function Marginalia({
       ) : (
         /* an empty wall borrows from the greats — varied per visitor
            and per sitting, honestly labelled, never faked as your own */
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {(borrowed ?? []).map((q, i) => (
             <Reveal key={q.source + q.text.slice(0, 24)} delay={(i % 3) * 0.08} className="h-full">
               <figure className="panel rounded-xl p-6 sm:p-7 h-full flex flex-col">

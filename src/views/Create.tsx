@@ -392,7 +392,7 @@ export default function Create() {
         )}
 
         {/* Secondary controls — revealed below the prompt */}
-        <div className="mt-6 grid sm:grid-cols-2 gap-4">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Select
               label="Approach"
@@ -532,7 +532,7 @@ export default function Create() {
               </span>
             </div>
 
-            <ol className="grid sm:grid-cols-2 gap-x-4 gap-y-2 mb-4">
+            <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-4">
               {steps.map((s, i) => {
                 const state =
                   live.status === "done" || i < live.stepIdx

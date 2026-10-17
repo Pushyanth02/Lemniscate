@@ -73,10 +73,16 @@ export function Button({
     md: "text-sm px-5 py-2.5",
     lg: "text-[15px] px-7 py-3",
   }[size];
+  /* Same display-conflict guard as IconBtn: a call-site `hidden` must win
+     over this component's base `inline-flex` (Tailwind resolves equal-
+     specificity display utilities by stylesheet order, not class-attribute
+     order). */
+  const callerHides = typeof className === "string" && /\bhidden\b/.test(className);
   return (
     <button
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-full font-body font-medium tracking-[0.01em] transition-all duration-200 select-none disabled:opacity-45 disabled:pointer-events-none whitespace-nowrap press",
+        callerHides ? null : "inline-flex",
+        "items-center justify-center gap-2 rounded-full font-body font-medium tracking-[0.01em] transition-all duration-200 select-none disabled:opacity-45 disabled:pointer-events-none whitespace-nowrap press",
         v[variant],
         s,
         className,
@@ -100,12 +106,19 @@ export function IconBtn({
   label: string;
   active?: boolean;
 }) {
+  /* A call-site `hidden` (e.g. "hidden sm:inline-flex") must be able to
+     hide the button. Tailwind resolves same-layer display conflicts by
+     stylesheet order, where this component's base `inline-flex` would
+     beat the caller's `hidden` — so the base display class is dropped
+     whenever the caller brings a display utility of their own. */
+  const callerHides = typeof className === "string" && /\bhidden\b/.test(className);
   return (
     <button
       aria-label={label}
       title={label}
       className={cx(
-        "inline-flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 press",
+        callerHides ? null : "inline-flex",
+        "items-center justify-center w-9 h-9 rounded-full transition-all duration-200 press",
         active
           ? "bg-gold-500/15 text-gold-300 border border-gold-700/50"
           : "text-mist-400 hover:text-gold-300 hover:bg-ink-750/80 border border-transparent",

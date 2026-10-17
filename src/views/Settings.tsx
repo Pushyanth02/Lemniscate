@@ -56,12 +56,14 @@ export default function Settings() {
         local identity.
       </p>
 
-      <div className="grid lg:grid-cols-[240px_1fr] gap-6 lg:gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 lg:gap-10 items-start">
         {/* ───────── Section navigation ───────── */}
+        {/* Mobile: pills wrap so every section is visible at once — a
+            single off-screen scroll strip hides Accessibility, AI, data
+            and About from first-time visitors. Desktop: sticky column. */}
         <nav
-          className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 lg:sticky lg:top-20 -mx-4 px-4 lg:mx-0 lg:px-0"
+          className="flex flex-wrap gap-1.5 lg:flex-col lg:flex-nowrap lg:sticky lg:top-20"
           aria-label="Settings sections"
-          style={{ scrollbarWidth: "none" }}
         >
           {SECTIONS.map((s) => {
             const active = section === s.id;

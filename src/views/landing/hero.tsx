@@ -32,7 +32,7 @@ export function Hero({
         <GlowLayer variant="landing" />
         <ParticleField density={40} />
 
-        <div className="max-w-6xl mx-auto relative grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-16 items-center">
+        <div className="max-w-6xl mx-auto relative grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-16 items-center">
           {/* left: copy */}
           <div className="text-left">
             <HeroReveal>

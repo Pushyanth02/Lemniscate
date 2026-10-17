@@ -32,7 +32,7 @@ export function Instruments() {
         <Reveal delay={0.08}>
           {/* the console: one panel, a spine, an engine on each side */}
           <div className="panel rounded-2xl overflow-hidden shadow-card">
-            <div className="grid lg:grid-cols-[1fr_auto_1fr]">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr]">
               {INFRA.map((b, i) => (
                 <Fragment key={b.name}>
                   {i === 1 && (

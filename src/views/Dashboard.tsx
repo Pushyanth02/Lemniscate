@@ -396,14 +396,22 @@ function ContinueCard({
           <p className="text-xs text-mist-500 mt-0.5 truncate">
             {doc.author || doc.sourceType.toUpperCase()}
           </p>
+          {/* Time-left stays on its own short line so it can never be
+              pushed out of view; a long chapter title (multi-chapter
+              books) wraps onto a second, truncating line instead of
+              stretching the card past the viewport. */}
           <p className="mt-2 text-xs text-mist-400 flex items-center gap-1.5 min-w-0">
             <Clock className="w-3.5 h-3.5 shrink-0 text-gold-400" aria-hidden />
             <span className="truncate">
-              Chapter {chapterOf(doc, chunkCounts) + 1} of {doc.chapterCount}
-              {chapterTitle ? ` · ${chapterTitle}` : ""} · {minutesLeft(doc)}{" "}
-              min left
+              Chapter {chapterOf(doc, chunkCounts) + 1} of {doc.chapterCount}{" "}
+              · {minutesLeft(doc)} min left
             </span>
           </p>
+          {chapterTitle && doc.chapterCount > 1 && (
+            <p className="text-xs text-mist-500 mt-1 truncate pl-5" title={chapterTitle}>
+              {chapterTitle}
+            </p>
+          )}
           <div className="mt-auto pt-3">
             <div className="flex items-center gap-2.5">
               <div
@@ -624,7 +632,7 @@ export default function Dashboard() {
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>
-        <div className="grid lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <Skeleton className="h-44 rounded-xl" />
           <Skeleton className="h-44 rounded-xl" />
         </div>
@@ -683,7 +691,7 @@ export default function Dashboard() {
         <section aria-label="Continue reading">
           <SectionHead title="Continue reading" onSeeAll={() => go("library")} />
           {current.length > 0 ? (
-            <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
               {current.slice(0, 3).map((d) => (
                 <ContinueCard
                   key={d.id}
@@ -802,7 +810,7 @@ export default function Dashboard() {
       <Reveal delay={0.05} className="mt-12 sm:mt-14">
         <section aria-label="Why Lemniscate">
           <SectionHead title="Why Lemniscate" onSeeAll={() => go("landing")} seeAllLabel="About" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <FeatureTile
               icon={BookOpen}
               title="Read without friction"
@@ -834,7 +842,7 @@ export default function Dashboard() {
       {/* ------- widgets: activity, goals, quick actions ------- */}
       <Reveal delay={0.05} className="mt-12 sm:mt-14">
         <section aria-label="Activity, goals and quick actions">
-          <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
             {/* reading activity heatmap */}
             <div className="bg-ink-850 hairline rounded-xl p-5">
               <h3 className="font-display font-semibold text-lg text-mist-100">
@@ -985,7 +993,7 @@ export default function Dashboard() {
             onSeeAll={() => go("history")}
           />
           {notesQ.loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(3)].map((_, i) => (
                 <Skeleton key={i} className="h-36 rounded-xl" />
               ))}
@@ -1033,7 +1041,7 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {notes.map((n, i) => {
                 const docTitle =
                   docs.find((d) => d.id === n.documentId)?.title ?? "A document";

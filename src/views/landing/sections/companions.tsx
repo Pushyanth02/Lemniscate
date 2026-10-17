@@ -29,7 +29,7 @@ export function Companions() {
         </div>
       </Reveal>
 
-      <div className="grid lg:grid-cols-5 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5">
         {BOTS.map((b, i) => (
           <Reveal
             key={b.name}

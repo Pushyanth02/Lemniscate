@@ -20,7 +20,7 @@ export function TypographySection() {
         Applied the moment you open any document; adjustable per-session
         inside the reader.
       </p>
-      <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
         <Select
           label="Typeface"
           value={rs.fontFamily}

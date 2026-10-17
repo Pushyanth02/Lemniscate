@@ -159,7 +159,7 @@ export function AiSection() {
 
         {/* ─── provider picker ─── */}
         <div
-          className="grid sm:grid-cols-2 gap-2.5 mb-4"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4"
           role="radiogroup"
           aria-label="AI provider"
         >

@@ -21,7 +21,7 @@ export function Cta({
     <section className="border-t border-ink-700/60 bg-ink-900/40">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <Reveal>
-          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-center">
             <div>
               <Eyebrow className="mb-3">Add to your library</Eyebrow>
               <h2 className="font-display font-medium text-3xl sm:text-4xl text-mist-100 leading-tight">

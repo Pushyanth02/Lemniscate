@@ -409,7 +409,7 @@ function Analytics() {
       </Panel>
 
       {/* ─── charts row ─── */}
-      <div className="grid lg:grid-cols-[1.5fr_1fr] gap-5 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5 sm:gap-6">
         <Panel className="p-5 sm:p-6 hover-lift hover:border-gold-700/50!">
           <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
             <h2 className="font-display font-semibold text-lg sm:text-xl text-mist-100">

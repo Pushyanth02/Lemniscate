@@ -596,7 +596,7 @@ export function ScenesView({
       </div>
 
       {isSplit ? (
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           {/* Chapter panel — desktop always visible, mobile only when Text tab */}
           <aside
             className={cx(

@@ -491,17 +491,22 @@ html, body {
 /* Better tap targets on touch devices — WCAG 2.5.5 recommends ≥44px, and
    that is what we hold on phones for every real control (buttons, tabs,
    menu items; min-height is a no-op on inline prose links, so legal text
-   is unaffected). */
+   is unaffected). Switch tracks are exempt: their settings row label is
+   the tap target (a label wraps the whole row and forwards activation),
+   so a 44px minimum would only visually distort the 44×24 track while
+   adding no reachability. */
 @media (hover: none) and (pointer: coarse) {
-  button, [role="button"], [role="menuitem"], [role="tab"] {
+  button:not([role="switch"]), [role="button"], [role="menuitem"], [role="tab"] {
     min-height: 44px;
   }
 }
 /* "Larger touch targets" (Settings → Accessibility): the same 44px
    guarantee on every pointer, plus a 44px minimum width so icon controls
    qualify by area as well. Opt-in — precise pointers keep the compact
-   toolbar density by default. */
-[data-touch="large"] button,
+   toolbar density by default. Switch tracks stay compact for the same
+   reason as above (the row is the target); the switch is already 44px
+   wide by design. */
+[data-touch="large"] button:not([role="switch"]),
 [data-touch="large"] [role="button"],
 [data-touch="large"] [role="menuitem"],
 [data-touch="large"] [role="tab"],

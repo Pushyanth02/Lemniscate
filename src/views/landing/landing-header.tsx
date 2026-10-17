@@ -104,16 +104,21 @@ export function LandingHeader({
                 Library
               </Button>
               <Magnetic>
+                {/* Compact label under sm: the full "Enter the room" pill
+                    plus brand and menu icon cannot fit a 390px header
+                    row without overflowing the viewport edge. */}
                 <Button
                   variant="gold"
                   size="sm"
                   onClick={onEnter}
                   className="min-h-10 group"
+                  aria-label="Enter the room"
                 >
-                  Enter the room
+                  <span className="sm:hidden">Enter</span>
+                  <span className="hidden sm:inline">Enter the room</span>
                   <span
                     aria-hidden
-                    className="ml-0.5 w-6 h-6 rounded-full bg-ink-950/15 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5"
+                    className="ml-0.5 w-6 h-6 rounded-full bg-ink-950/15 hidden sm:flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5"
                   >
                     <CaretRight className="w-3 h-3" weight="bold" />
                   </span>

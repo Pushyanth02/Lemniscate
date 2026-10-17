@@ -589,7 +589,7 @@ export function SourceCompare({
   const next = chunks[at + 1];
   return (
     <div>
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <section aria-label="Original passage in context">
           <h4 className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em] text-mist-500 mb-3">
             <BookOpen className="w-3.5 h-3.5 text-gold-500" />

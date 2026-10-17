@@ -98,7 +98,7 @@ export function StorageSection({
           task: the whole room, the library alone, or settings only —
           and bring any of them back through the same door.
         </p>
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {EXPORT_OPTIONS.map((opt) => (
             <Button
               key={opt.scope}

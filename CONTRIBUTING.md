@@ -26,6 +26,15 @@ config on first open (see README → Development Environment).
 - **Honesty is a feature.** Offline results state their reason, interpretations
   are labelled as interpretations, and empty states stay empty — never
   fabricate data to fill a UI.
+- **Every grid declares its mobile column template** (`grid-cols-1 …` up to
+  the responsive tiers). A bare `grid` with only `sm:`/`lg:` columns falls
+  back to implicit *auto* tracks below that breakpoint, and auto tracks size
+  by min-content — one long truncating line can then push the whole track
+  past the viewport on phones (clipped, no ellipsis). `grid-cols-N`
+  utilities use `minmax(0, 1fr)` and are immune.
+- **Touch-target minimums exempt switches.** The global 44 px control
+  minimum intentionally excludes `role="switch"` tracks; the settings row
+  label is the tap target. Don't "fix" a switch by re-inflating it.
 
 ## Before you push
 

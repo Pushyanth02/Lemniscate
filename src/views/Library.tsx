@@ -1252,7 +1252,7 @@ function AnalyzeDialog({
               {result.summary}
             </p>
           </section>
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <section>
               <h3 className="text-xs font-body text-mist-500 mb-2">
                 Themes

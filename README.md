@@ -30,6 +30,7 @@
 - [Scripts & Tooling](#-scripts--tooling)
 - [Development Environment](#-development-environment)
 - [Deployment](#-deployment)
+- [Releases](#-releases)
 - [License](#-license)
 
 ---
@@ -388,6 +389,59 @@ BASE=http://localhost:3210 bun run e2e
 It requires the `agent-browser` CLI. The backup fixture it restores is
 regenerated with `bun tests/browser/make-fixture.ts` (the app's own
 export code path, run in-process).
+
+---
+
+## ✦ Releases
+
+### v1.1 — Mobile layout hardening (October 2026)
+
+Four fixes driven by a real-device review at 390 px:
+
+- **Grid blowout eliminated.** Every responsive grid now carries an explicit
+  mobile column template (`grid-cols-1 …`). Previously, grids that only
+  declared `sm:`/`lg:` columns fell back to implicit *auto* tracks below the
+  breakpoint — and auto tracks size by **min-content**, so one long
+  truncating line (a chapter title, an activity row) could inflate the whole
+  track to ~408 px on a 390 px screen and clip cards past the viewport edge
+  with no ellipsis in sight. Hardened across the dashboard (widgets,
+  continue-reading, notes), landing (hero, CTA, features, marginalia,
+  companions, instruments), library, insights, upload, create, settings
+  sections, reader panels and the scene atlas.
+- **Continue-reading cards reworked.** "N min left" now sits on its own
+  short line so it can never be pushed out of view; multi-chapter books show
+  the chapter title on a second, truncating line (single-chapter documents
+  omit it — it only repeated the cover title).
+- **Switch tracks restored.** The blanket 44 px touch-target minimum (coarse
+  pointers, and the "Larger touch targets" preference) no longer applies to
+  `role="switch"` controls — it was stretching the 44×24 toggle track into a
+  44×44 block with the knob pinned at its top. The whole settings row
+  remains the tap target (label activation), so reachability is unchanged.
+- **Settings sections fully visible on mobile.** The section nav now wraps
+  into a pill cloud instead of a single off-screen scroll strip with a
+  hidden scrollbar — which made Accessibility, AI companions, Import & data
+  and About invisible to first-time visitors.
+- **Landing header fits 390 px.** The gold "Enter the room" pill shortens
+  to "Enter" under `sm` (full label from `sm` up; the mobile menu keeps the
+  full-size CTA).
+- **Responsive `hidden` now actually hides `Button`/`IconBtn`.** Both
+  components ship a base `inline-flex` that — by Tailwind's stylesheet
+  ordering — beat any call-site `hidden`, so the reader's "Reader settings"
+  and "Keyboard shortcuts" toolbar buttons (and the landing header's
+  "Library" button) rendered on phones they were designed to hide,
+  crowding the 320 px toolbar past the viewport. The base display class is
+  now dropped whenever the caller passes `hidden`, and the reader passes
+  WCAG's 320 px reflow check with zero horizontal overflow.
+
+### v1 — First full release (October 2026)
+
+Single-commit baseline: the local-first reading room — ingestion pipeline
+(PDF / EPUB / DOCX / PPTX / MD / HTML / TXT with magic-byte validation),
+cinematic reader with 8 type stacks and 3 lighting scopes, three AI
+companions (Luma, Ouro, Ankaa) with the offline Anchor engine, zero-proxy
+BYOK routing, the full backup / restore / erase ladder, SEO surface
+(sitemap, robots, llms.txt, structured data), CI pipeline and browser e2e
+journey.
 
 ---
 
